@@ -7,4 +7,4 @@ description = "A CLI tool for managing your system."
 
 [dependencies]
 clap = { version = "4.5.21", features = ["derive"] }
-inquire = { version = "0.7.5", features = ["text, select"] }
+inquire = "0.7.5"

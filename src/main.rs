@@ -12,13 +12,13 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new app")]
-    App { value: String, types: String },
+    App { name: String },
 }
 
 fn main() {
     let args = Args::parse();
 
     match args.cmd {
-        Commands::App { value, types } => application::new_nodejs_app(value, types),
+        Commands::App { name } => application::new_nodejs_app(name),
     }
 }
