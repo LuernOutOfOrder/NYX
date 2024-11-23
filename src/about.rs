@@ -1,3 +1,4 @@
+//TODO check to print in color
 pub fn about() {
     println!(
         r"         
