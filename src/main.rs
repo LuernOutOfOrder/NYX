@@ -1,3 +1,4 @@
+mod about;
 mod application;
 use clap::{Parser, Subcommand};
 
@@ -12,13 +13,17 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new app")]
-    App { name: String },
+    App {
+        name: String,
+    },
+    About,
 }
 
 fn main() {
     let args = Args::parse();
 
     match args.cmd {
-        Commands::App { name } => application::new_nodejs_app(name),
+        Commands::App { name } => application::new_project(name),
+        Commands::About => about::about(),
     }
 }
