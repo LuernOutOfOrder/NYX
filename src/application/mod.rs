@@ -1,3 +1,4 @@
+use crate::utils;
 use inquire::{InquireError, Select};
 use std::env;
 use std::fs;
@@ -5,6 +6,10 @@ use std::process::Command;
 mod templates;
 
 pub fn new_project(name: String) {
+    let nyx_env_var = utils::get_nyx_env_var();
+    println!("{}", nyx_env_var);
+    let current_path = utils::get_current_path();
+    println!("{}", current_path);
     let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust", "C++"];
 
     let ans: Result<&str, InquireError> =
