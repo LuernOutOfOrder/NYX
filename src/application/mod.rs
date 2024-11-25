@@ -1,4 +1,4 @@
-use crate::utils;
+// use crate::utils;
 use inquire::{InquireError, Select};
 use std::env;
 use std::fs;
@@ -6,10 +6,6 @@ use std::process::Command;
 mod templates;
 
 pub fn new_project(name: String) {
-    let nyx_env_var = utils::get_nyx_env_var();
-    println!("{}", nyx_env_var);
-    let current_path = utils::get_current_path();
-    println!("{}", current_path);
     let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust", "C++"];
 
     let ans: Result<&str, InquireError> =
@@ -29,6 +25,7 @@ pub fn new_project(name: String) {
 fn new_app_by_choice(tech: &str) {
     match tech {
         tech if tech == "Node.js" => new_nodejs_app(),
+        tech if tech == "Python" => new_python_app(),
         _ => println!("please select a tech"),
     }
 }
@@ -64,9 +61,28 @@ fn new_nodejs_app() {
     println!("Successfully generate the new Node.js application")
 }
 
+fn new_python_app() {
+    let mut python3 = Command::new("python3")
+        .arg("-m")
+        .arg("venv")
+        .arg("./")
+        .spawn()
+        .expect("Failed to generate the virtual environment of python");
+    let venv_status = python3
+        .wait()
+        .expect("Failed to wait on the generation of venv");
+    if !venv_status.success() {
+        panic!("Error init python virtual environment")
+    }
+    let tech = "Python";
+    generate_gitignore(&tech);
+    println!("Successfully generate the new Python application");
+}
+
 fn generate_gitignore(tech: &str) -> String {
     match tech {
-        tech if tech == "Node.js" => templates::nodejs_gitignore_template(),
+        tech if tech == "Node.js" => templates::new_gitignore(&tech),
+        tech if tech == "Python" => templates::new_gitignore(&tech),
         _ => "please select a tech".to_string(),
     }
 }
