@@ -17,20 +17,21 @@ pub fn new_project(name: String) {
     }
     change_work_dir(&name);
     match ans {
-        Ok(choice) => new_app_by_choice(choice),
+        Ok(choice) => new_app_by_choice(choice, &name),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-fn new_app_by_choice(tech: &str) {
+fn new_app_by_choice(tech: &str, name: &str) {
     match tech {
-        tech if tech == "Node.js" => new_nodejs_app(),
-        tech if tech == "Python" => new_python_app(),
+        tech if tech == "Node.js" => new_nodejs_app(tech),
+        tech if tech == "Python" => new_python_app(tech),
+        tech if tech == "Golang" => new_golang_app(name, tech),
         _ => println!("please select a tech"),
     }
 }
 
-fn new_nodejs_app() {
+fn new_nodejs_app(tech: &str) {
     let mut npm = Command::new("npm")
         .arg("init")
         .arg("-y")
@@ -56,12 +57,11 @@ fn new_nodejs_app() {
         .arg("tsconfig.json")
         .spawn()
         .expect("failed to generate tsconfig.json");
-    let tech = "Node.js";
     generate_gitignore(&tech);
     println!("Successfully generate the new Node.js application")
 }
 
-fn new_python_app() {
+fn new_python_app(tech: &str) {
     let mut python3 = Command::new("python3")
         .arg("-m")
         .arg("venv")
@@ -74,15 +74,31 @@ fn new_python_app() {
     if !venv_status.success() {
         panic!("Error init python virtual environment")
     }
-    let tech = "Python";
     generate_gitignore(&tech);
     println!("Successfully generate the new Python application");
+}
+
+fn new_golang_app(name: &str, tech: &str) {
+    let mut go_init = Command::new("go")
+        .arg("mod")
+        .arg("init")
+        .arg(name)
+        .spawn()
+        .expect("Failed to generate the new Golang application");
+    let go_status = go_init
+        .wait()
+        .expect("Failed to wait on the generation of the Golang application");
+    if !go_status.success() {
+        panic!("Error init the Golang application");
+    }
+    generate_gitignore(&tech);
 }
 
 fn generate_gitignore(tech: &str) -> String {
     match tech {
         tech if tech == "Node.js" => templates::new_gitignore(&tech),
         tech if tech == "Python" => templates::new_gitignore(&tech),
+        tech if tech == "Golang" => templates::new_gitignore(&tech),
         _ => "please select a tech".to_string(),
     }
 }

@@ -298,10 +298,39 @@ cython_debug/
 #.idea/
 "#;
 
+static GOLANG_GITIGNORE_TEMPLATE: &str = r#"
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# env file
+.env
+"#;
+
 pub fn new_gitignore(tech: &str) -> String {
     let file_template: &str = match tech {
         "Node.js" => NODEJS_GITIGNORE_TEMPLATE,
         "Python" => PYTHON_GITIGNORE_TEMPLATE,
+        "Golang" => GOLANG_GITIGNORE_TEMPLATE,
         _ => "",
     };
     let template = format!("{}", &file_template);
