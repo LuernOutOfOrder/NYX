@@ -18,7 +18,9 @@ enum Commands {
     App {
         name: String,
     },
-    Stash,
+    GitStash,
+    GitTag,
+    GitReverse,
     About,
 }
 
@@ -27,7 +29,9 @@ fn main() {
 
     match args.cmd {
         Commands::App { name } => application::new_project(name),
-        Commands::Stash => git::nyx_git_stash(),
+        Commands::GitStash => git::nyx_git_stash(),
+        Commands::GitTag => git::nyx_git_tag(),
+        Commands::GitReverse => git::nyx_git_revert(),
         Commands::About => about::about(),
     }
 }
