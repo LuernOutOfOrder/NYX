@@ -27,6 +27,7 @@ fn new_app_by_choice(tech: &str, name: &str) {
         tech if tech == "Node.js" => new_nodejs_app(tech),
         tech if tech == "Python" => new_python_app(tech),
         tech if tech == "Golang" => new_golang_app(name, tech),
+        tech if tech == "Rust" => new_rust_app(tech),
         _ => println!("please select a tech"),
     }
 }
@@ -57,7 +58,7 @@ fn new_nodejs_app(tech: &str) {
         .arg("tsconfig.json")
         .spawn()
         .expect("failed to generate tsconfig.json");
-    generate_gitignore(&tech);
+    templates::new_gitignore(&tech);
     println!("Successfully generate the new Node.js application")
 }
 
@@ -74,7 +75,7 @@ fn new_python_app(tech: &str) {
     if !venv_status.success() {
         panic!("Error init python virtual environment")
     }
-    generate_gitignore(&tech);
+    templates::new_gitignore(&tech);
     println!("Successfully generate the new Python application");
 }
 
@@ -91,16 +92,21 @@ fn new_golang_app(name: &str, tech: &str) {
     if !go_status.success() {
         panic!("Error init the Golang application");
     }
-    generate_gitignore(&tech);
+    templates::new_gitignore(&tech);
 }
 
-fn generate_gitignore(tech: &str) -> String {
-    match tech {
-        tech if tech == "Node.js" => templates::new_gitignore(&tech),
-        tech if tech == "Python" => templates::new_gitignore(&tech),
-        tech if tech == "Golang" => templates::new_gitignore(&tech),
-        _ => "please select a tech".to_string(),
+fn new_rust_app(tech: &str) {
+    let mut cargo_init = Command::new("cargo")
+        .arg("init")
+        .spawn()
+        .expect("Failed to init the new Rust application using cargo.");
+    let cargo_status = cargo_init
+        .wait()
+        .expect("Failed to wait on the generation of the Rust application");
+    if !cargo_status.success() {
+        panic!("Error init the Rust application")
     }
+    templates::new_gitignore(&tech);
 }
 
 fn change_work_dir(dir: &String) {
