@@ -6,7 +6,7 @@ use std::process::Command;
 mod templates;
 
 pub fn new_project(name: String) {
-    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust", "C++"];
+    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
 
     let ans: Result<&str, InquireError> =
         Select::new("Which tech do you want to use ?", options).prompt();
