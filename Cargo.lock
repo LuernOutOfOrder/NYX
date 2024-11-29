@@ -3,14 +3,6 @@
 version = 3
 
 [[package]]
-name = "NYX"
-version = "0.1.0"
-dependencies = [
- "clap",
- "inquire",
-]
-
-[[package]]
 name = "anstream"
 version = "0.6.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -254,6 +246,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47b6b097ecb1cbfed438542d16e84fd7ad9b0c76c8a65b7f9039212a3d14dc7f"
 dependencies = [
  "unicode-segmentation",
+]
+
+[[package]]
+name = "nyx"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "inquire",
 ]
 
 [[package]]
