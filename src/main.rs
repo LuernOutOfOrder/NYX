@@ -1,5 +1,6 @@
 mod about;
 mod application;
+mod git;
 use clap::{Parser, Subcommand};
 mod utils;
 
@@ -17,6 +18,7 @@ enum Commands {
     App {
         name: String,
     },
+    Stash,
     About,
 }
 
@@ -25,6 +27,7 @@ fn main() {
 
     match args.cmd {
         Commands::App { name } => application::new_project(name),
+        Commands::Stash => git::nyx_git_stash(),
         Commands::About => about::about(),
     }
 }
