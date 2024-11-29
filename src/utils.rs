@@ -17,13 +17,14 @@ pub fn get_current_path() -> String {
 
 pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();
-    render_config.prompt_prefix = Styled::new("$").with_fg(Color::LightRed);
+    render_config.prompt_prefix = Styled::new("?").with_fg(Color::LightMagenta);
     render_config.highlighted_option_prefix = Styled::new("➠").with_fg(Color::DarkMagenta);
     render_config.selected_checkbox = Styled::new("☑").with_fg(Color::LightMagenta);
     render_config.scroll_up_prefix = Styled::new("⇞").with_fg(Color::DarkMagenta);
     render_config.scroll_down_prefix = Styled::new("⇟").with_fg(Color::DarkMagenta);
     render_config.unselected_checkbox = Styled::new("☐").with_fg(Color::DarkMagenta);
     render_config.selected_option = Some(StyleSheet::new().with_fg(Color::DarkMagenta));
+    render_config.text_input = StyleSheet::new().with_fg(Color::DarkMagenta);
 
     render_config.error_message = render_config
         .error_message

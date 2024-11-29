@@ -6,7 +6,7 @@ use crate::utils;
 
 pub fn nyx_git_stash() {
     inquire::set_global_render_config(utils::get_render_config());
-    let message = Text::new("Enter stash message")
+    let message = Text::new("Enter stash message:")
         .prompt()
         .expect("Failed to read stash message");
     let mut stash = Command::new("git")
