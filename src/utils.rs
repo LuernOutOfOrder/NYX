@@ -10,6 +10,12 @@ pub fn get_nyx_env_var() -> String {
     }
 }
 
+pub fn get_app_data() -> String {
+    let nyx_path = get_nyx_env_var();
+    let app_data = nyx_path + "/src/data/app.json";
+    return app_data;
+}
+
 pub fn get_current_path() -> String {
     let path = env::current_dir().expect("Failed to get current directory");
     return path.display().to_string();

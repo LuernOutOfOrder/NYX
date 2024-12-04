@@ -1,15 +1,31 @@
 use crate::utils;
 use inquire::{error::InquireError, Select};
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::process::Command;
 mod templates;
+use serde::{Deserialize, Serialize};
+use tabled::{Table, Tabled};
+
+#[derive(Deserialize, Debug, Tabled)]
+struct Application {
+    id: String,
+    name: String,
+    tech: String,
+    location: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Data {
+    application: std::collections::HashMap<String, Application>,
+}
 
 pub fn new_project(name: String) {
     inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
 
-    let ans: Result<&str, InquireError> =
+    let ans: std::result::Result<&str, InquireError> =
         Select::new("Which tech do you want to use ?", options).prompt();
 
     match fs::create_dir(name.clone()) {
@@ -108,6 +124,27 @@ fn new_rust_app(tech: &str) {
         panic!("Error init the Rust application")
     }
     templates::new_gitignore(&tech);
+}
+
+pub fn list_app() {
+    let app_data_path = utils::get_app_data();
+    let json_data = fs::read_to_string(app_data_path).expect("Failed to read app data");
+    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+
+    for (key, app) in &data.application {
+        println!("Key: {}", key);
+        println!("ID: {}", app.id);
+        println!("Name: {}", app.name);
+        println!("Tech: {}", app.tech);
+        println!("Location: {}", app.location);
+        println!("---");
+        let languages = vec![Application {
+            id: key.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+        }];
+    }
 }
 
 fn change_work_dir(dir: &String) {
