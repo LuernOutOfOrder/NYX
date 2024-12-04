@@ -15,12 +15,14 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new app")]
-    App {
-        name: String,
-    },
+    App { name: String },
+    #[command(about = "Stash with message")]
     GitStash,
+    #[command(about = "Create a new tag and push it to the origin branch")]
     GitTag,
+    #[command(about = "Revert to the specified commit")]
     GitReverse,
+    #[command(about = "About")]
     About,
 }
 
