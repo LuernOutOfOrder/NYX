@@ -1,11 +1,12 @@
-// use crate::utils;
-use inquire::{InquireError, Select};
+use crate::utils;
+use inquire::{error::InquireError, Select};
 use std::env;
 use std::fs;
 use std::process::Command;
 mod templates;
 
 pub fn new_project(name: String) {
+    inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
 
     let ans: Result<&str, InquireError> =
