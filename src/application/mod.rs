@@ -18,7 +18,7 @@ struct Application {
 
 #[derive(Deserialize, Debug)]
 struct Data {
-    application: std::collections::HashMap<String, Application>,
+    application: Vec<Application>,
 }
 
 pub fn new_project(name: String) {
@@ -131,7 +131,7 @@ pub fn list_app() {
     let json_data = fs::read_to_string(app_data_path).expect("Failed to read app data");
     let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
     let mut applications: Vec<Application> = Vec::new();
-    for (_, app) in &data.application {
+    for app in &data.application {
         applications.push(Application {
             id: app.id.clone(),
             name: app.name.clone(),
