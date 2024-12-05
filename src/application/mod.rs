@@ -1,11 +1,11 @@
 use crate::utils;
 use inquire::{error::InquireError, Select};
-use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::process::Command;
+use tabled::settings::Style;
 mod templates;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use tabled::{Table, Tabled};
 
 #[derive(Deserialize, Debug, Tabled)]
@@ -130,21 +130,21 @@ pub fn list_app() {
     let app_data_path = utils::get_app_data();
     let json_data = fs::read_to_string(app_data_path).expect("Failed to read app data");
     let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-
-    for (key, app) in &data.application {
-        println!("Key: {}", key);
-        println!("ID: {}", app.id);
-        println!("Name: {}", app.name);
-        println!("Tech: {}", app.tech);
-        println!("Location: {}", app.location);
-        println!("---");
-        let languages = vec![Application {
-            id: key.clone(),
+    let mut applications: Vec<Application> = Vec::new();
+    for (_, app) in &data.application {
+        applications.push(Application {
+            id: app.id.clone(),
             name: app.name.clone(),
             tech: app.tech.clone(),
             location: app.location.clone(),
-        }];
+        });
     }
+
+    let builder = Table::builder(&applications).index().name(None);
+
+    let mut table = builder.build();
+    table.with(Style::modern());
+    println!("{}", table);
 }
 
 fn change_work_dir(dir: &String) {
