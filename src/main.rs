@@ -16,7 +16,7 @@ struct Args {
 enum Commands {
     #[command(about = "Generate new app")]
     App { name: String },
-    #[command(about = "List all generated application or added one")]
+    #[command(about = "List all applications")]
     AppList,
     #[command(about = "Stash with message")]
     GitStash,

@@ -144,7 +144,7 @@ pub fn list_app() {
 
     let mut table = builder.build();
     table.with(Style::modern());
-    println!("Listing all application...");
+    println!("Listing all applications...");
     println!("{}", table);
 }
 
