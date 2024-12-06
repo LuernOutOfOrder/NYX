@@ -235,6 +235,7 @@ fn remove_app_from_list() {
         .prompt()
         .expect("Failed to read stash message");
     let app = applications.iter().find(|&app| app.name == app_name);
+    // if an index match the given data, remove it from the vector
     if let Some(pos) = applications.iter().position(|x| x == app.unwrap()) {
         applications.remove(pos);
     }
