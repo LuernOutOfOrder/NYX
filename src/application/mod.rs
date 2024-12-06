@@ -1,4 +1,5 @@
 use crate::utils;
+use inquire::Text;
 use inquire::{error::InquireError, Select};
 use std::env;
 use std::fs;
@@ -8,7 +9,7 @@ mod templates;
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
 
-#[derive(Deserialize, Serialize, Debug, Tabled, Clone)]
+#[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
 struct Application {
     id: String,
     name: String,
@@ -189,6 +190,59 @@ pub fn list_app() {
     let mut table = builder.build();
     table.with(Style::modern());
     println!("{}", table);
+}
+
+pub fn select_remove_app() {
+    inquire::set_global_render_config(utils::get_render_config());
+    let options: Vec<&str> = vec![
+        "Remove application from applications list",
+        "Delete completely the application",
+        "Nothing",
+    ];
+
+    let ans: std::result::Result<&str, InquireError> =
+        Select::new("What do you want to do ?", options).prompt();
+
+    match ans {
+        Ok(choice) => which_remove_app(choice),
+        Err(_) => println!("There was an error, please try again"),
+    }
+}
+
+fn which_remove_app(choice: &str) {
+    match choice {
+        choice if choice == "Remove application from applications list" => remove_app_from_list(),
+        // choice if choice == "Python" => new_python_app(choice),
+        _ => println!("please make a choice"),
+    }
+}
+
+fn remove_app_from_list() {
+    let app_data_path = utils::get_app_data();
+    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
+    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut applications: Vec<Application> = Vec::new();
+    for app in &data.application {
+        applications.push(Application {
+            id: app.id.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+        });
+    }
+    inquire::set_global_render_config(utils::get_render_config());
+    let app_name = Text::new("Enter the name of the application:")
+        .prompt()
+        .expect("Failed to read stash message");
+    let app = applications.iter().find(|&app| app.name == app_name);
+    if let Some(pos) = applications.iter().position(|x| x == app.unwrap()) {
+        applications.remove(pos);
+    }
+    let updated_data = Data {
+        application: applications,
+    };
+    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
+    fs::write(app_data_path, save_json).expect("Failed to write updated data");
 }
 
 fn change_work_dir(dir: &String) {
