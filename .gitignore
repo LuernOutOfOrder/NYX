@@ -3,3 +3,4 @@
 
 # Build
 target/
+src/data/*
