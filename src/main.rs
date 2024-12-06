@@ -16,9 +16,7 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new app")]
-    App {
-        name: String,
-    },
+    App { name: String },
     #[command(about = "Add an existing app to the applications list")]
     AppAdd,
     #[command(about = "List all applications")]
@@ -31,8 +29,7 @@ enum Commands {
     GitTag,
     #[command(about = "Revert to the specified commit")]
     GitReverse,
-    #[command(about = "About")]
-    About,
+    #[command(about = "Update the current version of NYX")]
     Update,
 }
 
@@ -47,7 +44,6 @@ fn main() {
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
-        Commands::About => about::about(),
         Commands::Update => update::update_bin(),
     }
 }
