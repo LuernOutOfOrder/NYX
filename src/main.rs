@@ -20,6 +20,8 @@ enum Commands {
     AppAdd,
     #[command(about = "List all applications")]
     AppList,
+    #[command(about = "Remove application from list or completely")]
+    AppDelete,
     #[command(about = "Stash with message")]
     GitStash,
     #[command(about = "Create a new tag and push it to the origin branch")]
@@ -37,6 +39,7 @@ fn main() {
         Commands::App { name } => application::new_project(name),
         Commands::AppAdd => application::add_existing_app_to_list(),
         Commands::AppList => application::list_app(),
+        Commands::AppDelete => application::select_remove_app(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
