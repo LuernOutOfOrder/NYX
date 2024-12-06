@@ -304,6 +304,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tabled",
+ "throbber",
 ]
 
 [[package]]
@@ -535,6 +536,12 @@ dependencies = [
  "cfg-if",
  "once_cell",
 ]
+
+[[package]]
+name = "throbber"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa679cdc0bc079431af2e764d22d46b261a21349b6fd9595749ba686d2170f05"
 
 [[package]]
 name = "unicode-ident"

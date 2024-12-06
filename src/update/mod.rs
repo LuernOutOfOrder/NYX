@@ -1,5 +1,6 @@
 use colored::Colorize;
-use std::process::Command;
+use std::{process::Command, thread, time::Duration};
+use throbber::Throbber;
 
 use crate::utils;
 
@@ -16,6 +17,9 @@ pub fn update_bin() {
 
 "
     .truecolor(138, 43, 226);
+    let mut throbber = Throbber::new()
+        .message("Updating NYX...".to_string())
+        .frames(&throbber::ROTATE_F);
     println!("{}", nyx_ascii_art);
     let nyx_current_version = Command::new("nyx")
         .arg("--version")
@@ -27,10 +31,16 @@ pub fn update_bin() {
         .arg("--version")
         .output()
         .expect("Failed to get the current version of NYX");
-    if String::from_utf8(nyx_latest_version.stdout) != String::from_utf8(nyx_current_version.stdout)
+    if String::from_utf8(nyx_latest_version.stdout) == String::from_utf8(nyx_current_version.stdout)
     {
+        throbber.start();
+        let nyx_bin = nyx_target_build_location + "/nyx";
+        let move_latest_bin = Command::new("mv").arg()
+        throbber.success("Success".to_string());
+        throbber.end();
         println!("A new version of NYX has been found");
         println!("Updating NYX...");
+
     } else {
         println!("You already have the latest version of NYX!");
     }
