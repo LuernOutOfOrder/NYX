@@ -236,15 +236,14 @@ fn remove_app_from_list() {
         .expect("Failed to read stash message");
     // if an index match the given data, remove it from the vector
     if let Some(pos) = applications.iter().position(|x| x.name == app_name) {
-        let app = applications.remove(pos);
-        let app_location = &app.location;
-        print!("{:?}", app_location);
+        applications.remove(pos);
     }
     let updated_data = Data {
         application: applications,
     };
     let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    println!("Successfully remove project from list");
 }
 
 fn remove_app_from_storage() {
@@ -272,12 +271,14 @@ fn remove_app_from_storage() {
             .arg(app_location)
             .spawn()
             .expect("Failed to delete the directory of the project");
+        println!("Successfully delete project from storage");
     }
     let updated_data = Data {
         application: applications,
     };
     let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    println!("Successfully remove project from list");
 }
 
 fn change_work_dir(dir: &String) {
