@@ -1,10 +1,13 @@
 [package]
-name = "NYX"
-version = "0.1.0"
+name = "nyx"
+version = "0.5.0"
 edition = "2021"
 authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
 description = "A CLI tool for managing your system."
 
 [dependencies]
-clap = { version = "4.5.21", features = ["derive"] }
+clap = { version = "4.5.23", features = ["derive"] }
 inquire = "0.7.5"
+serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.48"
+tabled = "0.17.0"
