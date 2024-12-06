@@ -2,6 +2,7 @@ mod about;
 mod application;
 mod git;
 use clap::{Parser, Subcommand};
+mod update;
 mod utils;
 
 #[derive(Parser)]
@@ -15,7 +16,9 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new app")]
-    App { name: String },
+    App {
+        name: String,
+    },
     #[command(about = "Add an existing app to the applications list")]
     AppAdd,
     #[command(about = "List all applications")]
@@ -30,6 +33,7 @@ enum Commands {
     GitReverse,
     #[command(about = "About")]
     About,
+    Update,
 }
 
 fn main() {
@@ -44,5 +48,6 @@ fn main() {
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
         Commands::About => about::about(),
+        Commands::Update => update::update_bin(),
     }
 }
