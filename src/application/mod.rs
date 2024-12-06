@@ -127,7 +127,17 @@ fn new_rust_app(tech: &str) {
     templates::new_gitignore(&tech);
 }
 
-pub fn add_existing_app_to_list() {}
+pub fn add_existing_app_to_list() {
+    inquire::set_global_render_config(utils::get_render_config());
+    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
+
+    let ans: std::result::Result<&str, InquireError> =
+        Select::new("Which tech your application is using ?", options).prompt();
+    match ans {
+        Ok(choice) => add_app_to_list(choice),
+        Err(_) => println!("There was an error, please try again"),
+    }
+}
 
 fn add_app_to_list(tech: &str) {
     let app_data_path = utils::get_app_data();
