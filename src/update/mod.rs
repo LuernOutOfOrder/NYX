@@ -1,5 +1,5 @@
 use colored::Colorize;
-use std::{process::Command, thread, time::Duration};
+use std::process::Command;
 use throbber::Throbber;
 
 use crate::utils;

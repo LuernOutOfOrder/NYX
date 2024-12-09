@@ -1,4 +1,3 @@
-mod about;
 mod application;
 mod git;
 use clap::{Parser, Subcommand};
