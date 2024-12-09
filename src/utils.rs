@@ -44,3 +44,7 @@ pub fn get_render_config() -> RenderConfig<'static> {
 
     render_config
 }
+
+pub fn change_work_dir(dir: &String) {
+    env::set_current_dir(&dir).expect("Failed to change directory");
+}
