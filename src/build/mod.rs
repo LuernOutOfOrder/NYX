@@ -20,7 +20,7 @@ fn build_project_by_tech(tech: &str) {
         tech if tech == "Node.js" => print!("oskour"),
         tech if tech == "Python" => print!("oskour"),
         tech if tech == "Golang" => build_golang_project(),
-        tech if tech == "Rust" => print!("oskour"),
+        tech if tech == "Rust" => build_rust_project(),
         _ => println!("please select a tech"),
     }
 }
@@ -38,4 +38,18 @@ fn build_golang_project() {
         panic!("Error building the Golang project");
     }
     print!("successfully build the Golang project")
+}
+
+fn build_rust_project() {
+    let mut cargo_build = Command::new("cargo")
+        .arg("build")
+        .spawn()
+        .expect("Failed to execute the cargo build command");
+    let wait_cargo_build = cargo_build
+        .wait()
+        .expect("Failed to wait the cargo build command");
+    if !wait_cargo_build.success() {
+        panic!("Error building the Rust project");
+    }
+    print!("successfully build the Rust project")
 }
