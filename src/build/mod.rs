@@ -17,8 +17,8 @@ pub fn build_current_project() {
 
 fn build_project_by_tech(tech: &str) {
     match tech {
-        tech if tech == "Node.js" => print!("oskour"),
-        tech if tech == "Python" => print!("oskour"),
+        tech if tech == "Node.js" => print!("not supported yet"),
+        tech if tech == "Python" => print!("not supported yet"),
         tech if tech == "Golang" => build_golang_project(),
         tech if tech == "Rust" => build_rust_project(),
         _ => println!("please select a tech"),
