@@ -33,7 +33,7 @@ pub fn new_project(name: String) {
         Ok(_) => println!("Directory created successfully"),
         Err(e) => println!("Failed to create directory: {}", e),
     }
-    change_work_dir(&name);
+    utils::change_work_dir(&name);
     match ans {
         Ok(choice) => new_app_by_choice(choice, &name),
         Err(_) => println!("There was an error, please try again"),
@@ -279,8 +279,4 @@ fn remove_app_from_storage() {
     let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
     println!("Successfully remove project from list");
-}
-
-fn change_work_dir(dir: &String) {
-    env::set_current_dir(&dir).expect("Failed to change directory");
 }
