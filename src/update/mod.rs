@@ -17,6 +17,7 @@ pub fn update_bin() {
 
 "
     .truecolor(138, 43, 226);
+    // throbber
     let mut building_throbber = Throbber::new()
         .message("Building latest NYX binary...".to_string())
         .frames(&throbber::ROTATE_F);
@@ -25,14 +26,17 @@ pub fn update_bin() {
         .frames(&throbber::ROTATE_F);
     println!("{}", nyx_ascii_art);
     building_throbber.start();
+
+    // nyx version
     let nyx_current_version = Command::new("nyx")
         .arg("--version")
         .output()
         .expect("Failed to get the current version of NYX");
-    let nyx_target_build_location = utils::get_nyx_env_var() + "/target/debug";
+    let nyx_target_build_location = utils::get_nyx_env_var() + "/target/release";
     utils::change_work_dir(&nyx_target_build_location);
     let mut build_target = Command::new("cargo")
         .arg("build")
+        .arg("--release")
         .spawn()
         .expect("Failed to build the target binary");
     let wait_build_target = build_target
@@ -44,23 +48,28 @@ pub fn update_bin() {
     }
     building_throbber.success("Successfully build latest binary".to_string());
     building_throbber.end();
-    let nyx_latest_version = Command::new("nyx")
+    let nyx_latest_version = Command::new("./nyx")
         .arg("--version")
         .output()
         .expect("Failed to get the current version of NYX");
-    //TODO change equal to different
     if String::from_utf8(nyx_latest_version.stdout) != String::from_utf8(nyx_current_version.stdout)
     {
         println!("A new version of NYX has been found");
         update_throbber.start();
-        let nyx_bin = nyx_target_build_location + "/nyx";
-        Command::new("mv")
-            .arg(nyx_bin)
-            //TODO
-            // see task #19
-            .arg("/Users/elouan/bin")
+        utils::change_work_dir(&utils::get_nyx_env_var());
+        let mut cargo_install = Command::new("cargo")
+            .arg("install")
+            .arg("--path")
+            .arg(".")
             .spawn()
             .expect("Failed to update to the latest version");
+        let wait_cargo_install = cargo_install
+            .wait()
+            .expect("Failed to wait the cargo install command");
+        if !wait_cargo_install.success() {
+            update_throbber.fail("Failed to update NYX to the latest version".to_string());
+            panic!("Failed to update NYX");
+        }
         update_throbber.success("Success".to_string());
         update_throbber.end();
     } else {
