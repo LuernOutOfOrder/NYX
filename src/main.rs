@@ -1,7 +1,8 @@
-mod about;
 mod application;
 mod git;
 use clap::{Parser, Subcommand};
+mod build;
+mod update;
 mod utils;
 
 #[derive(Parser)]
@@ -22,14 +23,16 @@ enum Commands {
     AppList,
     #[command(about = "Remove application from list or completely")]
     AppDelete,
+    #[command(about = "Build the current project in working directory")]
+    AppBuild,
     #[command(about = "Stash with message")]
     GitStash,
     #[command(about = "Create a new tag and push it to the origin branch")]
     GitTag,
     #[command(about = "Revert to the specified commit")]
     GitReverse,
-    #[command(about = "About")]
-    About,
+    #[command(about = "Update the current version of NYX")]
+    Update,
 }
 
 fn main() {
@@ -40,9 +43,10 @@ fn main() {
         Commands::AppAdd => application::add_existing_app_to_list(),
         Commands::AppList => application::list_app(),
         Commands::AppDelete => application::select_remove_app(),
+        Commands::AppBuild => build::build_current_project(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
-        Commands::About => about::about(),
+        Commands::Update => update::update_bin(),
     }
 }
