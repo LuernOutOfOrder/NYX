@@ -48,3 +48,13 @@ pub fn get_render_config() -> RenderConfig<'static> {
 pub fn change_work_dir(dir: &String) {
     env::set_current_dir(&dir).expect("Failed to change directory");
 }
+
+pub fn get_tech_option() -> Vec<String> {
+    let options: Vec<String> = vec![
+        "Node.js".to_string(),
+        "Python".to_string(),
+        "Golang".to_string(),
+        "Rust".to_string(),
+    ];
+    return options;
+}

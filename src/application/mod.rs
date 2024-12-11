@@ -1,7 +1,6 @@
 use crate::utils;
 use inquire::Text;
 use inquire::{error::InquireError, Select};
-use std::env;
 use std::fs;
 use std::process::Command;
 use tabled::settings::Style;
@@ -24,9 +23,9 @@ struct Data {
 
 pub fn new_project(name: String) {
     inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
+    let options = utils::get_tech_option();
 
-    let ans: std::result::Result<&str, InquireError> =
+    let ans: std::result::Result<String, InquireError> =
         Select::new("Which tech do you want to use ?", options).prompt();
 
     match fs::create_dir(name.clone()) {
@@ -35,12 +34,12 @@ pub fn new_project(name: String) {
     }
     utils::change_work_dir(&name);
     match ans {
-        Ok(choice) => new_app_by_choice(choice, &name),
+        Ok(choice) => new_app_by_choice(&choice, &name),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-fn new_app_by_choice(tech: &str, name: &str) {
+fn new_app_by_choice(tech: &String, name: &str) {
     match tech {
         tech if tech == "Node.js" => new_nodejs_app(tech),
         tech if tech == "Python" => new_python_app(tech),
@@ -130,17 +129,16 @@ fn new_rust_app(tech: &str) {
 
 pub fn add_existing_app_to_list() {
     inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
-
-    let ans: std::result::Result<&str, InquireError> =
+    let options = utils::get_tech_option();
+    let ans: std::result::Result<String, InquireError> =
         Select::new("Which tech your application is using ?", options).prompt();
     match ans {
-        Ok(choice) => add_app_to_list(choice),
+        Ok(choice) => add_app_to_list(&choice),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-fn add_app_to_list(tech: &str) {
+fn add_app_to_list(tech: &String) {
     let app_data_path = utils::get_app_data();
     let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
     let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
