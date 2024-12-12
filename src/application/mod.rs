@@ -21,6 +21,22 @@ struct Data {
     application: Vec<Application>,
 }
 
+fn get_app_vec() -> Vec<Application> {
+    let app_data_path = utils::get_app_data();
+    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
+    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut applications: Vec<Application> = Vec::new();
+    for app in &data.application {
+        applications.push(Application {
+            id: app.id.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+        });
+    }
+    return applications;
+}
+
 pub fn new_project(name: String) {
     inquire::set_global_render_config(utils::get_render_config());
     let options = utils::get_tech_option();
@@ -170,18 +186,7 @@ fn add_app_to_list(tech: &String) {
 
 pub fn list_app() {
     println!("Listing all applications...");
-    let app_data_path = utils::get_app_data();
-    let json_data = fs::read_to_string(app_data_path).expect("Failed to read app data");
-    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<Application> = Vec::new();
-    for app in &data.application {
-        applications.push(Application {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-        });
-    }
+    let applications = get_app_vec();
 
     let builder = Table::builder(&applications).index().name(None);
 
@@ -217,17 +222,7 @@ fn which_remove_app(choice: &str) {
 
 fn remove_app_from_list() {
     let app_data_path = utils::get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<Application> = Vec::new();
-    for app in &data.application {
-        applications.push(Application {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-        });
-    }
+    let mut applications = get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the application:")
         .prompt()
@@ -246,17 +241,7 @@ fn remove_app_from_list() {
 
 fn remove_app_from_storage() {
     let app_data_path = utils::get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<Application> = Vec::new();
-    for app in &data.application {
-        applications.push(Application {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-        });
-    }
+    let mut applications = get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the application:")
         .prompt()
