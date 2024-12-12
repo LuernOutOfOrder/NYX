@@ -161,9 +161,7 @@ pub fn add_existing_app_to_list() {
 
 fn add_app_to_list(tech: &String) {
     let app_data_path = utils::get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<Application> = Vec::new();
+    let mut applications = get_app_vec();
     let current_dir = utils::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
@@ -173,14 +171,6 @@ fn add_app_to_list(tech: &String) {
         tech: (tech.to_string()),
         location: (current_dir),
     };
-    for app in &data.application {
-        applications.push(Application {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-        });
-    }
     applications.push(new_app.clone());
     let updated_data = Data {
         application: applications,
