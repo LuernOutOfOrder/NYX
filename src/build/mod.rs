@@ -1,16 +1,13 @@
 use crate::utils;
-use inquire::{InquireError, Select};
 use std::process::Command;
 
 pub fn build_current_project() {
     inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec!["Node.js", "Python", "Golang", "Rust"];
+    let options =
+        utils::get_select_app_option("Which tech your current project is using ?".to_string());
 
-    let ans: std::result::Result<&str, InquireError> =
-        Select::new("Which tech your current project is using ?", options).prompt();
-
-    match ans {
-        Ok(choice) => build_project_by_tech(choice),
+    match options {
+        Ok(choice) => build_project_by_tech(&choice),
         Err(_) => println!("There was an error, please try again"),
     }
 }

@@ -1,6 +1,9 @@
 use std::env;
 
-use inquire::ui::{Attributes, Color, RenderConfig, StyleSheet, Styled};
+use inquire::{
+    ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
+    InquireError, Select,
+};
 
 pub fn get_nyx_env_var() -> String {
     let env_var = "NYX";
@@ -58,4 +61,12 @@ pub fn get_tech_option() -> Vec<String> {
         "Other".to_string(),
     ];
     return options;
+}
+
+pub fn get_select_app_option(prompt: String) -> std::result::Result<String, InquireError> {
+    let options = get_tech_option();
+
+    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
+
+    return ans;
 }

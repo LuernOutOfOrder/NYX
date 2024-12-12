@@ -37,17 +37,9 @@ fn get_app_vec() -> Vec<Application> {
     return applications;
 }
 
-fn get_select_app_option(prompt: String) -> std::result::Result<String, InquireError> {
-    let options = utils::get_tech_option();
-
-    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
-
-    return ans;
-}
-
 pub fn new_project(name: String) {
     inquire::set_global_render_config(utils::get_render_config());
-    let option_select = get_select_app_option("Which tech do you want to use ?".to_string());
+    let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),
