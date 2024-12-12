@@ -76,3 +76,19 @@ pub fn prompt_message(message: String, error_message: String) -> String {
     let message = Text::new(&message).prompt().expect(&error_message);
     return message;
 }
+
+pub fn nyx_ascii_art() -> String {
+    let ascii_art = r"         
+ _                         
+( (    /||\     /||\     /|
+|  \  ( |( \   / )( \   / )
+|   \ | | \ (_) /  \ (_) / 
+| (\ \) |  \   /    ) _ (  
+| | \   |   ) (    / ( ) \ 
+| )  \  |   | |   ( /   \ )
+|/    )_)   \_/   |/     \|
+
+";
+
+    return ascii_art.to_string();
+}
