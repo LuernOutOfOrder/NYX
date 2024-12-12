@@ -1,6 +1,9 @@
 use std::env;
 
-use inquire::ui::{Attributes, Color, RenderConfig, StyleSheet, Styled};
+use inquire::{
+    ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
+    InquireError, Select, Text,
+};
 
 pub fn get_nyx_env_var() -> String {
     let env_var = "NYX";
@@ -47,4 +50,45 @@ pub fn get_render_config() -> RenderConfig<'static> {
 
 pub fn change_work_dir(dir: &String) {
     env::set_current_dir(&dir).expect("Failed to change directory");
+}
+
+pub fn get_tech_option() -> Vec<String> {
+    let options: Vec<String> = vec![
+        "Node.js".to_string(),
+        "Python".to_string(),
+        "Golang".to_string(),
+        "Rust".to_string(),
+        "Other".to_string(),
+    ];
+    return options;
+}
+
+pub fn get_select_app_option(prompt: String) -> std::result::Result<String, InquireError> {
+    let options = get_tech_option();
+
+    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
+
+    return ans;
+}
+
+pub fn prompt_message(message: String, error_message: String) -> String {
+    inquire::set_global_render_config(get_render_config());
+    let message = Text::new(&message).prompt().expect(&error_message);
+    return message;
+}
+
+pub fn nyx_ascii_art() -> String {
+    let ascii_art = r"         
+ _                         
+( (    /||\     /||\     /|
+|  \  ( |( \   / )( \   / )
+|   \ | | \ (_) /  \ (_) / 
+| (\ \) |  \   /    ) _ (  
+| | \   |   ) (    / ( ) \ 
+| )  \  |   | |   ( /   \ )
+|/    )_)   \_/   |/     \|
+
+";
+
+    return ascii_art.to_string();
 }
