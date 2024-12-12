@@ -2,7 +2,7 @@ use std::env;
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
-    InquireError, Select,
+    InquireError, Select, Text,
 };
 
 pub fn get_nyx_env_var() -> String {
@@ -69,4 +69,10 @@ pub fn get_select_app_option(prompt: String) -> std::result::Result<String, Inqu
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
 
     return ans;
+}
+
+pub fn prompt_message(message: String, error_message: String) -> String {
+    inquire::set_global_render_config(get_render_config());
+    let message = Text::new(&message).prompt().expect(&error_message);
+    return message;
 }
