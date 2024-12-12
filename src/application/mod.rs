@@ -158,7 +158,7 @@ fn add_app_to_list(tech: &String) {
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
     let new_app: Application = Application {
-        id: (app_id.to_string()),
+        id: (app_id.to_string().to_lowercase()),
         name: (app_name.to_string()),
         tech: (tech.to_string()),
         location: (current_dir),
