@@ -59,7 +59,7 @@ pub fn update_bin() {
             update_throbber.fail("Failed to update NYX to the latest version".to_string());
             panic!("Failed to update NYX");
         }
-        update_throbber.success("Success".to_string());
+        update_throbber.success("Successfully update NYX".to_string());
         update_throbber.end();
     } else {
         println!("You already have the latest version of NYX!");
