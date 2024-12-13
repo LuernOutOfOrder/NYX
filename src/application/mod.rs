@@ -9,32 +9,16 @@ use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
 
 #[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
-struct Application {
-    id: String,
-    name: String,
-    tech: String,
-    location: String,
+pub struct Application {
+    pub id: String,
+    pub name: String,
+    pub tech: String,
+    pub location: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
-struct Data {
-    application: Vec<Application>,
-}
-
-fn get_app_vec() -> Vec<Application> {
-    let app_data_path = utils::get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<Application> = Vec::new();
-    for app in &data.application {
-        applications.push(Application {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-        });
-    }
-    return applications;
+pub struct Data {
+    pub application: Vec<Application>,
 }
 
 pub fn new_project(name: String) {
@@ -153,7 +137,7 @@ pub fn add_existing_app_to_list() {
 
 fn add_app_to_list(tech: &String) {
     let app_data_path = utils::get_app_data();
-    let mut applications = get_app_vec();
+    let mut applications = utils::get_app_vec();
     let current_dir = utils::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
@@ -173,7 +157,7 @@ fn add_app_to_list(tech: &String) {
 
 pub fn list_app() {
     println!("Listing all applications...");
-    let applications = get_app_vec();
+    let applications = utils::get_app_vec();
 
     let builder = Table::builder(&applications).index().name(None);
 
@@ -209,7 +193,7 @@ fn which_remove_app(choice: &str) {
 
 fn remove_app_from_list() {
     let app_data_path = utils::get_app_data();
-    let mut applications = get_app_vec();
+    let mut applications = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the application:")
         .prompt()
@@ -228,7 +212,7 @@ fn remove_app_from_list() {
 
 fn remove_app_from_storage() {
     let app_data_path = utils::get_app_data();
-    let mut applications = get_app_vec();
+    let mut applications = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the application:")
         .prompt()

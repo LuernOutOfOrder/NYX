@@ -1,9 +1,11 @@
-use std::env;
+use crate::application;
+use std::{env, fs, process::Command};
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
     InquireError, Select, Text,
 };
+use throbber::Throbber;
 
 pub fn get_nyx_env_var() -> String {
     let env_var = "NYX";
@@ -17,6 +19,22 @@ pub fn get_app_data() -> String {
     let nyx_path = get_nyx_env_var();
     let app_data = nyx_path + "/src/data/app.json";
     return app_data;
+}
+
+pub fn get_app_vec() -> Vec<application::Application> {
+    let app_data_path = get_app_data();
+    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
+    let data: application::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut applications: Vec<application::Application> = Vec::new();
+    for app in &data.application {
+        applications.push(application::Application {
+            id: app.id.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+        });
+    }
+    return applications;
 }
 
 pub fn get_current_path() -> String {
@@ -91,4 +109,21 @@ pub fn nyx_ascii_art() -> String {
 ";
 
     return ascii_art.to_string();
+}
+
+pub fn path_exists(path: &str) -> bool {
+    fs::metadata(path).is_ok()
+}
+
+pub fn rm_command(path: String) {
+    Command::new("rm")
+        .arg("-rf")
+        .arg(path)
+        .spawn()
+        .expect("Failed to delete the directory of the project");
+}
+
+pub fn custom_throbber(message: String) -> Throbber {
+    let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
+    return custom_throbber;
 }
