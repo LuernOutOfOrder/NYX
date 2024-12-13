@@ -2,6 +2,7 @@ mod application;
 mod git;
 use clap::{Parser, Subcommand};
 mod build;
+mod cleanup;
 mod update;
 mod utils;
 
@@ -25,6 +26,8 @@ enum Commands {
     AppDelete,
     #[command(about = "Build the current project in working directory")]
     AppBuild,
+    #[command(about = "Cleanup all unused files")]
+    Cleanup,
     #[command(about = "Stash with message")]
     GitStash,
     #[command(about = "Create a new tag and push it to the origin branch")]
@@ -44,6 +47,7 @@ fn main() {
         Commands::AppList => application::list_app(),
         Commands::AppDelete => application::select_remove_app(),
         Commands::AppBuild => build::build_current_project(),
+        Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),

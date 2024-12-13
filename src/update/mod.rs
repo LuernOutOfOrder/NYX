@@ -5,18 +5,7 @@ use throbber::Throbber;
 use crate::utils;
 
 pub fn update_bin() {
-    let nyx_ascii_art = r"         
- _                         
-( (    /||\     /||\     /|
-|  \  ( |( \   / )( \   / )
-|   \ | | \ (_) /  \ (_) / 
-| (\ \) |  \   /    ) _ (  
-| | \   |   ) (    / ( ) \ 
-| )  \  |   | |   ( /   \ )
-|/    )_)   \_/   |/     \|
-
-"
-    .truecolor(138, 43, 226);
+    let nyx_art = utils::nyx_ascii_art();
     // throbber
     let mut building_throbber = Throbber::new()
         .message("Building latest NYX binary...".to_string())
@@ -24,7 +13,7 @@ pub fn update_bin() {
     let mut update_throbber = Throbber::new()
         .message("Updating NYX...".to_string())
         .frames(&throbber::ROTATE_F);
-    println!("{}", nyx_ascii_art);
+    println!("{}", nyx_art.truecolor(138, 43, 226));
     building_throbber.start();
 
     // nyx version
@@ -70,7 +59,7 @@ pub fn update_bin() {
             update_throbber.fail("Failed to update NYX to the latest version".to_string());
             panic!("Failed to update NYX");
         }
-        update_throbber.success("Success".to_string());
+        update_throbber.success("Successfully update NYX".to_string());
         update_throbber.end();
     } else {
         println!("You already have the latest version of NYX!");

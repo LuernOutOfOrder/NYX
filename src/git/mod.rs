@@ -1,14 +1,12 @@
 use std::process::Command;
 
-use inquire::Text;
-
 use crate::utils;
 
 pub fn nyx_git_stash() {
-    inquire::set_global_render_config(utils::get_render_config());
-    let message = Text::new("Enter stash message:")
-        .prompt()
-        .expect("Failed to read stash message");
+    let message = utils::prompt_message(
+        "Enter stash message: ".to_string(),
+        "Failed to read stash message".to_string(),
+    );
     let mut stash = Command::new("git")
         .arg("stash")
         .arg("push")
@@ -23,10 +21,10 @@ pub fn nyx_git_stash() {
 }
 
 pub fn nyx_git_tag() {
-    inquire::set_global_render_config(utils::get_render_config());
-    let name = Text::new("Enter new tag name:")
-        .prompt()
-        .expect("Failed to read tag name");
+    let name = utils::prompt_message(
+        "Enter new tag name:".to_string(),
+        "Failed to read tag name".to_string(),
+    );
     let mut new_tag = Command::new("git")
         .arg("tag")
         .arg(name)
@@ -48,10 +46,10 @@ pub fn nyx_git_tag() {
 }
 
 pub fn nyx_git_revert() {
-    inquire::set_global_render_config(utils::get_render_config());
-    let commit_name = Text::new("Enter commit id:")
-        .prompt()
-        .expect("Failed to read commit id");
+    let commit_name = utils::prompt_message(
+        "Enter commit id: ".to_string(),
+        "Failed to read commit id".to_string(),
+    );
     let mut reverse = Command::new("git")
         .arg("reverse")
         .arg(commit_name)
