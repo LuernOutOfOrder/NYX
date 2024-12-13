@@ -1,7 +1,6 @@
 use std::process::Command;
 
 use inquire::{InquireError, Select};
-use throbber::Throbber;
 
 use crate::utils;
 
@@ -31,9 +30,7 @@ fn which_remove_files(choice: &str) {
 }
 
 fn prune_docker_unused() {
-    let mut prune_throbber = Throbber::new()
-        .message("Prune all unused docker files".to_string())
-        .frames(&throbber::ROTATE_F);
+    let mut prune_throbber = utils::custom_throbber("Prune all unused docker files".to_string());
     prune_throbber.start();
     // docker builder
     let mut docker_builder = Command::new("docker")
@@ -84,4 +81,30 @@ fn prune_docker_unused() {
     prune_throbber.end();
 }
 
-fn prune_project_unused() {}
+// this function remove all build cache,
+// node_modules, bin folder content of the
+// project managed by nyx
+fn prune_project_unused() {
+    let applications = utils::get_app_vec();
+    println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
+    for i in &applications {
+        // Node.js
+        let node_module_path = i.location.to_string() + "/node_modules";
+        let nodejs_dist_path = i.location.to_string() + "/dist";
+        utils::change_work_dir(&i.location);
+        if utils::path_exists(&node_module_path) {
+            utils::rm_command(node_module_path);
+            utils::rm_command(nodejs_dist_path);
+        }
+        // Golang
+        let bin_folder = i.location.to_string() + "/bin/";
+        if utils::path_exists(&bin_folder) {
+            utils::rm_command(bin_folder);
+        }
+        // Rust
+        let target_folder = i.location.to_string() + "/target";
+        if utils::path_exists(&target_folder) {
+            utils::rm_command(target_folder);
+        }
+    }
+}

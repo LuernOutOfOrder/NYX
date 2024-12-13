@@ -1,10 +1,11 @@
 use crate::application;
-use std::{env, fs};
+use std::{env, fs, process::Command};
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
     InquireError, Select, Text,
 };
+use throbber::Throbber;
 
 pub fn get_nyx_env_var() -> String {
     let env_var = "NYX";
@@ -108,4 +109,21 @@ pub fn nyx_ascii_art() -> String {
 ";
 
     return ascii_art.to_string();
+}
+
+pub fn path_exists(path: &str) -> bool {
+    fs::metadata(path).is_ok()
+}
+
+pub fn rm_command(path: String) {
+    Command::new("rm")
+        .arg("-rf")
+        .arg(path)
+        .spawn()
+        .expect("Failed to delete the directory of the project");
+}
+
+pub fn custom_throbber(message: String) -> Throbber {
+    let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
+    return custom_throbber;
 }
