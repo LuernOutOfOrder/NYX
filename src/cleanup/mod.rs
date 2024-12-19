@@ -85,9 +85,9 @@ fn prune_docker_unused() {
 // node_modules, bin folder content of the
 // project managed by nyx
 fn prune_project_unused() {
-    let applications = utils::get_app_vec();
+    let projects = utils::get_app_vec();
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
-    for i in &applications {
+    for i in &projects {
         // Node.js
         let node_module_path = i.location.to_string() + "/node_modules";
         let nodejs_dist_path = i.location.to_string() + "/dist";
