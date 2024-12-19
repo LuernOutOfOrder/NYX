@@ -1,4 +1,4 @@
-use crate::application;
+use crate::projects;
 use std::{env, fs, process::Command};
 
 use inquire::{
@@ -21,20 +21,20 @@ pub fn get_app_data() -> String {
     return app_data;
 }
 
-pub fn get_app_vec() -> Vec<application::Application> {
+pub fn get_app_vec() -> Vec<projects::Project> {
     let app_data_path = get_app_data();
     let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: application::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<application::Application> = Vec::new();
-    for app in &data.application {
-        applications.push(application::Application {
+    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut projects: Vec<projects::Project> = Vec::new();
+    for app in &data.project {
+        projects.push(projects::Project {
             id: app.id.clone(),
             name: app.name.clone(),
             tech: app.tech.clone(),
             location: app.location.clone(),
         });
     }
-    return applications;
+    return projects;
 }
 
 pub fn get_current_path() -> String {

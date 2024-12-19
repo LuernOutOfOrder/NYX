@@ -1,5 +1,5 @@
-mod application;
 mod git;
+mod projects;
 use clap::{Parser, Subcommand};
 mod build;
 mod cleanup;
@@ -16,16 +16,16 @@ struct Args {
 
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
-    #[command(about = "Generate new app")]
-    App { name: String },
-    #[command(about = "Add an existing app to the applications list")]
-    AppAdd,
-    #[command(about = "List all applications")]
-    AppList,
-    #[command(about = "Remove application from list or completely")]
-    AppDelete,
+    #[command(about = "Generate new project")]
+    Project { name: String },
+    #[command(about = "Add an existing project to the projects list")]
+    ProjectAdd,
+    #[command(about = "List all projects")]
+    ProjectList,
+    #[command(about = "Remove project from list or completely")]
+    ProjectDelete,
     #[command(about = "Build the current project in working directory")]
-    AppBuild,
+    ProjectBuild,
     #[command(about = "Cleanup all unused files")]
     Cleanup,
     #[command(about = "Stash with message")]
@@ -42,11 +42,11 @@ fn main() {
     let args = Args::parse();
 
     match args.cmd {
-        Commands::App { name } => application::new_project(name),
-        Commands::AppAdd => application::add_existing_app_to_list(),
-        Commands::AppList => application::list_app(),
-        Commands::AppDelete => application::select_remove_app(),
-        Commands::AppBuild => build::build_current_project(),
+        Commands::Project { name } => projects::new_project(name),
+        Commands::ProjectAdd => projects::add_existing_project_to_list(),
+        Commands::ProjectList => projects::list_projects(),
+        Commands::ProjectDelete => projects::select_remove_project(),
+        Commands::ProjectBuild => build::build_current_project(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
