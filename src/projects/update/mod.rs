@@ -1,3 +1,4 @@
+use regex::Regex;
 use std::fs;
 
 use crate::{
@@ -72,6 +73,24 @@ fn update_project_name(project: projects::Project) -> projects::Project {
         name: new_name,
         tech: project.tech,
         location: project.location,
+    };
+    return update_project;
+}
+
+fn update_project_location(project: projects::Project) -> projects::Project {
+    let new_location = utils::prompt_message(
+        "Enter the new project's location: ".to_string(),
+        "Error getting the new project's location".to_string(),
+    );
+    //TODO
+    // test regex to enter correct location string
+    let re = Regex::new(r"hello").unwrap();
+    assert!(re.is_match("hello"));
+    let update_project: projects::Project = projects::Project {
+        id: project.id,
+        name: project.name,
+        tech: project.tech,
+        location: new_location,
     };
     return update_project;
 }
