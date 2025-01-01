@@ -1,4 +1,4 @@
-use crate::projects::{self, Project};
+use crate::projects::{self};
 use std::{env, fs, process::Command};
 
 use inquire::{
