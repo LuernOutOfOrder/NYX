@@ -2,7 +2,51 @@ use std::process::Command;
 
 use inquire::Text;
 
-use crate::utils;
+use crate::{
+    projects::{self, Project},
+    utils,
+};
+
+pub fn update_project_properties() {
+    let mut projects = utils::get_app_vec();
+    inquire::set_global_render_config(utils::get_render_config());
+    let app_name = utils::prompt_message(
+        "Enter project name".to_string(),
+        "Error with the project name referred".to_string(),
+    );
+    // if an index match the given data,
+    let property = utils::get_select_option(
+        "Which property do you want to update ?".to_string(),
+        utils::get_project_property(),
+    )
+    .expect("Failed to get select option");
+    let current_selected_project: projects::Project;
+    if let Some(pos) = projects.iter().position(|app| app.name == app_name) {
+        let app = projects.remove(pos);
+        current_selected_project = Project {
+            id: app.id,
+            name: app.name,
+            tech: app.tech,
+            location: app.location,
+        };
+        update_select_properties(current_selected_project, property);
+    }
+}
+
+fn update_select_properties(project: projects::Project, property: String) {
+    match property {
+        property if property == "id" => update_project_string(project),
+        _ => println!("no property matching detected."),
+    }
+}
+
+fn update_project_string(project: projects::Project) {
+    println!("zizi");
+    println!("{:?}", project);
+}
+
+//TODO
+//remove all below, commit, rewrite and stash it to move to the correct branch
 
 pub fn update_project() {
     let mut projects = utils::get_app_vec();
