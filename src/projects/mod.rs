@@ -52,8 +52,8 @@ fn new_project_by_choice(tech: &String, name: &str) {
 
 // update project
 
-pub fn update_one_project() {
-    update::update_project();
+pub fn update_project() {
+    update::update_project_properties();
 }
 
 // tech project

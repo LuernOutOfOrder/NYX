@@ -49,7 +49,7 @@ fn main() {
         Commands::ProjectList => projects::list_projects(),
         Commands::ProjectDelete => projects::select_remove_project(),
         Commands::ProjectBuild => build::build_current_project(),
-        Commands::ProjectUpdate => projects::update_one_project(),
+        Commands::ProjectUpdate => projects::update_project(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),

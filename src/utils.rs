@@ -1,4 +1,4 @@
-use crate::projects;
+use crate::projects::{self, Project};
 use std::{env, fs, process::Command};
 
 use inquire::{
@@ -87,6 +87,25 @@ pub fn get_select_app_option(prompt: String) -> std::result::Result<String, Inqu
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
 
     return ans;
+}
+
+pub fn get_select_option(
+    prompt: String,
+    option: Vec<String>,
+) -> std::result::Result<String, InquireError> {
+    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
+
+    return ans;
+}
+
+pub fn get_project_property() -> Vec<String> {
+    let options: Vec<String> = vec![
+        "id".to_string(),
+        "name".to_string(),
+        "tech".to_string(),
+        "location".to_string(),
+    ];
+    return options;
 }
 
 pub fn prompt_message(message: String, error_message: String) -> String {
