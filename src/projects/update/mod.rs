@@ -10,9 +10,9 @@ pub fn update_project_properties() {
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_name = utils::prompt_message(
-        "Enter project name".to_string(),
-        "Error with the project name referred".to_string(),
+    let app_id = utils::prompt_message(
+        "Enter project id".to_string(),
+        "Error with the project id referred".to_string(),
     );
     // if an index match the given data,
     let property = utils::get_select_option(
@@ -21,7 +21,7 @@ pub fn update_project_properties() {
     )
     .expect("Failed to get select option");
     let current_selected_project: projects::Project;
-    if let Some(pos) = projects.iter().position(|app| app.name == app_name) {
+    if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
         println!("Project found");
         let app = projects.remove(pos);
         current_selected_project = Project {
@@ -42,6 +42,7 @@ fn update_select_properties(project: projects::Project, property: String) -> pro
     match property {
         property if property == "id" => update_project_id(project),
         property if property == "name" => update_project_name(project),
+        property if property == "tech" => update_project_tech(project),
         property if property == "location" => update_project_location(project),
         _ => {
             println!("no property matching detected.");
@@ -95,6 +96,21 @@ fn update_project_location(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: project.tech,
         location: new_location,
+    };
+    return update_project;
+}
+
+fn update_project_tech(project: projects::Project) -> projects::Project {
+    let new_tech = utils::get_select_option(
+        "Select the new project's tech".to_string(),
+        utils::get_tech_option(),
+    )
+    .expect("Failed to select the new project's tech");
+    let update_project: projects::Project = projects::Project {
+        id: project.id,
+        name: project.name,
+        tech: new_tech,
+        location: project.location,
     };
     return update_project;
 }

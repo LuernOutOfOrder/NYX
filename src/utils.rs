@@ -76,6 +76,7 @@ pub fn get_tech_option() -> Vec<String> {
         "Python".to_string(),
         "Golang".to_string(),
         "Rust".to_string(),
+        "C++".to_string(),
         "Other".to_string(),
     ];
     return options;
