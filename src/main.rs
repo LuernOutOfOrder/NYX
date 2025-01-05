@@ -26,6 +26,8 @@ enum Commands {
     ProjectDelete,
     #[command(about = "Build the current project in working directory")]
     ProjectBuild,
+    #[command(about = "Update specified project properties")]
+    ProjectUpdate,
     #[command(about = "Cleanup all unused files")]
     Cleanup,
     #[command(about = "Stash with message")]
@@ -47,6 +49,7 @@ fn main() {
         Commands::ProjectList => projects::list_projects(),
         Commands::ProjectDelete => projects::select_remove_project(),
         Commands::ProjectBuild => build::build_current_project(),
+        Commands::ProjectUpdate => projects::update_project(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),

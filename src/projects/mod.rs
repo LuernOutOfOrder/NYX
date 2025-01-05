@@ -5,6 +5,7 @@ use std::fs;
 use std::process::Command;
 use tabled::settings::Style;
 mod templates;
+mod update;
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
 
@@ -20,6 +21,8 @@ pub struct Project {
 pub struct Data {
     pub project: Vec<Project>,
 }
+
+// new project
 
 pub fn new_project(name: String) {
     inquire::set_global_render_config(utils::get_render_config());
@@ -46,6 +49,14 @@ fn new_project_by_choice(tech: &String, name: &str) {
     }
     add_project_to_list(tech);
 }
+
+// update project
+
+pub fn update_project() {
+    update::update_project_properties();
+}
+
+// tech project
 
 fn new_nodejs_project(tech: &str) {
     let mut npm = Command::new("npm")
@@ -124,6 +135,8 @@ fn new_rust_project(tech: &str) {
     templates::new_gitignore(&tech);
 }
 
+// project listing
+
 pub fn add_existing_project_to_list() {
     inquire::set_global_render_config(utils::get_render_config());
     let options = utils::get_tech_option();
@@ -164,6 +177,8 @@ pub fn list_projects() {
     println!("{}", table);
 }
 
+// remove project
+
 pub fn select_remove_project() {
     inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec![
@@ -195,7 +210,7 @@ fn remove_project_from_list() {
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
-        .expect("Failed to read stash message");
+        .expect("Failed to read project name");
     // if an index match the given data, remove it from the vector
     if let Some(pos) = projects.iter().position(|x| x.name == app_name) {
         projects.remove(pos);
@@ -212,7 +227,7 @@ fn remove_project_from_storage() {
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
-        .expect("Failed to read stash message");
+        .expect("Failed to read project name");
     if let Some(pos) = projects.iter().position(|app| app.name == app_name) {
         let app = projects.remove(pos);
         let app_location = &app.location;
