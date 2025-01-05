@@ -42,6 +42,7 @@ fn update_select_properties(project: projects::Project, property: String) -> pro
     match property {
         property if property == "id" => update_project_id(project),
         property if property == "name" => update_project_name(project),
+        property if property == "location" => update_project_location(project),
         _ => {
             println!("no property matching detected.");
             project
@@ -82,10 +83,13 @@ fn update_project_location(project: projects::Project) -> projects::Project {
         "Enter the new project's location: ".to_string(),
         "Error getting the new project's location".to_string(),
     );
-    //TODO
-    // test regex to enter correct location string
-    let re = Regex::new(r"hello").unwrap();
-    assert!(re.is_match("hello"));
+    let re = Regex::new(r"^(/[^/ ]*)+/?$").unwrap();
+    if !re.is_match(&new_location) {
+        println!(
+            "{}",
+            "The location path is not correct. Please enter a correct path."
+        )
+    }
     let update_project: projects::Project = projects::Project {
         id: project.id,
         name: project.name,
