@@ -108,6 +108,9 @@ pub fn get_project_property() -> Vec<String> {
         "name".to_string(),
         "tech".to_string(),
         "location".to_string(),
+        "repository".to_string(),
+        "github_project".to_string(),
+        "version".to_string(),
     ];
     return options;
 }
