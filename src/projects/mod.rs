@@ -15,6 +15,9 @@ pub struct Project {
     pub name: String,
     pub tech: String,
     pub location: String,
+    pub repository: String,
+    pub github_project: String,
+    pub version: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -154,11 +157,46 @@ fn add_project_to_list(tech: &String) {
     let current_dir = utils::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
+    let mut repository_user_input: String;
+    repository_user_input = utils::prompt_message(
+        "Enter the url of the github's repository of the project: ".to_string(),
+        "Failed to get the user input".to_string(),
+    );
+
+    if repository_user_input == "".to_string() {
+        repository_user_input = "No repository specified".to_string()
+    }
+
+    let mut github_project: String;
+
+    github_project = utils::prompt_message(
+        "Enter the url of the github project: ".to_string(),
+        "Error getting the user input".to_string(),
+    );
+
+    if github_project == "".to_string() {
+        github_project = "No github project specified".to_string()
+    }
+
+    let mut version: String;
+
+    version = utils::prompt_message(
+        "Enter the version of the project: ".to_string(),
+        "Error getting the user input".to_string(),
+    );
+
+    if version == "".to_string() {
+        version = "0.1.0".to_string();
+    }
+
     let new_app: Project = Project {
         id: (app_id.to_string().to_lowercase()),
         name: (app_name.to_string()),
         tech: (tech.to_string()),
         location: (current_dir),
+        repository: repository_user_input,
+        github_project: github_project,
+        version: version,
     };
     projects.push(new_app.clone());
     let updated_data = Data { project: projects };

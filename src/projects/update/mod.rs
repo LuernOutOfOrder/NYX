@@ -29,6 +29,9 @@ pub fn update_project_properties() {
             name: app.name,
             tech: app.tech,
             location: app.location,
+            repository: app.repository,
+            github_project: app.github_project,
+            version: app.version,
         };
         let updated_project = update_select_properties(current_selected_project, property);
         projects.push(updated_project);
@@ -44,6 +47,9 @@ fn update_select_properties(project: projects::Project, property: String) -> pro
         property if property == "name" => update_project_name(project),
         property if property == "tech" => update_project_tech(project),
         property if property == "location" => update_project_location(project),
+        property if property == "repository" => update_project_repository(project),
+        property if property == "github_project" => update_project_github_project(project),
+        property if property == "version" => update_project_version(project),
         _ => {
             println!("no property matching detected.");
             project
@@ -61,6 +67,9 @@ fn update_project_id(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: project.tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
+        version: project.version,
     };
     return update_project;
 }
@@ -75,6 +84,9 @@ fn update_project_name(project: projects::Project) -> projects::Project {
         name: new_name,
         tech: project.tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
+        version: project.version,
     };
     return update_project;
 }
@@ -96,6 +108,9 @@ fn update_project_location(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: project.tech,
         location: new_location,
+        repository: project.repository,
+        github_project: project.github_project,
+        version: project.version,
     };
     return update_project;
 }
@@ -111,6 +126,68 @@ fn update_project_tech(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: new_tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
+        version: project.version,
+    };
+    return update_project;
+}
+
+fn update_project_repository(project: projects::Project) -> projects::Project {
+    let new_url = utils::prompt_message(
+        "Enter the new project's repository: ".to_string(),
+        "Error getting the new project's repository".to_string(),
+    );
+    let re = Regex::new(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)").unwrap();
+    if !re.is_match(&new_url) {
+        println!("{}", "The url is not correct. Please enter a correct url.")
+    }
+    let update_project: projects::Project = projects::Project {
+        id: project.id,
+        name: project.name,
+        tech: project.tech,
+        location: project.location,
+        repository: new_url,
+        github_project: project.github_project,
+        version: project.version,
+    };
+    return update_project;
+}
+
+fn update_project_github_project(project: projects::Project) -> projects::Project {
+    let new_url = utils::prompt_message(
+        "Enter the new project's github project: ".to_string(),
+        "Error getting the new project's github project".to_string(),
+    );
+    let re = Regex::new(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)").unwrap();
+    if !re.is_match(&new_url) {
+        println!("{}", "The url is not correct. Please enter a correct url.")
+    }
+    let update_project: projects::Project = projects::Project {
+        id: project.id,
+        name: project.name,
+        tech: project.tech,
+        location: project.location,
+        repository: project.repository,
+        github_project: new_url,
+        version: project.version,
+    };
+    return update_project;
+}
+
+fn update_project_version(project: projects::Project) -> projects::Project {
+    let new_version = utils::prompt_message(
+        "Enter the new project's version: ".to_string(),
+        "Error getting the new project's version".to_string(),
+    );
+    let update_project: projects::Project = projects::Project {
+        id: project.id,
+        name: project.name,
+        tech: project.tech,
+        location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
+        version: new_version,
     };
     return update_project;
 }

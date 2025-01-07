@@ -32,6 +32,9 @@ pub fn get_app_vec() -> Vec<projects::Project> {
             name: app.name.clone(),
             tech: app.tech.clone(),
             location: app.location.clone(),
+            repository: app.repository.clone(),
+            github_project: app.github_project.clone(),
+            version: app.version.clone(),
         });
     }
     return projects;
@@ -105,6 +108,9 @@ pub fn get_project_property() -> Vec<String> {
         "name".to_string(),
         "tech".to_string(),
         "location".to_string(),
+        "repository".to_string(),
+        "github_project".to_string(),
+        "version".to_string(),
     ];
     return options;
 }
