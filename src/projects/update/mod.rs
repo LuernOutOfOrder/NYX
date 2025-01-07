@@ -29,6 +29,8 @@ pub fn update_project_properties() {
             name: app.name,
             tech: app.tech,
             location: app.location,
+            repository: app.repository,
+            github_project: app.github_project,
         };
         let updated_project = update_select_properties(current_selected_project, property);
         projects.push(updated_project);
@@ -61,6 +63,8 @@ fn update_project_id(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: project.tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
     };
     return update_project;
 }
@@ -75,6 +79,8 @@ fn update_project_name(project: projects::Project) -> projects::Project {
         name: new_name,
         tech: project.tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
     };
     return update_project;
 }
@@ -96,6 +102,8 @@ fn update_project_location(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: project.tech,
         location: new_location,
+        repository: project.repository,
+        github_project: project.github_project,
     };
     return update_project;
 }
@@ -111,6 +119,8 @@ fn update_project_tech(project: projects::Project) -> projects::Project {
         name: project.name,
         tech: new_tech,
         location: project.location,
+        repository: project.repository,
+        github_project: project.github_project,
     };
     return update_project;
 }

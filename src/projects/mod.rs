@@ -15,6 +15,8 @@ pub struct Project {
     pub name: String,
     pub tech: String,
     pub location: String,
+    pub repository: String,
+    pub github_project: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -159,6 +161,8 @@ fn add_project_to_list(tech: &String) {
         name: (app_name.to_string()),
         tech: (tech.to_string()),
         location: (current_dir),
+        repository: "No repository specified".to_string(),
+        github_project: "No github project specified".to_string(),
     };
     projects.push(new_app.clone());
     let updated_data = Data { project: projects };

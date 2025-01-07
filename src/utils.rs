@@ -32,6 +32,8 @@ pub fn get_app_vec() -> Vec<projects::Project> {
             name: app.name.clone(),
             tech: app.tech.clone(),
             location: app.location.clone(),
+            repository: app.repository.clone(),
+            github_project: app.github_project.clone(),
         });
     }
     return projects;
