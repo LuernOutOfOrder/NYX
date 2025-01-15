@@ -20,6 +20,14 @@ pub struct Project {
     pub version: String,
 }
 
+#[derive(Tabled, Clone)]
+pub struct ProjectShort {
+    pub id: String,
+    pub name: String,
+    pub tech: String,
+    pub location: String,
+}
+
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Data {
     pub project: Vec<Project>,
@@ -204,11 +212,14 @@ fn add_project_to_list(tech: &String) {
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
 }
 
-pub fn list_projects() {
+pub fn list_projects(short: Option<bool>) {
     println!("Listing all projects...");
     let projects = utils::get_app_vec();
-
-    let builder = Table::builder(&projects).index().name(None);
+    let projects_short = utils::get_app_vec_short();
+    let mut builder = Table::builder(&projects).index().name(None);
+    if short == Some(true) {
+        builder = Table::builder(&projects_short).index().name(None);
+    }
 
     let mut table = builder.build();
     table.with(Style::modern());

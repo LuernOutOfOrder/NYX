@@ -21,7 +21,7 @@ enum Commands {
     #[command(about = "Add an existing project to the projects list")]
     ProjectAdd,
     #[command(about = "List all projects")]
-    ProjectList,
+    ProjectList { is_short: Option<bool> },
     #[command(about = "Remove project from list or completely")]
     ProjectDelete,
     #[command(about = "Build the current project in working directory")]
@@ -46,7 +46,7 @@ fn main() {
     match args.cmd {
         Commands::Project { name } => projects::new_project(name),
         Commands::ProjectAdd => projects::add_existing_project_to_list(),
-        Commands::ProjectList => projects::list_projects(),
+        Commands::ProjectList { is_short } => projects::list_projects(is_short),
         Commands::ProjectDelete => projects::select_remove_project(),
         Commands::ProjectBuild => build::build_current_project(),
         Commands::ProjectUpdate => projects::update_project(),

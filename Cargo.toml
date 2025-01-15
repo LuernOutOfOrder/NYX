@@ -6,11 +6,11 @@ authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
 description = "A CLI tool for managing your system."
 
 [dependencies]
-clap = { version = "4.5.23", features = ["derive"] }
+clap = { version = "4.5.26", features = ["derive"] }
 inquire = "0.7.5"
 serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.134"
+serde_json = "1.0.135"
 tabled = "0.17.0"
-colored = "2.2.0"
+colored = "3.0.0"
 throbber = "0.1"
 regex = "1.11.1"

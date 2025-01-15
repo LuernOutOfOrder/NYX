@@ -40,6 +40,22 @@ pub fn get_app_vec() -> Vec<projects::Project> {
     return projects;
 }
 
+pub fn get_app_vec_short() -> Vec<projects::ProjectShort> {
+    let app_data_path = get_app_data();
+    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
+    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut projects: Vec<projects::ProjectShort> = Vec::new();
+    for app in &data.project {
+        projects.push(projects::ProjectShort {
+            id: app.id.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+        });
+    }
+    return projects;
+}
+
 pub fn get_current_path() -> String {
     let path = env::current_dir().expect("Failed to get current directory");
     return path.display().to_string();
