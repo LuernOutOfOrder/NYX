@@ -17,11 +17,11 @@ struct Args {
 #[derive(Subcommand, Debug, Clone)]
 enum Commands {
     #[command(about = "Generate new project")]
-    Project { name: String },
+    Project { name: Option<String> },
     #[command(about = "Add an existing project to the projects list")]
     ProjectAdd,
     #[command(about = "List all projects")]
-    ProjectList { is_short: Option<bool> },
+    ProjectList { is_short: Option<String> },
     #[command(about = "Remove project from list or completely")]
     ProjectDelete,
     #[command(about = "Build the current project in working directory")]

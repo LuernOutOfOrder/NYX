@@ -20,7 +20,7 @@ pub struct Project {
     pub version: String,
 }
 
-#[derive(Tabled, Clone)]
+#[derive(Tabled)]
 pub struct ProjectShort {
     pub id: String,
     pub name: String,
@@ -35,9 +35,19 @@ pub struct Data {
 
 // new project
 
-pub fn new_project(name: String) {
+pub fn new_project(name: Option<String>) {
     inquire::set_global_render_config(utils::get_render_config());
     let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
+
+    let name = if let Some(n) = name {
+        if n.is_empty() {
+            "new_project".to_string()
+        } else {
+            n
+        }
+    } else {
+        "new_project".to_string()
+    };
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),
@@ -212,15 +222,19 @@ fn add_project_to_list(tech: &String) {
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
 }
 
-pub fn list_projects(short: Option<bool>) {
+pub fn list_projects(short: Option<String>) {
     println!("Listing all projects...");
     let projects = utils::get_app_vec();
     let projects_short = utils::get_app_vec_short();
     let mut builder = Table::builder(&projects).index().name(None);
-    if short == Some(true) {
-        builder = Table::builder(&projects_short).index().name(None);
-    }
-
+    if let Some(s) = short {
+        if s.is_empty() {
+        } else if s == "--short" || s == "-s" {
+            builder = Table::builder(&projects_short).index().name(None);
+        } else {
+            println!("Unknown flag parsed.");
+        }
+    };
     let mut table = builder.build();
     table.with(Style::modern());
     println!("{}", table);
