@@ -1,5 +1,8 @@
 use crate::projects::{self};
-use std::{env, fs, process::Command};
+use std::{
+    env, fs,
+    process::{exit, Command},
+};
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
@@ -168,4 +171,37 @@ pub fn rm_command(path: String) {
 pub fn custom_throbber(message: String) -> Throbber {
     let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
     return custom_throbber;
+}
+
+pub fn unknown_flag(arg: &str) {
+    println!("Unknown flag parsed: {}", arg);
+    exit(1);
+}
+
+pub fn nyx_usage() {
+    let usage = r"
+Usage: nyx command [options]
+
+A simple tool to help manage your projects.
+
+Commands:
+    project         Initialize a new project
+    project-add     Add an existing project to the projects list
+    project-list    List all projects
+    project-delete  Remove project from list or completely from storage.
+    project-build   Build the current project in working directory
+    project-update  Update specified project properties
+    cleanup         Cleanup all unused files
+    git-stash       Stash with message
+    git-tag         Create a new tag and push it to the origin branch
+    git-reverse     Revert to the specified commit
+    update          Update the current version of NYX
+    help            Show this help message
+
+Options:
+
+    -h, --help      Show command usage
+";
+
+    println!("{}", usage);
 }

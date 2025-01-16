@@ -19,6 +19,7 @@ enum Commands {
     GitTag,
     GitReverse,
     Update,
+    Help,
 }
 
 fn main() {
@@ -57,6 +58,7 @@ fn main() {
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
         Commands::Update => update::update_bin(),
+        Commands::Help => utils::nyx_usage(),
     }
 }
 
@@ -64,6 +66,8 @@ fn usage_and_exit(msg: String) {
     if msg != "" {
         eprintln!("{}", msg);
     }
+
+    utils::nyx_usage();
 
     exit(0);
 }

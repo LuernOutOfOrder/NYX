@@ -238,8 +238,7 @@ pub fn list_projects() {
                 builder = Table::builder(&projects_short).index().name(None);
             }
             _ => {
-                println!("Unknown flag parsed: {}", arg.as_str());
-                exit(1)
+                utils::unknown_flag(arg);
             }
         }
     }
@@ -279,11 +278,11 @@ fn remove_project_from_list() {
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_name = Text::new("Enter the name of the project:")
+    let app_id = Text::new("Enter the id of the project:")
         .prompt()
-        .expect("Failed to read project name");
+        .expect("Failed to read project id");
     // if an index match the given data, remove it from the vector
-    if let Some(pos) = projects.iter().position(|x| x.name == app_name) {
+    if let Some(pos) = projects.iter().position(|x| x.id == app_id) {
         projects.remove(pos);
     }
     let updated_data = Data { project: projects };
@@ -296,10 +295,10 @@ fn remove_project_from_storage() {
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_name = Text::new("Enter the name of the project:")
+    let app_id = Text::new("Enter the ic of the project:")
         .prompt()
-        .expect("Failed to read project name");
-    if let Some(pos) = projects.iter().position(|app| app.name == app_name) {
+        .expect("Failed to read project id");
+    if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
         let app = projects.remove(pos);
         let app_location = &app.location;
         Command::new("rm")
