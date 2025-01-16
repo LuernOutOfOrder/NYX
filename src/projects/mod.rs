@@ -2,11 +2,12 @@ use crate::utils;
 use inquire::Text;
 use inquire::{error::InquireError, Select};
 use std::fs;
-use std::process::Command;
+use std::process::{exit, Command};
 use tabled::settings::Style;
 mod templates;
 mod update;
 use serde::{Deserialize, Serialize};
+use std::env;
 use tabled::{Table, Tabled};
 
 #[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
@@ -222,19 +223,26 @@ fn add_project_to_list(tech: &String) {
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
 }
 
-pub fn list_projects(short: Option<String>) {
+pub fn list_projects() {
     println!("Listing all projects...");
+    let args: Vec<String> = env::args().collect();
     let projects = utils::get_app_vec();
     let projects_short = utils::get_app_vec_short();
     let mut builder = Table::builder(&projects).index().name(None);
-    if let Some(s) = short {
-        if s.is_empty() {
-        } else if s == "--short" || s == "-s" {
-            builder = Table::builder(&projects_short).index().name(None);
-        } else {
-            println!("Unknown flag parsed.");
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-s" => {
+                builder = Table::builder(&projects_short).index().name(None);
+            }
+            "--short" => {
+                builder = Table::builder(&projects_short).index().name(None);
+            }
+            _ => {
+                println!("Unknown flag parsed: {}", arg.as_str());
+                exit(1)
+            }
         }
-    };
+    }
     let mut table = builder.build();
     table.with(Style::modern());
     println!("{}", table);
