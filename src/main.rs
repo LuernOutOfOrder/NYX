@@ -20,6 +20,7 @@ enum Commands {
     GitReverse,
     Update,
     Help,
+    Version,
 }
 
 fn main() {
@@ -40,6 +41,8 @@ fn main() {
         Some("git-tag") => Commands::GitTag,
         Some("git-reverse") => Commands::GitReverse,
         Some("update") => Commands::Update,
+        Some("help") => Commands::Help,
+        Some("version") => Commands::Version,
         _ => {
             usage_and_exit("Invalid command".to_string());
             return;
@@ -59,6 +62,7 @@ fn main() {
         Commands::GitReverse => git::nyx_git_revert(),
         Commands::Update => update::update_bin(),
         Commands::Help => utils::nyx_usage(),
+        Commands::Version => nyx_version(),
     }
 }
 
@@ -70,4 +74,10 @@ fn usage_and_exit(msg: String) {
     utils::nyx_usage();
 
     exit(0);
+}
+
+const VERSION: &'static str = "0.9.9";
+
+pub fn nyx_version() {
+    println!("nyx {}", VERSION);
 }

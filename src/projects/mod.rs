@@ -2,7 +2,7 @@ use crate::utils;
 use inquire::Text;
 use inquire::{error::InquireError, Select};
 use std::fs;
-use std::process::{exit, Command};
+use std::process::Command;
 use tabled::settings::Style;
 mod templates;
 mod update;

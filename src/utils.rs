@@ -201,6 +201,7 @@ Commands:
 Options:
 
     -h, --help      Show command usage
+    -v, --version   Show the current version of NYX
 ";
 
     println!("{}", usage);
