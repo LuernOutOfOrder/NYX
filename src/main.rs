@@ -6,6 +6,11 @@ mod update;
 mod utils;
 use std::{env, process::exit};
 
+// Current version of NYX
+// if modified and then running update command it will replace
+// your current nyx installation with the newer version
+const VERSION: &'static str = "0.9.9";
+
 #[derive(Debug, Clone)]
 enum Commands {
     Project { name: Option<String> },
@@ -75,8 +80,6 @@ fn usage_and_exit(msg: String) {
 
     exit(0);
 }
-
-const VERSION: &'static str = "0.9.9";
 
 pub fn nyx_version() {
     println!("nyx {}", VERSION);

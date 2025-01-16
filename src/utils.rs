@@ -206,3 +206,8 @@ Options:
 
     println!("{}", usage);
 }
+
+pub fn command_usage(usage: &str) {
+    println!("{}", usage);
+    exit(0);
+}

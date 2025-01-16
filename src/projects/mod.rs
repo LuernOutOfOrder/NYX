@@ -10,6 +10,18 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::{Table, Tabled};
 
+pub fn project_help() -> String {
+    let usage = r"
+Usage: nyx project [name]
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 #[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
 pub struct Project {
     pub id: String,
@@ -35,11 +47,21 @@ pub struct Data {
 }
 
 // new project
-
 pub fn new_project(name: Option<String>) {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&project_help());
+            }
+            "--help" => {
+                utils::command_usage(&project_help());
+            }
+            _ => {}
+        }
+    }
     inquire::set_global_render_config(utils::get_render_config());
     let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
-
     let name = if let Some(n) = name {
         if n.is_empty() {
             "new_project".to_string()
@@ -295,7 +317,7 @@ fn remove_project_from_storage() {
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the ic of the project:")
+    let app_id = Text::new("Enter the id of the project:")
         .prompt()
         .expect("Failed to read project id");
     if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
