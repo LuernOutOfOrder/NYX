@@ -5,6 +5,19 @@ use std::{env, fs};
 use tabled::settings::Style;
 use tabled::Table;
 
+pub fn project_list_help() -> String {
+    let usage = r"
+Usage: nyx project-list [options]
+
+Options:
+
+    -s, --short     List all project without Github and version data
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn list_projects() {
     println!("Listing all projects...");
     let args: Vec<String> = env::args().collect();
@@ -18,6 +31,12 @@ pub fn list_projects() {
             }
             "--short" => {
                 builder = Table::builder(&projects_short).index().name(None);
+            }
+            "-h" => {
+                utils::command_usage(&project_list_help());
+            }
+            "--help" => {
+                utils::command_usage(&project_list_help());
             }
             _ => {}
         }
