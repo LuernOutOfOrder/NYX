@@ -10,7 +10,7 @@ use std::{env, process::exit};
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "0.9.92";
+const VERSION: &'static str = "0.9.93";
 
 #[derive(Debug, Clone)]
 enum Commands {
@@ -32,6 +32,18 @@ enum Commands {
 fn main() {
     // let args = Args::parse();
     let args: Vec<String> = env::args().collect();
+
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-v" => {
+                utils::command_usage(&nyx_version());
+            }
+            "--version" => {
+                utils::command_usage(&nyx_version());
+            }
+            _ => {}
+        }
+    }
 
     let command = match args.get(1).map(|s| s.as_str()) {
         Some("project") => Commands::Project {
@@ -68,7 +80,7 @@ fn main() {
         Commands::GitReverse => git::nyx_git_revert(),
         Commands::Update => update::update_bin(),
         Commands::Help => utils::nyx_usage(),
-        Commands::Version => nyx_version(),
+        Commands::Version => utils::command_usage(&nyx_version()),
     }
 }
 
@@ -82,6 +94,7 @@ fn usage_and_exit(msg: String) {
     exit(0);
 }
 
-pub fn nyx_version() {
-    println!("nyx {}", VERSION);
+pub fn nyx_version() -> String {
+    let usage = format!("nyx {VERSION}");
+    usage
 }
