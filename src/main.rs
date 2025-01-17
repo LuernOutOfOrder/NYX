@@ -4,12 +4,13 @@ mod git;
 mod projects;
 mod update;
 mod utils;
+
 use std::{env, process::exit};
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "0.9.9";
+const VERSION: &'static str = "0.9.92";
 
 #[derive(Debug, Clone)]
 enum Commands {
@@ -56,9 +57,9 @@ fn main() {
 
     match command {
         Commands::Project { name } => projects::new_project(name),
-        Commands::ProjectAdd => projects::add_existing_project_to_list(),
-        Commands::ProjectList => projects::list_projects(),
-        Commands::ProjectDelete => projects::select_remove_project(),
+        Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
+        Commands::ProjectList => projects::list::list_projects(),
+        Commands::ProjectDelete => projects::remove::select_remove_project(),
         Commands::ProjectBuild => build::build_current_project(),
         Commands::ProjectUpdate => projects::update_project(),
         Commands::Cleanup => cleanup::choose_cleanup(),

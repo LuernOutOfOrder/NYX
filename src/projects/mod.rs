@@ -1,14 +1,13 @@
 use crate::utils;
-use inquire::Text;
-use inquire::{error::InquireError, Select};
 use std::fs;
 use std::process::Command;
-use tabled::settings::Style;
+pub mod list;
 mod templates;
 mod update;
 use serde::{Deserialize, Serialize};
 use std::env;
-use tabled::{Table, Tabled};
+use tabled::Tabled;
+pub mod remove;
 
 pub fn project_help() -> String {
     let usage = r"
@@ -91,7 +90,7 @@ fn new_project_by_choice(tech: &String, name: &str) {
         tech if tech == "Rust" => new_rust_project(tech),
         _ => println!("please select a tech"),
     }
-    add_project_to_list(tech);
+    list::add_project_to_list(tech);
 }
 
 // update project
@@ -177,161 +176,4 @@ fn new_rust_project(tech: &str) {
         panic!("Error init the Rust project")
     }
     templates::new_gitignore(&tech);
-}
-
-// project listing
-
-pub fn add_existing_project_to_list() {
-    inquire::set_global_render_config(utils::get_render_config());
-    let options = utils::get_tech_option();
-    let ans: std::result::Result<String, InquireError> =
-        Select::new("Which tech your project is using ?", options).prompt();
-    match ans {
-        Ok(choice) => add_project_to_list(&choice),
-        Err(_) => println!("There was an error, please try again"),
-    }
-}
-
-fn add_project_to_list(tech: &String) {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    let current_dir = utils::get_current_path();
-    let app_name = current_dir.split("/").last().unwrap();
-    let app_id = &app_name[..3];
-    let mut repository_user_input: String;
-    repository_user_input = utils::prompt_message(
-        "Enter the url of the github's repository of the project: ".to_string(),
-        "Failed to get the user input".to_string(),
-    );
-
-    if repository_user_input == "".to_string() {
-        repository_user_input = "No repository specified".to_string()
-    }
-
-    let mut github_project: String;
-
-    github_project = utils::prompt_message(
-        "Enter the url of the github project: ".to_string(),
-        "Error getting the user input".to_string(),
-    );
-
-    if github_project == "".to_string() {
-        github_project = "No github project specified".to_string()
-    }
-
-    let mut version: String;
-
-    version = utils::prompt_message(
-        "Enter the version of the project: ".to_string(),
-        "Error getting the user input".to_string(),
-    );
-
-    if version == "".to_string() {
-        version = "0.1.0".to_string();
-    }
-
-    let new_app: Project = Project {
-        id: (app_id.to_string().to_lowercase()),
-        name: (app_name.to_string()),
-        tech: (tech.to_string()),
-        location: (current_dir),
-        repository: repository_user_input,
-        github_project: github_project,
-        version: version,
-    };
-    projects.push(new_app.clone());
-    let updated_data = Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
-}
-
-pub fn list_projects() {
-    println!("Listing all projects...");
-    let args: Vec<String> = env::args().collect();
-    let projects = utils::get_app_vec();
-    let projects_short = utils::get_app_vec_short();
-    let mut builder = Table::builder(&projects).index().name(None);
-    if let Some(arg) = args.iter().last() {
-        match arg.as_str().trim() {
-            "-s" => {
-                builder = Table::builder(&projects_short).index().name(None);
-            }
-            "--short" => {
-                builder = Table::builder(&projects_short).index().name(None);
-            }
-            _ => {
-                utils::unknown_flag(arg);
-            }
-        }
-    }
-    let mut table = builder.build();
-    table.with(Style::modern());
-    println!("{}", table);
-}
-
-// remove project
-
-pub fn select_remove_project() {
-    inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec![
-        "Remove project from projects list",
-        "Delete completely the project",
-        "Nothing",
-    ];
-
-    let ans: std::result::Result<&str, InquireError> =
-        Select::new("What do you want to do ?", options).prompt();
-
-    match ans {
-        Ok(choice) => which_remove_project(choice),
-        Err(_) => println!("There was an error, please try again"),
-    }
-}
-
-fn which_remove_project(choice: &str) {
-    match choice {
-        choice if choice == "Remove project from projects list" => remove_project_from_list(),
-        choice if choice == "Delete completely the project" => remove_project_from_storage(),
-        _ => println!("please make a choice"),
-    }
-}
-
-fn remove_project_from_list() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the id of the project:")
-        .prompt()
-        .expect("Failed to read project id");
-    // if an index match the given data, remove it from the vector
-    if let Some(pos) = projects.iter().position(|x| x.id == app_id) {
-        projects.remove(pos);
-    }
-    let updated_data = Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
-    println!("Successfully remove project from list");
-}
-
-fn remove_project_from_storage() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the id of the project:")
-        .prompt()
-        .expect("Failed to read project id");
-    if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
-        let app = projects.remove(pos);
-        let app_location = &app.location;
-        Command::new("rm")
-            .arg("-rf")
-            .arg(app_location)
-            .spawn()
-            .expect("Failed to delete the directory of the project");
-        println!("Successfully delete project from storage");
-    }
-    let updated_data = Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
-    println!("Successfully remove project from list");
 }
