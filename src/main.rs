@@ -10,7 +10,7 @@ use std::{env, process::exit};
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "0.9.93";
+const VERSION: &'static str = "0.9.94";
 
 #[derive(Debug, Clone)]
 enum Commands {
