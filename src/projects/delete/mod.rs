@@ -1,10 +1,34 @@
 use crate::projects::{self};
 use inquire::{InquireError, Select, Text};
-use std::{fs, process::Command};
+use std::{env, fs, process::Command};
 
 use crate::utils;
 
+pub fn project_delete_help() -> String {
+    let usage = r"
+Usage: nyx project-delete [options]
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn select_remove_project() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&project_delete_help());
+            }
+            "--help" => {
+                utils::command_usage(&project_delete_help());
+            }
+            _ => {}
+        }
+    }
     inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec![
         "Remove project from projects list",

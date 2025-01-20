@@ -71,7 +71,7 @@ fn main() {
         Commands::Project { name } => projects::new_project(name),
         Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
         Commands::ProjectList => projects::list::list_projects(),
-        Commands::ProjectDelete => projects::remove::select_remove_project(),
+        Commands::ProjectDelete => projects::delete::select_remove_project(),
         Commands::ProjectBuild => build::build_current_project(),
         Commands::ProjectUpdate => projects::update_project(),
         Commands::Cleanup => cleanup::choose_cleanup(),

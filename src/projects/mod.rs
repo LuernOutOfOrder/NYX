@@ -7,7 +7,7 @@ mod update;
 use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
-pub mod remove;
+pub mod delete;
 
 pub fn project_help() -> String {
     let usage = r"
