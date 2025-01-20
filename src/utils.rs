@@ -1,5 +1,8 @@
-use crate::application;
-use std::{env, fs, process::Command};
+use crate::projects::{self};
+use std::{
+    env, fs,
+    process::{exit, Command},
+};
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
@@ -21,20 +24,39 @@ pub fn get_app_data() -> String {
     return app_data;
 }
 
-pub fn get_app_vec() -> Vec<application::Application> {
+pub fn get_app_vec() -> Vec<projects::Project> {
     let app_data_path = get_app_data();
     let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: application::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut applications: Vec<application::Application> = Vec::new();
-    for app in &data.application {
-        applications.push(application::Application {
+    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut projects: Vec<projects::Project> = Vec::new();
+    for app in &data.project {
+        projects.push(projects::Project {
+            id: app.id.clone(),
+            name: app.name.clone(),
+            tech: app.tech.clone(),
+            location: app.location.clone(),
+            repository: app.repository.clone(),
+            github_project: app.github_project.clone(),
+            version: app.version.clone(),
+        });
+    }
+    return projects;
+}
+
+pub fn get_app_vec_short() -> Vec<projects::ProjectShort> {
+    let app_data_path = get_app_data();
+    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
+    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
+    let mut projects: Vec<projects::ProjectShort> = Vec::new();
+    for app in &data.project {
+        projects.push(projects::ProjectShort {
             id: app.id.clone(),
             name: app.name.clone(),
             tech: app.tech.clone(),
             location: app.location.clone(),
         });
     }
-    return applications;
+    return projects;
 }
 
 pub fn get_current_path() -> String {
@@ -76,6 +98,7 @@ pub fn get_tech_option() -> Vec<String> {
         "Python".to_string(),
         "Golang".to_string(),
         "Rust".to_string(),
+        "C++".to_string(),
         "Other".to_string(),
     ];
     return options;
@@ -87,6 +110,28 @@ pub fn get_select_app_option(prompt: String) -> std::result::Result<String, Inqu
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
 
     return ans;
+}
+
+pub fn get_select_option(
+    prompt: String,
+    option: Vec<String>,
+) -> std::result::Result<String, InquireError> {
+    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
+
+    return ans;
+}
+
+pub fn get_project_property() -> Vec<String> {
+    let options: Vec<String> = vec![
+        "id".to_string(),
+        "name".to_string(),
+        "tech".to_string(),
+        "location".to_string(),
+        "repository".to_string(),
+        "github_project".to_string(),
+        "version".to_string(),
+    ];
+    return options;
 }
 
 pub fn prompt_message(message: String, error_message: String) -> String {
@@ -126,4 +171,43 @@ pub fn rm_command(path: String) {
 pub fn custom_throbber(message: String) -> Throbber {
     let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
     return custom_throbber;
+}
+
+pub fn unknown_flag(arg: &str) {
+    println!("Unknown flag parsed: {}", arg);
+    exit(1);
+}
+
+pub fn nyx_usage() {
+    let usage = r"
+Usage: nyx command [options]
+
+A simple tool to help manage your projects.
+
+Commands:
+    project         Initialize a new project
+    project-add     Add an existing project to the projects list
+    project-list    List all projects
+    project-delete  Remove project from list or completely from storage.
+    project-build   Build the current project in working directory
+    project-update  Update specified project properties
+    cleanup         Cleanup all unused files
+    git-stash       Stash with message
+    git-tag         Create a new tag and push it to the origin branch
+    git-reverse     Revert to the specified commit
+    update          Update the current version of NYX
+    help            Show this help message
+
+Options:
+
+    -h, --help      Show command usage
+    -v, --version   Show the current version of NYX
+";
+
+    println!("{}", usage);
+}
+
+pub fn command_usage(usage: &str) {
+    println!("{}", usage);
+    exit(0);
 }

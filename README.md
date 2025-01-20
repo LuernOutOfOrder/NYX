@@ -2,12 +2,12 @@
 Assistant to help in daily development tasks.
 
 
-## Application Data File 
-The application data file is a JSON file that contains the data of the applications that NYX will manage. The file is located in the `data` folder and is named `app.json`. The file has the following structure:
+## Project Data File 
+The project data file is a JSON file that contains the data of the projects that NYX will manage. The file is located in the `data` folder and is named `app.json`. The file has the following structure:
 
 ```json
 {
-  "application": [
+  "project": [
     {
       "id": "nyx",
       "name": "NYX",

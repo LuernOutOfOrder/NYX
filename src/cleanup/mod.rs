@@ -1,10 +1,34 @@
-use std::process::Command;
+use std::{env, process::Command};
 
 use inquire::{InquireError, Select};
 
 use crate::utils;
 
+pub fn cleanup_help() -> String {
+    let usage = r"
+Usage: nyx cleanup
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn choose_cleanup() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&cleanup_help());
+            }
+            "--help" => {
+                utils::command_usage(&cleanup_help());
+            }
+            _ => {}
+        }
+    }
     inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec![
         "Remove all docker unused files",
@@ -85,9 +109,9 @@ fn prune_docker_unused() {
 // node_modules, bin folder content of the
 // project managed by nyx
 fn prune_project_unused() {
-    let applications = utils::get_app_vec();
+    let projects = utils::get_app_vec();
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
-    for i in &applications {
+    for i in &projects {
         // Node.js
         let node_module_path = i.location.to_string() + "/node_modules";
         let nodejs_dist_path = i.location.to_string() + "/dist";
