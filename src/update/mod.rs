@@ -18,7 +18,7 @@ pub fn update_bin() {
 
     // nyx version
     let nyx_current_version = Command::new("nyx")
-        .arg("--version")
+        .arg("version")
         .output()
         .expect("Failed to get the current version of NYX");
     let nyx_target_build_location = utils::get_nyx_env_var() + "/target/release";
@@ -38,7 +38,7 @@ pub fn update_bin() {
     building_throbber.success("Successfully build latest binary".to_string());
     building_throbber.end();
     let nyx_latest_version = Command::new("./nyx")
-        .arg("--version")
+        .arg("version")
         .output()
         .expect("Failed to get the current version of NYX");
     if String::from_utf8(nyx_latest_version.stdout) != String::from_utf8(nyx_current_version.stdout)

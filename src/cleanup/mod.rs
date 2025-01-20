@@ -1,10 +1,34 @@
-use std::process::Command;
+use std::{env, process::Command};
 
 use inquire::{InquireError, Select};
 
 use crate::utils;
 
+pub fn cleanup_help() -> String {
+    let usage = r"
+Usage: nyx cleanup
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn choose_cleanup() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&cleanup_help());
+            }
+            "--help" => {
+                utils::command_usage(&cleanup_help());
+            }
+            _ => {}
+        }
+    }
     inquire::set_global_render_config(utils::get_render_config());
     let options: Vec<&str> = vec![
         "Remove all docker unused files",

@@ -1,59 +1,96 @@
+mod cleanup;
 mod git;
 mod projects;
-use clap::{Parser, Subcommand};
-mod build;
-mod cleanup;
 mod update;
 mod utils;
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-#[derive(Debug)]
-struct Args {
-    #[command(subcommand)]
-    cmd: Commands,
-}
+use std::{env, process::exit};
 
-#[derive(Subcommand, Debug, Clone)]
+// Current version of NYX
+// if modified and then running update command it will replace
+// your current nyx installation with the newer version
+const VERSION: &'static str = "1.0.0";
+
+#[derive(Debug, Clone)]
 enum Commands {
-    #[command(about = "Generate new project")]
     Project { name: Option<String> },
-    #[command(about = "Add an existing project to the projects list")]
     ProjectAdd,
-    #[command(about = "List all projects")]
-    ProjectList { is_short: Option<String> },
-    #[command(about = "Remove project from list or completely")]
+    ProjectList,
     ProjectDelete,
-    #[command(about = "Build the current project in working directory")]
-    ProjectBuild,
-    #[command(about = "Update specified project properties")]
     ProjectUpdate,
-    #[command(about = "Cleanup all unused files")]
     Cleanup,
-    #[command(about = "Stash with message")]
     GitStash,
-    #[command(about = "Create a new tag and push it to the origin branch")]
     GitTag,
-    #[command(about = "Revert to the specified commit")]
     GitReverse,
-    #[command(about = "Update the current version of NYX")]
     Update,
+    Help,
+    Version,
 }
 
 fn main() {
-    let args = Args::parse();
+    // let args = Args::parse();
+    let args: Vec<String> = env::args().collect();
 
-    match args.cmd {
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-v" => {
+                utils::command_usage(&nyx_version());
+            }
+            "--version" => {
+                utils::command_usage(&nyx_version());
+            }
+            _ => {}
+        }
+    }
+
+    let command = match args.get(1).map(|s| s.as_str()) {
+        Some("project") => Commands::Project {
+            name: args.get(2).cloned(),
+        },
+        Some("project-add") => Commands::ProjectAdd,
+        Some("project-list") => Commands::ProjectList,
+        Some("project-delete") => Commands::ProjectDelete,
+        Some("project-update") => Commands::ProjectUpdate,
+        Some("cleanup") => Commands::Cleanup,
+        Some("git-stash") => Commands::GitStash,
+        Some("git-tag") => Commands::GitTag,
+        Some("git-reverse") => Commands::GitReverse,
+        Some("update") => Commands::Update,
+        Some("help") => Commands::Help,
+        Some("version") => Commands::Version,
+        _ => {
+            usage_and_exit("Invalid command".to_string());
+            return;
+        }
+    };
+
+    match command {
         Commands::Project { name } => projects::new_project(name),
-        Commands::ProjectAdd => projects::add_existing_project_to_list(),
-        Commands::ProjectList { is_short } => projects::list_projects(is_short),
-        Commands::ProjectDelete => projects::select_remove_project(),
-        Commands::ProjectBuild => build::build_current_project(),
-        Commands::ProjectUpdate => projects::update_project(),
+        Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
+        Commands::ProjectList => projects::list::list_projects(),
+        Commands::ProjectDelete => projects::delete::select_remove_project(),
+        Commands::ProjectUpdate => projects::update::update_project_properties(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
         Commands::Update => update::update_bin(),
+        Commands::Help => utils::nyx_usage(),
+        Commands::Version => utils::command_usage(&nyx_version()),
     }
+}
+
+fn usage_and_exit(msg: String) {
+    if msg != "" {
+        eprintln!("{}", msg);
+    }
+
+    utils::nyx_usage();
+
+    exit(0);
+}
+
+pub fn nyx_version() -> String {
+    let usage = format!("nyx {VERSION}");
+    usage
 }
