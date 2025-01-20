@@ -1,12 +1,36 @@
 use regex::Regex;
-use std::fs;
+use std::{env, fs};
 
 use crate::{
     projects::{self, Data, Project},
     utils,
 };
 
+pub fn project_update_help() -> String {
+    let usage = r"
+Usage: nyx project-update
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn update_project_properties() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&project_update_help());
+            }
+            "--help" => {
+                utils::command_usage(&project_update_help());
+            }
+            _ => {}
+        }
+    }
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     inquire::set_global_render_config(utils::get_render_config());

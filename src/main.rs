@@ -1,4 +1,3 @@
-mod build;
 mod cleanup;
 mod git;
 mod projects;
@@ -18,7 +17,6 @@ enum Commands {
     ProjectAdd,
     ProjectList,
     ProjectDelete,
-    ProjectBuild,
     ProjectUpdate,
     Cleanup,
     GitStash,
@@ -52,7 +50,6 @@ fn main() {
         Some("project-add") => Commands::ProjectAdd,
         Some("project-list") => Commands::ProjectList,
         Some("project-delete") => Commands::ProjectDelete,
-        Some("project-build") => Commands::ProjectBuild,
         Some("project-update") => Commands::ProjectUpdate,
         Some("cleanup") => Commands::Cleanup,
         Some("git-stash") => Commands::GitStash,
@@ -72,8 +69,7 @@ fn main() {
         Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
         Commands::ProjectList => projects::list::list_projects(),
         Commands::ProjectDelete => projects::delete::select_remove_project(),
-        Commands::ProjectBuild => build::build_current_project(),
-        Commands::ProjectUpdate => projects::update_project(),
+        Commands::ProjectUpdate => projects::update::update_project_properties(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),

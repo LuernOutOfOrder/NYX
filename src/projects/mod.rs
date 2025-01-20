@@ -3,7 +3,7 @@ use std::fs;
 use std::process::Command;
 pub mod list;
 mod templates;
-mod update;
+pub mod update;
 use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
@@ -91,12 +91,6 @@ fn new_project_by_choice(tech: &String, name: &str) {
         _ => println!("please select a tech"),
     }
     list::add_project_to_list(tech);
-}
-
-// update project
-
-pub fn update_project() {
-    update::update_project_properties();
 }
 
 // tech project
