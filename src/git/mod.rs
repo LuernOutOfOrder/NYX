@@ -60,3 +60,14 @@ pub fn nyx_git_revert() {
         panic!("Error running the reverse commit command");
     }
 }
+
+pub fn git_init() {
+    let mut git_init = Command::new("git")
+        .arg("init")
+        .spawn()
+        .expect("Failed to create the remote repostory");
+    let wait_git_init = git_init.wait().expect("Failed to wait the gh command");
+    if !wait_git_init.success() {
+        panic!();
+    }
+}

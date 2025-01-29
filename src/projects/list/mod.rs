@@ -1,5 +1,7 @@
+use crate::gh;
 use crate::projects::{self};
 use crate::utils;
+use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
 use std::{env, fs};
 use tabled::settings::Style;
@@ -52,12 +54,29 @@ pub fn add_existing_project_to_list() {
     let ans: std::result::Result<String, InquireError> =
         Select::new("Which tech your project is using ?", options).prompt();
     match ans {
-        Ok(choice) => add_project_to_list(&choice),
+        Ok(choice) => create_repo_or_not(&choice),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-pub fn add_project_to_list(tech: &String) {
+pub fn create_repo_or_not(tech: &str) {
+    inquire::set_global_render_config(utils::get_render_config());
+    let choice: Vec<String> = vec_of_strings!["Yes".to_string(), "No".to_string()];
+    let options = utils::get_select_option(
+        "Do you want to create a new repository ?".to_string(),
+        choice,
+    )
+    .unwrap();
+    match options.as_str() {
+        "Yes" => create_repo_add_to_list(tech),
+        "No" => add_project_to_list(tech),
+        _ => {
+            println!("There was an error, please try again")
+        }
+    }
+}
+
+pub fn add_project_to_list(tech: &str) {
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     let current_dir = utils::get_current_path();
@@ -108,4 +127,19 @@ pub fn add_project_to_list(tech: &String) {
     let updated_data = projects::Data { project: projects };
     let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
     fs::write(app_data_path, save_json).expect("Failed to write updated data");
+}
+
+fn create_repo_add_to_list(tech: &str) {
+    let app_data_path = utils::get_app_data();
+    let mut projects = utils::get_app_vec();
+    let current_dir = utils::get_current_path();
+    let app_name = current_dir.split("/").last().unwrap();
+    let app_id = &app_name[..3];
+    let choice = vec_of_strings!["public", "private", "internal"];
+    let mut repository_visibility: String = utils::get_select_option(
+        "Do you want to create a new repository ?".to_string(),
+        choice,
+    )
+    .unwrap();
+    gh::create_new_repo(app_name.to_string(), repository_visibility);
 }

@@ -1,5 +1,7 @@
 mod cleanup;
+pub mod gh;
 mod git;
+pub mod macros;
 mod projects;
 mod update;
 mod utils;

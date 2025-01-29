@@ -90,7 +90,7 @@ fn new_project_by_choice(tech: &String, name: &str) {
         tech if tech == "Rust" => new_rust_project(tech),
         _ => println!("please select a tech"),
     }
-    list::add_project_to_list(tech);
+    list::add_existing_project_to_list();
 }
 
 // tech project
