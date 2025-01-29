@@ -173,10 +173,10 @@ pub fn custom_throbber(message: String) -> Throbber {
     return custom_throbber;
 }
 
-pub fn unknown_flag(arg: &str) {
-    println!("Unknown flag parsed: {}", arg);
-    exit(1);
-}
+// pub fn unknown_flag(arg: &str) {
+//     println!("Unknown flag parsed: {}", arg);
+//     exit(1);
+// }
 
 pub fn nyx_usage() {
     let usage = r"

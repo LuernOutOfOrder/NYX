@@ -1,5 +1,7 @@
 mod cleanup;
+pub mod gh;
 mod git;
+pub mod macros;
 mod projects;
 mod update;
 mod utils;
@@ -9,7 +11,7 @@ use std::{env, process::exit};
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "1.0.0";
+const VERSION: &'static str = "1.1.0";
 
 #[derive(Debug, Clone)]
 enum Commands {
