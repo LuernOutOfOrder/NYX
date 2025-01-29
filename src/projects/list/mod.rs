@@ -142,4 +142,40 @@ fn create_repo_add_to_list(tech: &str) {
     )
     .unwrap();
     gh::create_new_repo(app_name.to_string(), repository_visibility);
+    let mut github_project: String;
+
+    let repository: String = " https://github.com/ElouanDaCosta/".to_string() + app_name;
+    github_project = utils::prompt_message(
+        "Enter the url of the github project: ".to_string(),
+        "Error getting the user input".to_string(),
+    );
+
+    if github_project == "".to_string() {
+        github_project = "No github project specified".to_string()
+    }
+
+    let mut version: String;
+
+    version = utils::prompt_message(
+        "Enter the version of the project: ".to_string(),
+        "Error getting the user input".to_string(),
+    );
+
+    if version == "".to_string() {
+        version = "0.1.0".to_string();
+    }
+
+    let new_app: projects::Project = projects::Project {
+        id: (app_id.to_string().to_lowercase()),
+        name: (app_name.to_string()),
+        tech: (tech.to_string()),
+        location: (current_dir),
+        repository: repository,
+        github_project: github_project,
+        version: version,
+    };
+    projects.push(new_app.clone());
+    let updated_data = projects::Data { project: projects };
+    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
+    fs::write(app_data_path, save_json).expect("Failed to write updated data");
 }
