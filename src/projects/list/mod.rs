@@ -136,7 +136,7 @@ fn create_repo_add_to_list(tech: &str) {
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
     let choice = vec_of_strings!["public", "private", "internal"];
-    let mut repository_visibility: String = utils::get_select_option(
+    let repository_visibility: String = utils::get_select_option(
         "Do you want to create a new repository ?".to_string(),
         choice,
     )
