@@ -7,10 +7,11 @@ use crate::vec_of_strings;
 
 pub fn dev_env_health() {
     logs::info_log("Dev environment health status".to_string());
-    logs::info_log("Dev services: ".to_string());
+    println!("Dev services: \n");
     check_docker();
-    logs::info_log("Dev tools: ".to_string());
-    check_git();
+    println!("\nDev tools: \n");
+    check_tech();
+    logs::info_log("Health check done".to_string());
 }
 
 fn check_docker() {
@@ -26,7 +27,7 @@ fn check_docker() {
     }
 }
 
-fn check_git() {
+fn check_tech() {
     let tech_vec = vec_of_strings!("git", "rustup", "go", "nvm", "node");
     for tech in tech_vec {
         match Command::new(tech.clone())
