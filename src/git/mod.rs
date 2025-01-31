@@ -75,6 +75,10 @@ pub fn git_init() {
 pub fn git_summarize() {
     println!("All commits by all users: ");
     show_all_commit();
+    println!("All branches: ");
+    show_all_branch();
+    println!("Stash: ");
+    show_stash();
 }
 
 fn show_all_commit() {
@@ -86,5 +90,22 @@ fn show_all_commit() {
         .arg("--no-merges")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("\t{}", String::from_utf8_lossy(&shortlog.stdout));
+    println!("{}", String::from_utf8_lossy(&shortlog.stdout));
+}
+
+fn show_all_branch() {
+    let branches = Command::new("git")
+        .arg("branch")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&branches.stdout));
+}
+
+fn show_stash() {
+    let list = Command::new("git")
+        .arg("stash")
+        .arg("list")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&list.stdout));
 }
