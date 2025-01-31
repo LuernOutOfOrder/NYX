@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use crate::logs;
 use crate::utils;
 
 pub fn nyx_git_stash() {
@@ -70,4 +71,54 @@ pub fn git_init() {
     if !wait_git_init.success() {
         panic!();
     }
+}
+
+pub fn git_summarize() {
+    logs::nyx_log("Last commits with stat: \n");
+    show_last_commit_with_stat();
+    logs::nyx_log("All commits by all users: ");
+    show_all_commit();
+    logs::nyx_log("All branches: ");
+    show_all_branch();
+    logs::nyx_log("Stash: ");
+    show_stash();
+}
+
+fn show_all_commit() {
+    let shortlog = Command::new("git")
+        .arg("shortlog")
+        .arg("--summary")
+        .arg("--numbered")
+        .arg("--all")
+        .arg("--no-merges")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&shortlog.stdout));
+}
+
+fn show_all_branch() {
+    let branches = Command::new("git")
+        .arg("branch")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&branches.stdout));
+}
+
+fn show_stash() {
+    let list = Command::new("git")
+        .arg("stash")
+        .arg("list")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&list.stdout));
+}
+
+fn show_last_commit_with_stat() {
+    let commits = Command::new("git")
+        .arg("log")
+        .arg("-4")
+        .arg("--stat")
+        .output()
+        .expect("Failed to call the git log command");
+    println!("{}", String::from_utf8_lossy(&commits.stdout));
 }

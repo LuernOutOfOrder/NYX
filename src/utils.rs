@@ -195,6 +195,7 @@ Commands:
     git-stash       Stash with message
     git-tag         Create a new tag and push it to the origin branch
     git-reverse     Revert to the specified commit
+    health          Display current development system health
     update          Update the current version of NYX
     help            Show this help message
 

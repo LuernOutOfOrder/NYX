@@ -33,11 +33,11 @@ pub fn dev_env_health() {
         }
     }
     logs::info_log("Dev environment health status".to_string());
-    println!("Services: ");
+    logs::nyx_log("Services: ");
     check_docker();
-    println!("\nTools: ");
+    logs::nyx_log("Tools: ");
     check_tech();
-    println!("\nEnvironment var: ");
+    logs::nyx_log("Environment var: ");
     check_var();
     logs::info_log("Health check done".to_string());
 }
