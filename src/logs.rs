@@ -24,3 +24,8 @@ pub fn inactive_log(msg: &str) {
     let inactive = "inactive".truecolor(255, 0, 0);
     println!("{} {}", msg, inactive);
 }
+
+pub fn nyx_log(msg: &str) {
+    let log = "[NYX]".truecolor(138, 43, 226);
+    println!("{} {}", log, msg);
+}

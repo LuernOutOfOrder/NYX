@@ -1,5 +1,6 @@
 use std::process::Command;
 
+use crate::logs;
 use crate::utils;
 
 pub fn nyx_git_stash() {
@@ -73,11 +74,13 @@ pub fn git_init() {
 }
 
 pub fn git_summarize() {
-    println!("All commits by all users: ");
+    logs::nyx_log("Last commits with stat: \n");
+    show_last_commit_with_stat();
+    logs::nyx_log("All commits by all users: ");
     show_all_commit();
-    println!("All branches: ");
+    logs::nyx_log("All branches: ");
     show_all_branch();
-    println!("Stash: ");
+    logs::nyx_log("Stash: ");
     show_stash();
 }
 
@@ -108,4 +111,14 @@ fn show_stash() {
         .output()
         .expect("Failed to call the git shortlog command");
     println!("{}", String::from_utf8_lossy(&list.stdout));
+}
+
+fn show_last_commit_with_stat() {
+    let commits = Command::new("git")
+        .arg("log")
+        .arg("-4")
+        .arg("--stat")
+        .output()
+        .expect("Failed to call the git log command");
+    println!("{}", String::from_utf8_lossy(&commits.stdout));
 }
