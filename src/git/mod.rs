@@ -71,3 +71,20 @@ pub fn git_init() {
         panic!();
     }
 }
+
+pub fn git_summarize() {
+    println!("All commits by all users: ");
+    show_all_commit();
+}
+
+fn show_all_commit() {
+    let shortlog = Command::new("git")
+        .arg("shortlog")
+        .arg("--summary")
+        .arg("--numbered")
+        .arg("--all")
+        .arg("--no-merges")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("\t{}", String::from_utf8_lossy(&shortlog.stdout));
+}
