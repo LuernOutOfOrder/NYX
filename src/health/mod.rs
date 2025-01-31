@@ -1,11 +1,37 @@
+use std::env;
 use std::process::Command;
 
 use colored::Colorize;
 
 use crate::logs;
+use crate::utils;
 use crate::vec_of_strings;
 
+pub fn health_help() -> String {
+    let usage = r"
+Usage: nyx health [options]
+
+Options:
+
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
 pub fn dev_env_health() {
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                utils::command_usage(&health_help());
+            }
+            "--help" => {
+                utils::command_usage(&health_help());
+            }
+            _ => {}
+        }
+    }
     logs::info_log("Dev environment health status".to_string());
     println!("Services: ");
     check_docker();
