@@ -1,6 +1,8 @@
 mod cleanup;
 pub mod gh;
 mod git;
+mod health;
+pub mod logs;
 pub mod macros;
 mod projects;
 mod update;
@@ -11,7 +13,7 @@ use std::{env, process::exit};
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "1.1.0";
+const VERSION: &'static str = "1.2.0";
 
 #[derive(Debug, Clone)]
 enum Commands {
@@ -24,6 +26,7 @@ enum Commands {
     GitStash,
     GitTag,
     GitReverse,
+    Health,
     Update,
     Help,
     Version,
@@ -57,6 +60,7 @@ fn main() {
         Some("git-stash") => Commands::GitStash,
         Some("git-tag") => Commands::GitTag,
         Some("git-reverse") => Commands::GitReverse,
+        Some("health") => Commands::Health,
         Some("update") => Commands::Update,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
@@ -76,6 +80,7 @@ fn main() {
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
         Commands::GitReverse => git::nyx_git_revert(),
+        Commands::Health => health::dev_env_health(),
         Commands::Update => update::update_bin(),
         Commands::Help => utils::nyx_usage(),
         Commands::Version => utils::command_usage(&nyx_version()),
