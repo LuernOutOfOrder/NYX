@@ -7,9 +7,9 @@ use crate::vec_of_strings;
 
 pub fn dev_env_health() {
     logs::info_log("Dev environment health status".to_string());
-    println!("Dev services: ");
+    println!("Services: ");
     check_docker();
-    println!("\nDev tools: ");
+    println!("\nTools: ");
     check_tech();
     println!("\nEnvironment var: ");
     check_var();
