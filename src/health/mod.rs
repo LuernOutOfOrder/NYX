@@ -3,6 +3,7 @@ use std::process::Command;
 use colored::Colorize;
 
 use crate::logs;
+use crate::vec_of_strings;
 
 pub fn dev_env_health() {
     logs::info_log("Dev environment health status".to_string());
@@ -26,13 +27,20 @@ fn check_docker() {
 }
 
 fn check_git() {
-    let git_installed = Command::new("git")
-        .output()
-        .expect("Failed to call the git command");
-    if git_installed.status.code() == Some(0) {
-        not_installed("git");
-    } else {
-        installed("git");
+    let tech_vec = vec_of_strings!("git", "rustup", "go", "nvm", "node");
+    for tech in tech_vec {
+        match Command::new(tech.clone())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+        {
+            Ok(_) => {
+                installed(&tech);
+            }
+            Err(_) => {
+                not_installed(&tech);
+            }
+        }
     }
 }
 
