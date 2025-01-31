@@ -1,6 +1,6 @@
 [package]
 name = "nyx"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
 description = "A CLI tool for managing your system."
@@ -8,7 +8,7 @@ description = "A CLI tool for managing your system."
 [dependencies]
 inquire = "0.7.5"
 serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.135"
+serde_json = "1.0.138"
 tabled = "0.17.0"
 colored = "3.0.0"
 throbber = "0.1"
