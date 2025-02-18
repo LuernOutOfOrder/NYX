@@ -122,7 +122,7 @@ pub fn add_project_to_list(tech: &str) {
         repository: repository_user_input,
         github_project: github_project,
         version: version,
-        todo: "".to_string(),
+        todo: "[]".to_string(),
     };
     projects.push(new_app.clone());
     let updated_data = projects::Data { project: projects };
@@ -174,7 +174,7 @@ fn create_repo_add_to_list(tech: &str) {
         repository: repository,
         github_project: github_project,
         version: version,
-        todo: "".to_string(),
+        todo: "[]".to_string(),
     };
     projects.push(new_app.clone());
     let updated_data = projects::Data { project: projects };
