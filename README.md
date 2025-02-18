@@ -1,7 +1,6 @@
 # NYX
 Assistant to help in daily development tasks.
 
-
 ## Project Data File 
 The project data file is a JSON file that contains the data of the projects that NYX will manage. The file is located in the `data` folder and is named `app.json`. The file has the following structure:
 
