@@ -18,6 +18,8 @@ Options:
 pub fn choose_todo() {
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
+        //todo
+        // flag to list or add directly to the todo
         match arg.as_str().trim() {
             "-h" => {
                 utils::command_usage(&todo_help());
@@ -49,7 +51,8 @@ fn which_todo(choice: &str) {
 }
 
 fn add_todo() {
-    println!("hehe")
+    // utils::change_work_dir(&utils::get_current_path());
+    parse::parse_todo_string();
 }
 
 fn show_todo() {
