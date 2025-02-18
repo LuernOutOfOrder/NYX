@@ -7,6 +7,7 @@ pub mod macros;
 mod projects;
 mod update;
 mod utils;
+use crate::projects::todo;
 
 use std::{env, process::exit};
 
@@ -22,6 +23,7 @@ enum Commands {
     ProjectList,
     ProjectDelete,
     ProjectUpdate,
+    ProjectTodoAdd,
     Cleanup,
     GitStash,
     GitTag,
@@ -57,6 +59,7 @@ fn main() {
         Some("project-list") => Commands::ProjectList,
         Some("project-delete") => Commands::ProjectDelete,
         Some("project-update") => Commands::ProjectUpdate,
+        Some("project-todo-add") => Commands::ProjectTodoAdd,
         Some("cleanup") => Commands::Cleanup,
         Some("git-stash") => Commands::GitStash,
         Some("git-tag") => Commands::GitTag,
@@ -78,6 +81,7 @@ fn main() {
         Commands::ProjectList => projects::list::list_projects(),
         Commands::ProjectDelete => projects::delete::select_remove_project(),
         Commands::ProjectUpdate => projects::update::update_project_properties(),
+        Commands::ProjectTodoAdd => projects::todo::add_to_todo(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),

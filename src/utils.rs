@@ -38,6 +38,7 @@ pub fn get_app_vec() -> Vec<projects::Project> {
             repository: app.repository.clone(),
             github_project: app.github_project.clone(),
             version: app.version.clone(),
+            todo: app.todo.clone(),
         });
     }
     return projects;

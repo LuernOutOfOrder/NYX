@@ -9,7 +9,7 @@ description = "A CLI tool for managing your system."
 inquire = "0.7.5"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.138"
-tabled = "0.17.0"
+tabled = "0.18.0"
 colored = "3.0.0"
 throbber = "0.1"
 regex = "1.11.1"
