@@ -32,4 +32,14 @@ pub fn parse_todo_string() {
     }
 }
 
-fn create_todo_struct() {}
+fn create_todo_struct() {
+    let new_todo: Vec<String> = Vec::new();
+    let new_todo_string = serde_json::to_string(&new_todo).expect("Failed to serialize todo");
+    new_todo_string
+}
+
+fn parse_todo(todo_string: &str) {
+    let todo_decoded: Vec<String> =
+        serde_json::from_str(&todo_string).expect("Failed to deserialize todo");
+    todo_decoded
+}
