@@ -192,6 +192,7 @@ Commands:
     project-delete  Remove project from list or completely from storage.
     project-build   Build the current project in working directory
     project-update  Update specified project properties
+    project-todo    Manage to-do list for current project
     cleanup         Cleanup all unused files
     git-stash       Stash with message
     git-tag         Create a new tag and push it to the origin branch
