@@ -55,6 +55,7 @@ pub fn choose_todo() {
         "Show to-do list",
         "Clear the to-do list",
         "Remove one to-do",
+        "Update one to-do status",
     ];
 
     let ans: std::result::Result<&str, InquireError> =
@@ -72,6 +73,7 @@ fn which_todo(choice: &str) {
         choice if choice == "Show to-do list" => show_todo(),
         choice if choice == "Clear the to-do list" => clear_todo(),
         choice if choice == "Remove one to-do" => remove_todo(),
+        choice if choice == "Update one to-do status" => update_todo_status(),
         _ => println!("please make a choice"),
     }
 }
@@ -102,7 +104,6 @@ fn update_todo_list() {
 }
 
 fn show_todo() {
-    let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     let get_current_workdir = utils::get_current_path();
     if let Some(pos) = projects
@@ -115,7 +116,7 @@ fn show_todo() {
             .iter()
             .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
             .collect();
-        let mut builder = Table::builder(&parse_todo_vec).index().name(None);
+        let builder = Table::builder(&parse_todo_vec).index().name(None);
         let mut table = builder.build();
         table.with(Style::modern());
         println!("{}", table);
@@ -184,7 +185,7 @@ fn remove_todo() {
         let app = projects.remove(pos);
         let mut updated_app = app.clone();
         let mut todo_vec = parse::parse_todo(app.todo.clone());
-        let mut parse_todo_vec: Vec<Todo> = todo_vec
+        let parse_todo_vec: Vec<Todo> = todo_vec
             .iter()
             .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
             .collect();
@@ -205,3 +206,47 @@ fn remove_todo() {
 
 //TODO
 // can update one todo status by id
+fn update_todo_status() {
+    let app_data_path = utils::get_app_data();
+    let mut projects = utils::get_app_vec();
+    let get_current_workdir = utils::get_current_path();
+    if let Some(pos) = projects
+        .iter()
+        .position(|app| app.location == get_current_workdir)
+    {
+        let app = projects.remove(pos);
+        let mut updated_app = app.clone();
+        let mut todo_vec = parse::parse_todo(app.todo.clone());
+        let parse_todo_vec: Vec<Todo> = todo_vec
+            .iter()
+            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
+            .collect();
+        let ask_todo =
+            utils::get_select_option("Select the todo to update".to_string(), todo_vec.clone())
+                .unwrap();
+        // find the dodo and return it's index in the vector
+        // let find_todo_by_id = parse_todo_vec
+        //     .iter()
+        //     .position(|todo| todo.id == ask_id.parse::<u8>().unwrap())
+        //     .unwrap();
+        // todo_vec.remove(find_todo_by_id);
+        let update_status: Result<Todo, serde_json::Error> = serde_json::from_str(&ask_todo);
+        match update_status {
+            Ok(todo) => {
+                // Handle the successful parsing of the todo
+                println!("{:?}", todo);
+            }
+            Err(e) => {
+                // Handle the error
+                println!("Failed to parse todo: {:?}", e);
+            }
+        }
+        // println!("{:?}", update_status);
+        let stringify_todo_vec = parse::stringify_todo(todo_vec);
+        updated_app.todo = stringify_todo_vec;
+        projects.push(updated_app);
+        let update_data = projects::Data { project: projects };
+        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
+        // fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    }
+}
