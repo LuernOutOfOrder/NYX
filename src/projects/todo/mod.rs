@@ -10,14 +10,14 @@ mod parse;
 use crate::{logs, projects, utils};
 use std::fs;
 
-#[derive(Serialize, Tabled, Deserialize, Clone)]
+#[derive(Serialize, Tabled, Deserialize, Clone, Debug)]
 pub struct Todo {
     pub id: u8,
     pub note: String,
     pub status: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct TodoData {
     todos: Vec<Todo>,
 }
@@ -50,7 +50,12 @@ pub fn choose_todo() {
         }
     }
     inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec!["Add to to-do", "Show to-do list", "Clear the to-do list"];
+    let options: Vec<&str> = vec![
+        "Add to to-do",
+        "Show to-do list",
+        "Clear the to-do list",
+        "Remove one to-do",
+    ];
 
     let ans: std::result::Result<&str, InquireError> =
         Select::new("What do you want to do ?", options).prompt();
@@ -66,6 +71,7 @@ fn which_todo(choice: &str) {
         choice if choice == "Add to to-do" => update_todo_list(),
         choice if choice == "Show to-do list" => show_todo(),
         choice if choice == "Clear the to-do list" => clear_todo(),
+        choice if choice == "Remove one to-do" => remove_todo(),
         _ => println!("please make a choice"),
     }
 }
@@ -162,3 +168,40 @@ fn clear_todo() {
     }
     logs::info_log("To-do list cleared successfully".to_string());
 }
+
+fn remove_todo() {
+    let ask_id = utils::prompt_message(
+        "Enter todo id you want to delete".to_string(),
+        "Failed to get the user input".to_string(),
+    );
+    let app_data_path = utils::get_app_data();
+    let mut projects = utils::get_app_vec();
+    let get_current_workdir = utils::get_current_path();
+    if let Some(pos) = projects
+        .iter()
+        .position(|app| app.location == get_current_workdir)
+    {
+        let app = projects.remove(pos);
+        let mut updated_app = app.clone();
+        let mut todo_vec = parse::parse_todo(app.todo.clone());
+        let mut parse_todo_vec: Vec<Todo> = todo_vec
+            .iter()
+            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
+            .collect();
+        // find the dodo and return it's index in the vector
+        let find_todo_by_id = parse_todo_vec
+            .iter()
+            .position(|todo| todo.id == ask_id.parse::<u8>().unwrap())
+            .unwrap();
+        todo_vec.remove(find_todo_by_id);
+        let stringify_todo_vec = parse::stringify_todo(todo_vec);
+        updated_app.todo = stringify_todo_vec;
+        projects.push(updated_app);
+        let update_data = projects::Data { project: projects };
+        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
+        fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    }
+}
+
+//TODO
+// can update one todo status by id
