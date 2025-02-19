@@ -1,12 +1,25 @@
 use inquire::{InquireError, Select};
+use serde::{Deserialize, Serialize};
 use std::env;
-use tabled::settings::Style;
 use tabled::Table;
+use tabled::{settings::Style, Tabled};
 
 mod parse;
 
 use crate::{projects, utils};
 use std::fs;
+
+#[derive(Serialize, Tabled, Deserialize, Clone)]
+pub struct Todo {
+    pub id: u8,
+    pub note: String,
+    pub status: String,
+}
+
+#[derive(Serialize)]
+pub struct TodoData {
+    todos: Vec<Todo>,
+}
 
 pub fn todo_help() -> String {
     let usage = r"
@@ -90,7 +103,11 @@ fn show_todo() {
     {
         let app = projects.remove(pos);
         let todo_vec = parse::parse_todo(app.todo.clone());
-        let mut builder = Table::builder(&todo_vec).index().name(None);
+        let parse_todo_vec: Vec<Todo> = todo_vec
+            .iter()
+            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
+            .collect();
+        let mut builder = Table::builder(&parse_todo_vec).index().name(None);
         let mut table = builder.build();
         table.with(Style::modern());
         println!("{}", table);
@@ -98,6 +115,24 @@ fn show_todo() {
 }
 
 fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
-    todo_vec.push(new_todo.to_string());
+    let deserial_todo_vec: Vec<Todo> = todo_vec
+        .iter()
+        .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
+        .collect();
+    let id: u8;
+    if !deserial_todo_vec.is_empty() {
+        id = deserial_todo_vec.last().clone().unwrap().id + 1;
+    } else {
+        id = 1;
+    }
+    let new_todo_inst: Todo = Todo {
+        id: id,
+        status: "".to_string(),
+        note: new_todo.to_string(),
+    };
+    let stringify_new_todo_inst = serde_json::to_string(&new_todo_inst);
+    todo_vec.push(stringify_new_todo_inst.unwrap());
     todo_vec
 }
+
+fn clear_todo(mut todo_vec: Vec<String>) -> Vec<String> {}
