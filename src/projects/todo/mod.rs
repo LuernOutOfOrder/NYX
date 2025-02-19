@@ -49,7 +49,7 @@ pub fn choose_todo() {
         }
     }
     inquire::set_global_render_config(utils::get_render_config());
-    let options: Vec<&str> = vec!["Add to to-do", "Show to-do list"];
+    let options: Vec<&str> = vec!["Add to to-do", "Show to-do list", "Clear the to-do list"];
 
     let ans: std::result::Result<&str, InquireError> =
         Select::new("What do you want to do ?", options).prompt();
@@ -64,6 +64,7 @@ fn which_todo(choice: &str) {
     match choice {
         choice if choice == "Add to to-do" => update_todo_list(),
         choice if choice == "Show to-do list" => show_todo(),
+        choice if choice == "Clear the to-do list" => clear_todo(),
         _ => println!("please make a choice"),
     }
 }
@@ -135,4 +136,20 @@ fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
     todo_vec
 }
 
-fn clear_todo(mut todo_vec: Vec<String>) -> Vec<String> {}
+fn clear_todo() {
+    let app_data_path = utils::get_app_data();
+    let mut projects = utils::get_app_vec();
+    let get_current_workdir = utils::get_current_path();
+    if let Some(pos) = projects
+        .iter()
+        .position(|app| app.location == get_current_workdir)
+    {
+        let app = projects.remove(pos);
+        let mut updated_app = app;
+        updated_app.todo = "[]".to_string();
+        projects.push(updated_app);
+        let update_data = projects::Data { project: projects };
+        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
+        fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    }
+}
