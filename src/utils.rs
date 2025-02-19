@@ -6,7 +6,7 @@ use std::{
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
-    InquireError, Select, Text,
+    Confirm, InquireError, Select, Text,
 };
 use throbber::Throbber;
 
@@ -214,4 +214,12 @@ Options:
 pub fn command_usage(usage: &str) {
     println!("{}", usage);
     exit(0);
+}
+
+pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
+    let ans = Confirm::new(message)
+        .with_default(false)
+        .with_help_message(help_message)
+        .prompt();
+    ans.unwrap()
 }

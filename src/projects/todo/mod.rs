@@ -1,12 +1,13 @@
 use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::process::exit;
 use tabled::Table;
 use tabled::{settings::Style, Tabled};
 
 mod parse;
 
-use crate::{projects, utils};
+use crate::{logs, projects, utils};
 use std::fs;
 
 #[derive(Serialize, Tabled, Deserialize, Clone)]
@@ -137,6 +138,13 @@ fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
 }
 
 fn clear_todo() {
+    let confirm = utils::confirm_prompt(
+        "Are you sure to clear the list ?",
+        "It will clear completely the list.",
+    );
+    if !confirm {
+        exit(0);
+    }
     let app_data_path = utils::get_app_data();
     let mut projects = utils::get_app_vec();
     let get_current_workdir = utils::get_current_path();
@@ -152,4 +160,5 @@ fn clear_todo() {
         let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
     }
+    logs::info_log("To-do list cleared successfully".to_string());
 }
