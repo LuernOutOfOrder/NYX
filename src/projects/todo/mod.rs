@@ -28,6 +28,11 @@ Usage: nyx project-todo
 
 Options:
 
+    -a, --add       Add new to-do to the list
+    -s, --show      List all todo
+    -p, --prune     Clear the todo list
+    -r, --remove-one     Remove one todo by id
+    -u, --update    Update one todo
     -h, --help      Show this help message
 ";
 
@@ -40,6 +45,47 @@ pub fn choose_todo() {
         //todo
         // flag to list or add directly to the todo
         match arg.as_str().trim() {
+            "-a" => {
+                update_todo_list();
+                exit(0);
+            }
+            "--add" => {
+                update_todo_list();
+                exit(0);
+            }
+            "-s" => {
+                show_todo();
+                exit(0);
+            }
+            "--show" => {
+                show_todo();
+                exit(0);
+            }
+            "-p" => {
+                prune_todo();
+                exit(0);
+            }
+            "--prune" => {
+                prune_todo();
+                exit(0);
+            }
+            "-r" => {
+                remove_todo();
+                exit(0);
+            }
+            "--remove-one" => {
+                remove_todo();
+                exit(0);
+            }
+            "-u" => {
+                update_todo_status();
+                exit(0);
+            }
+            "--update" => {
+                update_todo_status();
+                exit(0);
+            }
+
             "-h" => {
                 utils::command_usage(&todo_help());
             }
@@ -71,7 +117,7 @@ fn which_todo(choice: &str) {
     match choice {
         choice if choice == "Add to to-do" => update_todo_list(),
         choice if choice == "Show to-do list" => show_todo(),
-        choice if choice == "Clear the to-do list" => clear_todo(),
+        choice if choice == "Clear the to-do list" => prune_todo(),
         choice if choice == "Remove one to-do" => remove_todo(),
         choice if choice == "Update one to-do status" => update_todo_status(),
         _ => println!("please make a choice"),
@@ -145,7 +191,7 @@ fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
     todo_vec
 }
 
-fn clear_todo() {
+fn prune_todo() {
     let confirm = utils::confirm_prompt(
         "Are you sure to clear the list ?",
         "It will clear completely the list.",
