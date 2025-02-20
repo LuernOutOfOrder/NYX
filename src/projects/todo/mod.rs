@@ -31,7 +31,7 @@ Options:
     -a, --add       Add new to-do to the list
     -s, --show      List all todo
     -p, --prune     Clear the todo list
-    -r, --remove-one     Remove one todo by id
+    -r, --remove    Remove one todo by id
     -u, --update    Update one todo
     -h, --help      Show this help message
 ";
@@ -73,7 +73,7 @@ pub fn choose_todo() {
                 remove_todo();
                 exit(0);
             }
-            "--remove-one" => {
+            "--remove" => {
                 remove_todo();
                 exit(0);
             }
