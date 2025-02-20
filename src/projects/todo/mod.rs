@@ -7,7 +7,7 @@ use tabled::{settings::Style, Tabled};
 
 mod parse;
 
-use crate::{logs, projects, utils};
+use crate::{logs, projects, utils, vec_of_strings};
 use std::fs;
 
 #[derive(Serialize, Tabled, Deserialize, Clone, Debug)]
@@ -217,36 +217,35 @@ fn update_todo_status() {
         let app = projects.remove(pos);
         let mut updated_app = app.clone();
         let mut todo_vec = parse::parse_todo(app.todo.clone());
-        let parse_todo_vec: Vec<Todo> = todo_vec
-            .iter()
-            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
-            .collect();
         let ask_todo =
             utils::get_select_option("Select the todo to update".to_string(), todo_vec.clone())
                 .unwrap();
-        // find the dodo and return it's index in the vector
-        // let find_todo_by_id = parse_todo_vec
-        //     .iter()
-        //     .position(|todo| todo.id == ask_id.parse::<u8>().unwrap())
-        //     .unwrap();
-        // todo_vec.remove(find_todo_by_id);
-        let update_status: Result<Todo, serde_json::Error> = serde_json::from_str(&ask_todo);
-        match update_status {
+        let todo_status_vec: Vec<String> = vec_of_strings!("pending", "done", "wip");
+        let mut updated_todo: Todo;
+        let todo_to_update: Result<Todo, serde_json::Error> = serde_json::from_str(&ask_todo);
+        match todo_to_update {
             Ok(todo) => {
-                // Handle the successful parsing of the todo
-                println!("{:?}", todo);
+                let select_status =
+                    utils::get_select_option("Select the new status".to_string(), todo_status_vec)
+                        .unwrap();
+                // find the dodo and return it's index in the vectors
+                let todo_vec_index = todo_vec.iter().position(|todo| todo == &ask_todo);
+                todo_vec.remove(todo_vec_index.unwrap());
+                updated_todo = todo;
+                updated_todo.status = select_status;
+                let stringify_updated_todo = serde_json::to_string(&updated_todo).unwrap();
+                todo_vec.push(stringify_updated_todo);
             }
             Err(e) => {
                 // Handle the error
                 println!("Failed to parse todo: {:?}", e);
             }
         }
-        // println!("{:?}", update_status);
         let stringify_todo_vec = parse::stringify_todo(todo_vec);
         updated_app.todo = stringify_todo_vec;
         projects.push(updated_app);
         let update_data = projects::Data { project: projects };
         let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        // fs::write(app_data_path, save_json).expect("Failed to write updated data");
+        fs::write(app_data_path, save_json).expect("Failed to write updated data");
     }
 }
