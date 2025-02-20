@@ -56,6 +56,7 @@ pub fn update_project_properties() {
             repository: app.repository,
             github_project: app.github_project,
             version: app.version,
+            todo: app.todo,
         };
         let updated_project = update_select_properties(current_selected_project, property);
         projects.push(updated_project);
@@ -94,6 +95,7 @@ fn update_project_id(project: projects::Project) -> projects::Project {
         repository: project.repository,
         github_project: project.github_project,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -111,6 +113,7 @@ fn update_project_name(project: projects::Project) -> projects::Project {
         repository: project.repository,
         github_project: project.github_project,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -135,6 +138,7 @@ fn update_project_location(project: projects::Project) -> projects::Project {
         repository: project.repository,
         github_project: project.github_project,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -153,6 +157,7 @@ fn update_project_tech(project: projects::Project) -> projects::Project {
         repository: project.repository,
         github_project: project.github_project,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -174,6 +179,7 @@ fn update_project_repository(project: projects::Project) -> projects::Project {
         repository: new_url,
         github_project: project.github_project,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -195,6 +201,7 @@ fn update_project_github_project(project: projects::Project) -> projects::Projec
         repository: project.repository,
         github_project: new_url,
         version: project.version,
+        todo: project.todo,
     };
     return update_project;
 }
@@ -212,6 +219,7 @@ fn update_project_version(project: projects::Project) -> projects::Project {
         repository: project.repository,
         github_project: project.github_project,
         version: new_version,
+        todo: project.todo,
     };
     return update_project;
 }

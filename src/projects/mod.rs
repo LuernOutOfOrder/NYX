@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
 pub mod delete;
+pub mod todo;
 
 pub fn project_help() -> String {
     let usage = r"
@@ -30,6 +31,7 @@ pub struct Project {
     pub repository: String,
     pub github_project: String,
     pub version: String,
+    pub todo: String,
 }
 
 #[derive(Tabled)]

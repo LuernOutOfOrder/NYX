@@ -7,13 +7,14 @@ pub mod macros;
 mod projects;
 mod update;
 mod utils;
+use crate::projects::todo;
 
 use std::{env, process::exit};
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "1.3.1";
+const VERSION: &'static str = "1.4.0";
 
 #[derive(Debug, Clone)]
 enum Commands {
@@ -22,6 +23,7 @@ enum Commands {
     ProjectList,
     ProjectDelete,
     ProjectUpdate,
+    ProjectTodo,
     Cleanup,
     GitStash,
     GitTag,
@@ -57,6 +59,7 @@ fn main() {
         Some("project-list") => Commands::ProjectList,
         Some("project-delete") => Commands::ProjectDelete,
         Some("project-update") => Commands::ProjectUpdate,
+        Some("project-todo") => Commands::ProjectTodo,
         Some("cleanup") => Commands::Cleanup,
         Some("git-stash") => Commands::GitStash,
         Some("git-tag") => Commands::GitTag,
@@ -78,6 +81,7 @@ fn main() {
         Commands::ProjectList => projects::list::list_projects(),
         Commands::ProjectDelete => projects::delete::select_remove_project(),
         Commands::ProjectUpdate => projects::update::update_project_properties(),
+        Commands::ProjectTodo => todo::choose_todo(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),

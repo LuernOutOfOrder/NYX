@@ -6,7 +6,7 @@ use std::{
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
-    InquireError, Select, Text,
+    Confirm, InquireError, Select, Text,
 };
 use throbber::Throbber;
 
@@ -38,6 +38,7 @@ pub fn get_app_vec() -> Vec<projects::Project> {
             repository: app.repository.clone(),
             github_project: app.github_project.clone(),
             version: app.version.clone(),
+            todo: app.todo.clone(),
         });
     }
     return projects;
@@ -191,6 +192,7 @@ Commands:
     project-delete  Remove project from list or completely from storage.
     project-build   Build the current project in working directory
     project-update  Update specified project properties
+    project-todo    Manage to-do list for current project
     cleanup         Cleanup all unused files
     git-stash       Stash with message
     git-tag         Create a new tag and push it to the origin branch
@@ -212,4 +214,12 @@ Options:
 pub fn command_usage(usage: &str) {
     println!("{}", usage);
     exit(0);
+}
+
+pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
+    let ans = Confirm::new(message)
+        .with_default(false)
+        .with_help_message(help_message)
+        .prompt();
+    ans.unwrap()
 }
