@@ -100,6 +100,7 @@ fn update_todo_list() {
         let update_data = projects::Data { project: projects };
         let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
+        logs::info_log("Successfully added the new to-do".to_string());
     }
 }
 
@@ -201,6 +202,7 @@ fn remove_todo() {
         let update_data = projects::Data { project: projects };
         let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
+        logs::info_log("Successfully remove the to-do".to_string());
     }
 }
 
@@ -247,5 +249,6 @@ fn update_todo_status() {
         let update_data = projects::Data { project: projects };
         let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
+        logs::info_log("Successfully update to-do status".to_string());
     }
 }
