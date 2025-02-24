@@ -179,7 +179,7 @@ pub fn custom_throbber(message: String) -> Throbber {
 //     exit(1);
 // }
 
-pub fn nyx_usage() {
+pub fn nyx_usage() -> &'static str {
     let usage = r"
 Usage: nyx command [options]
 
@@ -208,7 +208,7 @@ Options:
     -v, --version   Show the current version of NYX
 ";
 
-    println!("{}", usage);
+    return usage;
 }
 
 pub fn command_usage(usage: &str) {

@@ -9,7 +9,7 @@ mod update;
 mod utils;
 use crate::projects::todo;
 
-use std::{env, process::exit};
+use std::env;
 
 // Current version of NYX
 // if modified and then running update command it will replace
@@ -70,7 +70,7 @@ fn main() {
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
         _ => {
-            usage_and_exit("Invalid command".to_string());
+            lrncore::usage_exit::usage_and_exit("Invalid command", utils::nyx_usage());
             return;
         }
     };
@@ -89,19 +89,9 @@ fn main() {
         Commands::GitSummarize => git::git_summarize(),
         Commands::Health => health::dev_env_health(),
         Commands::Update => update::update_bin(),
-        Commands::Help => utils::nyx_usage(),
+        Commands::Help => lrncore::usage_exit::command_usage(utils::nyx_usage()),
         Commands::Version => utils::command_usage(&nyx_version()),
     }
-}
-
-fn usage_and_exit(msg: String) {
-    if msg != "" {
-        eprintln!("{}", msg);
-    }
-
-    utils::nyx_usage();
-
-    exit(0);
 }
 
 pub fn nyx_version() -> String {

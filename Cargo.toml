@@ -13,3 +13,4 @@ tabled = "0.18.0"
 colored = "3.0.0"
 throbber = "0.1"
 regex = "1.11.1"
+lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.1.0", branch="main" }
