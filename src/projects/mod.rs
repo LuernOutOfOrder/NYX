@@ -7,6 +7,7 @@ pub mod update;
 use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
+pub mod binary;
 pub mod delete;
 pub mod todo;
 
