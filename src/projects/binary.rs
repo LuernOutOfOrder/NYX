@@ -9,6 +9,8 @@ use crate::utils;
 
 use bincode;
 use serde::Serialize;
+use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::{fs, vec};
 
@@ -44,13 +46,12 @@ pub fn create_data() {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     }
-    let data_folder = std::fs::create_dir(".data");
-    match data_folder {
+    let data_folder = match std::fs::create_dir(".data") {
         Ok(_) => (),
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
-    }
+    };
     create_nxs_file();
 }
 
@@ -71,6 +72,8 @@ fn create_nxs_file() {
         entries: Vec::new(),
     };
     let mut project_list_buff: Vec<u8> = Vec::new();
+    //TODO
+    // update bincode version and refactor binary module to use new version serialize
     let project_list_bytes =
         bincode::serialize(&project_list).expect("Failed to serialize project list");
     project_list_buff.extend_from_slice(&project_list_bytes);
@@ -82,5 +85,18 @@ fn create_nxs_file() {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&project_list_buff);
-    println!("{:?}", String::from_utf8_lossy(&file_buff));
+    let mut nxs_file: File = match File::create(".data/nxs") {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to create nxs file: {}", e));
+            return;
+        }
+    };
+    let mut nxs_file_write = match nxs_file.write_all(&file_buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+        }
+    };
+    lrncore::logs::info_log("Initialized NXS file");
 }
