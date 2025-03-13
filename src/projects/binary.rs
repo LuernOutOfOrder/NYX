@@ -8,19 +8,20 @@ It includes functionalities for reading, writing, and manipulating the binary da
 use crate::utils;
 
 use bincode;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
-use std::io::Write;
+use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
 /*
 NXS file structure
 */
 
+#[derive(Debug, Deserialize)]
 struct Header {
-    magic_number: &'static [u8],
-    format_version: &'static [u8],
+    magic_number: [u8; 4],
+    format_version: [u8; 6],
     project_count: u8,
 }
 
@@ -51,24 +52,24 @@ pub fn create_data() {
         }
     }
     match std::fs::create_dir(".data") {
-        Ok(_) => (),
+        Ok(_) => create_nxs_file(),
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     };
-    create_nxs_file();
+    parse_nxs_file();
 }
 
 fn create_nxs_file() {
     // header
     let header: Header = Header {
-        magic_number: b"NXS\0",
-        format_version: b"0.1.0\0",
+        magic_number: *b"NXS\0",
+        format_version: *b"0.1.0\0",
         project_count: 0,
     };
     let mut header_buff: Vec<u8> = Vec::new();
-    header_buff.extend_from_slice(header.magic_number);
-    header_buff.extend_from_slice(header.format_version);
+    header_buff.extend_from_slice(&header.magic_number);
+    header_buff.extend_from_slice(&header.format_version);
     header_buff.push(header.project_count);
     header_buff.extend_from_slice(b" ");
     // project list
@@ -99,4 +100,33 @@ fn create_nxs_file() {
         }
     };
     lrncore::logs::info_log("Initialized NXS file");
+}
+
+fn parse_nxs_file() {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    // open NXS file and match result
+    let mut file = match File::open(".data/nxs") {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            return;
+        }
+    };
+    // initialize header size from structure and buffer
+    let header_size = std::mem::size_of::<Header>();
+    let buffer = BufReader::new(file);
+    // vector containing the whole NXS file
+    let mut bytes_vec: Vec<u8> = Vec::new();
+    for byte_or_error in buffer.bytes() {
+        let byte = byte_or_error.unwrap();
+        bytes_vec.push(byte);
+    }
+
+    /// extract a slice of bytes from the `bytes_vec` vector to represent the header section of the NXS file.
+    /// &bytes_vec[0 to header_size]
+    let header_bytes = &bytes_vec[..header_size];
+
+    // convert into the Header struct
+    let header: Header = bincode::deserialize(header_bytes).expect("Failed to deserialize header");
+    println!("{:?}", header);
 }
