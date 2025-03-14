@@ -117,3 +117,14 @@ pub fn create_new_nxp() {
     };
     lrncore::logs::info_log("Initialized NXS file");
 }
+
+pub fn parse_nxp_file(path: &str) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let file_result: File;
+    let file = match File::open(path) {
+        Ok(f) => file_result = f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open nxp file: {}", e));
+        }
+    };
+}
