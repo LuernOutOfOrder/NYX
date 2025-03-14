@@ -22,18 +22,19 @@ NXS file structure
 struct Header {
     magic_number: [u8; 4],
     format_version: [u8; 6],
+    project_size: u32,
     project_count: u8,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ProjectList {
     pub entries: Vec<ProjectEntry>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ProjectEntry {
-    pub project_hash: String,
-    pub project_id: String,
+    pub project_hash: [u8; 20],
+    pub project_id: Vec<u8>,
     pub project_size: u32,
 }
 
@@ -61,10 +62,26 @@ pub fn create_data() {
 }
 
 fn create_nxs_file() {
+    // project list
+    let test: ProjectEntry = ProjectEntry {
+        project_hash: [0; 20],
+        project_id: vec![],
+        project_size: 0,
+    };
+    let empty_vec: Vec<ProjectEntry> = vec![test];
+    let project_list: ProjectList = ProjectList { entries: empty_vec };
+    let mut project_list_buff: Vec<u8> = Vec::new();
+    //TODO
+    // update bincode version and refactor binary module to use new version serialize
+    let project_list_bytes =
+        bincode::serialize(&project_list).expect("Failed to serialize project list");
+    project_list_buff.extend_from_slice(&project_list_bytes);
     // header
     let header: Header = Header {
         magic_number: *b"NXS\0",
         format_version: *b"0.1.0\0",
+        project_size: bincode::serialized_size(&project_list)
+            .expect("Failed to calculate serialized size") as u32,
         project_count: 0,
     };
     let mut header_buff: Vec<u8> = Vec::new();
@@ -72,16 +89,6 @@ fn create_nxs_file() {
     header_buff.extend_from_slice(&header.format_version);
     header_buff.push(header.project_count);
     header_buff.extend_from_slice(b" ");
-    // project list
-    let project_list: ProjectList = ProjectList {
-        entries: Vec::new(),
-    };
-    let mut project_list_buff: Vec<u8> = Vec::new();
-    //TODO
-    // update bincode version and refactor binary module to use new version serialize
-    let project_list_bytes =
-        bincode::serialize(&project_list).expect("Failed to serialize project list");
-    project_list_buff.extend_from_slice(&project_list_bytes);
     // complete file
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
@@ -122,11 +129,17 @@ fn parse_nxs_file() {
         bytes_vec.push(byte);
     }
 
-    /// extract a slice of bytes from the `bytes_vec` vector to represent the header section of the NXS file.
-    /// &bytes_vec[0 to header_size]
+    // extract a slice of bytes from the `bytes_vec` vector to represent the header section of the NXS file.
+    // &bytes_vec[0 to header_size]
     let header_bytes = &bytes_vec[..header_size];
 
     // convert into the Header struct
     let header: Header = bincode::deserialize(header_bytes).expect("Failed to deserialize header");
-    println!("{:?}", header);
+    println!("{:?}", String::from_utf8_lossy(&bytes_vec));
+    // project list
+    let project_list_size = header.project_size;
+    let project_list_byte = &bytes_vec[header_size..];
+    let project_list: ProjectList =
+        bincode::deserialize(project_list_byte).expect("Failed to deserialize project list");
+    println!("{:?}", project_list.entries);
 }
