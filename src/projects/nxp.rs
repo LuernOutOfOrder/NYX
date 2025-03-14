@@ -43,7 +43,9 @@ pub fn create_new_nxp() {
     header_buff.extend_from_slice(&header.magic_number);
     header_buff.extend_from_slice(&header.format_version);
     header_buff.push(header.project_id);
+    header_buff.push(0);
     header_buff.push((header.project_size as u32).try_into().unwrap());
+    header_buff.push(0);
     println!("nxp_header {:?}", header_buff);
     let content: NXPContent = NXPContent {
         name: format!("{}\0", "pro"),
