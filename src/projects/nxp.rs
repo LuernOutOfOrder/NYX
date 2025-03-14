@@ -44,5 +44,23 @@ pub fn create_new_nxp() {
     header_buff.extend_from_slice(&header.format_version);
     header_buff.push(header.project_id);
     header_buff.push((header.project_size as u32).try_into().unwrap());
-    println!("npx_header {:?}", header_buff);
+    println!("nxp_header {:?}", header_buff);
+    let content: NXPContent = NXPContent {
+        name: format!("{}\0", "pro"),
+        tech: format!("{}\0", "Rust"),
+        location: format!("{}\0", ""),
+        repository: format!("{}\0", ""),
+        github_project: format!("{}\0", ""),
+        version: format!("{}\0", ""),
+        todo: format!("{}\0", ""),
+    };
+    let mut content_buff: Vec<u8> = Vec::new();
+    content_buff.extend_from_slice(content.name.as_bytes());
+    content_buff.extend_from_slice(content.tech.as_bytes());
+    content_buff.extend_from_slice(content.location.as_bytes());
+    content_buff.extend_from_slice(content.repository.as_bytes());
+    content_buff.extend_from_slice(content.github_project.as_bytes());
+    content_buff.extend_from_slice(content.version.as_bytes());
+    content_buff.extend_from_slice(content.todo.as_bytes());
+    println!("nxp_content {:?}", content_buff);
 }
