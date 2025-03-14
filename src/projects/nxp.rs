@@ -31,12 +31,18 @@ struct NXPContent {
     pub todo: String,
 }
 
-pub fn create_new_nxp(project: NXP) {
+pub fn create_new_nxp() {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let header: NXPHeader = NXPHeader {
         magic_number: *b"NXP\0",
         format_version: *b"0.1.0\0",
-        project_id: (),
-        project_size: (),
+        project_id: 0,
+        project_size: 0,
     };
+    let mut header_buff: Vec<u8> = Vec::new();
+    header_buff.extend_from_slice(&header.magic_number);
+    header_buff.extend_from_slice(&header.format_version);
+    header_buff.push(header.project_id);
+    header_buff.push((header.project_size as u32).try_into().unwrap());
+    println!("npx_header {:?}", header_buff);
 }

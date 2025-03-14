@@ -5,6 +5,7 @@ This module provides the definition of data structures and methods to create and
 It includes functionalities for reading, writing, and manipulating the binary data to ensure efficient storage and retrieval.
 */
 
+use crate::projects::nxp;
 use crate::utils;
 
 use bincode;
@@ -117,6 +118,7 @@ pub fn create_data() {
     };
     parse_nxs_file(&mut nxs);
     println!("{:?}", nxs);
+    nxp::create_new_nxp();
 }
 
 /// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
@@ -130,10 +132,10 @@ fn create_nxs_file() {
     };
 
     let mut header_buff: Vec<u8> = Vec::new();
-    NXSHeader_buff.extend_from_slice(&header.magic_number);
-    NXSHeader_buff.extend_from_slice(&header.format_version);
-    NXSHeader_buff.push(header.project_count);
-    NXSHeader_buff.extend_from_slice(b" ");
+    header_buff.extend_from_slice(&header.magic_number);
+    header_buff.extend_from_slice(&header.format_version);
+    header_buff.push(header.project_count);
+    header_buff.extend_from_slice(b" ");
     // project list
     let test: ProjectEntry = ProjectEntry {
         project_hash: [0; 20],
@@ -150,7 +152,7 @@ fn create_nxs_file() {
     project_list_buff.extend_from_slice(&project_list_bytes);
     // complete file
     let mut file_buff: Vec<u8> = Vec::new();
-    file_buff.extend_from_slice(&NXSHeader_buff);
+    file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&project_list_buff);
     let mut nxs_file: File = match File::create(".data/nxs") {
         Ok(f) => f,
@@ -196,13 +198,13 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     let header: NXSHeader =
         bincode::deserialize(header_bytes).expect("Failed to deserialize NXSHeader");
     // project list
-    let project_list_byte = &bytes_vec[NXSHeader_size..];
+    let project_list_byte = &bytes_vec[header_size..];
     let project_list: ProjectList =
         bincode::deserialize(project_list_byte).expect("Failed to deserialize project list");
     let nxs: NXS = NXS {
-        header: NXSHeader,
+        header: header,
         projects: project_list,
     };
-    nxs_ref.NXSHeader = nxs.NXSHeader;
+    nxs_ref.header = nxs.header;
     nxs_ref.projects = nxs.projects;
 }
