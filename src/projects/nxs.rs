@@ -101,12 +101,13 @@ pub fn create_data() {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     }
-    match std::fs::create_dir(".data") {
+    match std::fs::create_dir_all(".data/projects") {
         Ok(_) => create_nxs_file(),
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     };
+
     let mut nxs = NXS {
         header: NXSHeader {
             magic_number: [0; 4],

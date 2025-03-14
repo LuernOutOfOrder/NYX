@@ -15,3 +15,4 @@ throbber = "0.1"
 regex = "1.11.1"
 lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.1.0", branch="main" }
 bincode = "1.0.0"
+sha1 = "0.10.6"

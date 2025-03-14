@@ -1,6 +1,6 @@
 use crate::utils;
+use std::fs;
 use std::process::Command;
-use std::{fs, process::exit};
 pub mod list;
 mod templates;
 pub mod update;
