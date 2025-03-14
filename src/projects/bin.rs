@@ -18,17 +18,18 @@ use std::path::Path;
 NXS file structure
 */
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 struct NXS {
     header: Header,
     projects: ProjectList,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 struct Header {
     magic_number: [u8; 4],
     format_version: [u8; 6],
     project_count: u8,
+    #[allow(dead_code)]
     reserved: u32,
 }
 
@@ -64,7 +65,17 @@ pub fn create_data() {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     };
-    parse_nxs_file();
+    let mut nxs = NXS {
+        header: Header {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    println!("{:?}", nxs);
 }
 
 fn create_nxs_file() {
@@ -115,10 +126,10 @@ fn create_nxs_file() {
     lrncore::logs::info_log("Initialized NXS file");
 }
 
-fn parse_nxs_file() {
+fn parse_nxs_file(nxs_ref: &mut NXS) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // open NXS file and match result
-    let mut file = match File::open(".data/nxs") {
+    let file = match File::open(".data/nxs") {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
@@ -149,5 +160,6 @@ fn parse_nxs_file() {
         header: header,
         projects: project_list,
     };
-    println!("{:?}", nxs);
+    nxs_ref.header = nxs.header;
+    nxs_ref.projects = nxs.projects;
 }
