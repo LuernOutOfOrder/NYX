@@ -7,8 +7,9 @@ pub mod update;
 use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
-pub mod bin;
 pub mod delete;
+pub mod nxp;
+pub mod nxs;
 pub mod todo;
 
 pub fn project_help() -> String {

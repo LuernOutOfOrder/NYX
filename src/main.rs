@@ -78,7 +78,7 @@ fn main() {
     };
 
     match command {
-        Commands::Init => projects::bin::create_data(),
+        Commands::Init => projects::nxs::create_data(),
         Commands::Project { name } => projects::new_project(name),
         Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
         Commands::ProjectList => projects::list::list_projects(),

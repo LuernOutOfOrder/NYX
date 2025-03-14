@@ -1,5 +1,5 @@
 /*!
-Module to handle the NXS (nyx storage) and NXP (nyx project) binary format to store projects data.
+Module to handle the NXS (nyx storage) binary format to store projects data.
 
 This module provides the definition of data structures and methods to create and handle the binary format used for storing project data in the NXS format and the NXP format.
 It includes functionalities for reading, writing, and manipulating the binary data to ensure efficient storage and retrieval.
@@ -18,14 +18,40 @@ use std::path::Path;
 NXS file structure
 */
 
+/// The code defines a struct `NXS` containing a `NXSHeader` and a `ProjectList`.
+///
+/// Properties:
+///
+/// * `NXSHeader`: The `NXSHeader` property in the `NXS` struct is of type `NXSHeader`. It likely contains
+/// information about the overall structure or metadata of the NXS data.
+/// * `projects`: The `projects` property in the `NXS` struct is of type `ProjectList`. It likely
+/// represents a list of projects within the NXS structure.
 #[derive(Debug, Deserialize, Clone)]
 struct NXS {
-    header: Header,
+    header: NXSHeader,
     projects: ProjectList,
 }
 
+/// The `NXSHeader` struct in Rust represents a data structure with fields for magic number, format
+/// version, project count, and a reserved value.
+///
+/// Properties:
+///
+/// * `magic_number`: The `magic_number` field in the `NXSHeader` struct is an array of 4 unsigned 8-bit
+/// integers (`u8`). It is typically used to identify the file format or type by storing a specific
+/// sequence of bytes that can be checked when reading the file to ensure it is of the expected
+/// * `format_version`: The `format_version` property in the `NXSHeader` struct is an array of 6 unsigned
+/// 8-bit integers (`[u8; 6]`). This array is used to store the version information of the format being
+/// used. Each element in the array represents a part of the version number.
+/// * `project_count`: The `project_count` property in the `NXSHeader` struct represents the number of
+/// projects stored in the data structure. It is of type `u8`, which means it can hold values from 0 to
+/// 255.
+/// * `reserved`: The `reserved` field in the `NXSHeader` struct is a 32-bit unsigned integer that is
+/// currently marked with `#[allow(dead_code)]`. This attribute is used to suppress the compiler warning
+/// about unused code, indicating that the field is intentionally left unused or reserved for future
+/// use.
 #[derive(Debug, Deserialize, Clone)]
-struct Header {
+struct NXSHeader {
     magic_number: [u8; 4],
     format_version: [u8; 6],
     project_count: u8,
@@ -33,11 +59,29 @@ struct Header {
     reserved: u32,
 }
 
+/// The `ProjectList` struct contains a vector of `ProjectEntry` instances.
+///
+/// Properties:
+///
+/// * `entries`: The `entries` property in the `ProjectList` struct is a vector of `ProjectEntry`
+/// instances. It represents a list of project entries within the project list.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ProjectList {
     pub entries: Vec<ProjectEntry>,
 }
 
+/// The `ProjectEntry` struct in Rust contains fields for project hash, project ID, and project size.
+///
+/// Properties:
+///
+/// * `project_hash`: The `project_hash` property in the `ProjectEntry` struct is defined as an array of
+/// 20 unsigned 8-bit integers (bytes). This array represents a hash value typically used to uniquely
+/// identify a project.
+/// * `project_id`: The `project_id` property in the `ProjectEntry` struct is a vector of unsigned 8-bit
+/// integers (`Vec<u8>`). It is used to store the unique identifier for a project.
+/// * `project_size`: The `project_size` property in the `ProjectEntry` struct represents the size of
+/// the project in bytes. It is of type `u32`, which means it can hold unsigned integer values ranging
+/// from 0 to 2^32 - 1. This property indicates the amount of storage space the
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ProjectEntry {
     pub project_hash: [u8; 20],
@@ -45,11 +89,8 @@ struct ProjectEntry {
     pub project_size: u32,
 }
 
-/*
-NXP file structure
-*/
-struct Project {}
-
+/// The `create_data` function initializes a data folder, removes any existing data directory,
+/// creates a new data directory, and parses a NXS file.
 pub fn create_data() {
     utils::change_work_dir(&utils::get_nyx_env_var());
     if Path::new(".data").exists() {
@@ -66,7 +107,7 @@ pub fn create_data() {
         }
     };
     let mut nxs = NXS {
-        header: Header {
+        header: NXSHeader {
             magic_number: [0; 4],
             format_version: [0; 6],
             project_count: 0,
@@ -78,9 +119,10 @@ pub fn create_data() {
     println!("{:?}", nxs);
 }
 
+/// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
 fn create_nxs_file() {
-    // header
-    let header: Header = Header {
+    // NXSHeader
+    let header: NXSHeader = NXSHeader {
         reserved: 0,
         magic_number: *b"NXS\0",
         format_version: *b"0.1.0\0",
@@ -88,10 +130,10 @@ fn create_nxs_file() {
     };
 
     let mut header_buff: Vec<u8> = Vec::new();
-    header_buff.extend_from_slice(&header.magic_number);
-    header_buff.extend_from_slice(&header.format_version);
-    header_buff.push(header.project_count);
-    header_buff.extend_from_slice(b" ");
+    NXSHeader_buff.extend_from_slice(&header.magic_number);
+    NXSHeader_buff.extend_from_slice(&header.format_version);
+    NXSHeader_buff.push(header.project_count);
+    NXSHeader_buff.extend_from_slice(b" ");
     // project list
     let test: ProjectEntry = ProjectEntry {
         project_hash: [0; 20],
@@ -108,7 +150,7 @@ fn create_nxs_file() {
     project_list_buff.extend_from_slice(&project_list_bytes);
     // complete file
     let mut file_buff: Vec<u8> = Vec::new();
-    file_buff.extend_from_slice(&header_buff);
+    file_buff.extend_from_slice(&NXSHeader_buff);
     file_buff.extend_from_slice(&project_list_buff);
     let mut nxs_file: File = match File::create(".data/nxs") {
         Ok(f) => f,
@@ -136,8 +178,8 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
             return;
         }
     };
-    // initialize header size from structure and buffer
-    let header_size = std::mem::size_of::<Header>();
+    // initialize NXSHeader size from structure and buffer
+    let header_size = std::mem::size_of::<NXSHeader>();
     let buffer = BufReader::new(file);
     // vector containing the whole NXS file
     let mut bytes_vec: Vec<u8> = Vec::new();
@@ -146,20 +188,21 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
         bytes_vec.push(byte);
     }
 
-    // extract a slice of bytes from the `bytes_vec` vector to represent the header section of the NXS file.
-    // &bytes_vec[0 to header_size]
+    // extract a slice of bytes from the `bytes_vec` vector to represent the NXSHeader section of the NXS file.
+    // &bytes_vec[0 to NXSHeader_size]
     let header_bytes = &bytes_vec[..header_size];
 
-    // convert into the Header struct
-    let header: Header = bincode::deserialize(header_bytes).expect("Failed to deserialize header");
+    // convert into the NXSHeader struct
+    let header: NXSHeader =
+        bincode::deserialize(header_bytes).expect("Failed to deserialize NXSHeader");
     // project list
-    let project_list_byte = &bytes_vec[header_size..];
+    let project_list_byte = &bytes_vec[NXSHeader_size..];
     let project_list: ProjectList =
         bincode::deserialize(project_list_byte).expect("Failed to deserialize project list");
     let nxs: NXS = NXS {
-        header: header,
+        header: NXSHeader,
         projects: project_list,
     };
-    nxs_ref.header = nxs.header;
+    nxs_ref.NXSHeader = nxs.NXSHeader;
     nxs_ref.projects = nxs.projects;
 }
