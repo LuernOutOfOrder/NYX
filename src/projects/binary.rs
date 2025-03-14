@@ -19,6 +19,12 @@ NXS file structure
 */
 
 #[derive(Debug, Deserialize)]
+struct NXS {
+    header: Header,
+    projects: ProjectList,
+}
+
+#[derive(Debug, Deserialize)]
 struct Header {
     magic_number: [u8; 4],
     format_version: [u8; 6],
@@ -135,10 +141,13 @@ fn parse_nxs_file() {
 
     // convert into the Header struct
     let header: Header = bincode::deserialize(header_bytes).expect("Failed to deserialize header");
-    println!("{:?}", std::mem::size_of::<Header>() % 8);
     // project list
     let project_list_byte = &bytes_vec[header_size..];
     let project_list: ProjectList =
         bincode::deserialize(project_list_byte).expect("Failed to deserialize project list");
-    println!("{:?}", project_list.entries);
+    let nxs: NXS = NXS {
+        header: header,
+        projects: project_list,
+    };
+    println!("{:?}", nxs);
 }
