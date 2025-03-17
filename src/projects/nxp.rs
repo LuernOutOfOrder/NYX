@@ -34,41 +34,37 @@ struct NXPHeader {
 
 #[derive(Debug, Deserialize, Serialize)]
 struct NXPContent {
-    name: String,
-    tech: String,
-    location: String,
-    repository: String,
-    github_project: String,
-    version: String,
-    todo: String,
+    name: Vec<u8>,
+    tech: Vec<u8>,
+    location: Vec<u8>,
+    repository: Vec<u8>,
+    github_project: Vec<u8>,
+    version: Vec<u8>,
+    todo: Vec<u8>,
 }
 
 pub fn create_new_nxp() {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    let test_project: NXP = NXP {
-        header: NXPHeader {
-            magic_number: *b"NXP\0",
-            format_version: *b"0.1.0\0",
-            project_id: [0u8; 11],
-            project_size: 0,
-            reserved: 0,
-        },
-        content: NXPContent {
-            name: format!("{}", "pro"),
-            tech: format!("{}", "Rust"),
-            location: format!("{}", ""),
-            repository: format!("{}", ""),
-            github_project: format!("{}", ""),
-            version: format!("{}", ""),
-            todo: format!("{}", ""),
-        },
-    };
+    // hash
     let now = SystemTime::now();
     let mut new_hash = Sha1::new();
-    new_hash.update(test_project.content.name + &format!("{:?}", now));
+    new_hash.update("prout".to_owned() + &format!("{:?}", now));
     let hash_result = new_hash.finalize();
     let mut folder_hash = format!("{:#x}", hash_result);
     let (file_hash, _) = folder_hash.split_at(11);
+    // content
+    let content: NXPContent = NXPContent {
+        name: b"j".to_vec(),
+        tech: b"j".to_vec(),
+        location: b"j".to_vec(),
+        repository: b"j".to_vec(),
+        github_project: b"j".to_vec(),
+        version: b"j".to_vec(),
+        todo: b"j".to_vec(),
+    };
+    let mut content_buff = bincode::serialize(&content).expect("Failed to serialize NXPContent");
+    content_buff.push(0);
+    // header
     let header: NXPHeader = NXPHeader {
         magic_number: *b"NXP\0",
         format_version: *b"0.1.0\0",
@@ -78,28 +74,17 @@ pub fn create_new_nxp() {
             array.copy_from_slice(&bytes[..11]);
             array
         },
-        project_size: 0,
+        project_size: content_buff.len() as u32,
         reserved: 0,
     };
     let mut header_buff: Vec<u8> = Vec::new();
     header_buff.extend_from_slice(&header.magic_number);
     header_buff.extend_from_slice(&header.format_version);
     header_buff.extend_from_slice(&header.project_id);
-    header_buff.push(0);
     header_buff.extend_from_slice(&header.project_size.to_le_bytes());
     header_buff.extend_from_slice(&header.reserved.to_le_bytes());
     header_buff.extend_from_slice(b" ");
-    let content: NXPContent = NXPContent {
-        name: format!("{}\0", "j"),
-        tech: format!("{}\0", "j"),
-        location: format!("{}\0", "j"),
-        repository: format!("{}\0", "j"),
-        github_project: format!("{}\0", "j"),
-        version: format!("{}\0", "j"),
-        todo: format!("{}\0", "j"),
-    };
-    let mut content_buff = bincode::serialize(&content).expect("Failed to serialize NXPContent");
-    content_buff.push(0);
+    // complete file
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
@@ -154,7 +139,10 @@ pub fn parse_nxp_file(path: &str) {
     println!("header: {:?}", header);
     // project content
     let project_content_bytes = &bytes_vec[header_size..];
-    println!("{:?}", std::mem::size_of::<NXPContent>() % 8);
+    println!(
+        "debug {:?}",
+        std::mem::size_of_val(&project_content_bytes) % 8
+    );
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
     println!("project_content: {:?}", project_content);
