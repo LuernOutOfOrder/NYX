@@ -6,8 +6,12 @@ It includes functionalities for reading, writing, and manipulating the binary da
 */
 
 use crate::utils;
+use serde::Deserialize;
+use serde::Serialize;
 use sha1::{Digest, Sha1};
 use std::fs::File;
+use std::io::BufReader;
+use std::io::Read;
 use std::io::Write;
 use std::time::SystemTime;
 
@@ -19,6 +23,7 @@ struct NXP {
     content: NXPContent,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 struct NXPHeader {
     magic_number: [u8; 4],
     format_version: [u8; 6],
@@ -26,14 +31,15 @@ struct NXPHeader {
     project_size: u32,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
 struct NXPContent {
-    pub name: String,
-    pub tech: String,
-    pub location: String,
-    pub repository: String,
-    pub github_project: String,
-    pub version: String,
-    pub todo: String,
+    name: String,
+    tech: String,
+    location: String,
+    repository: String,
+    github_project: String,
+    version: String,
+    todo: String,
 }
 
 pub fn create_new_nxp() {
@@ -46,13 +52,13 @@ pub fn create_new_nxp() {
             project_size: 0,
         },
         content: NXPContent {
-            name: format!("{}\0", "pro"),
-            tech: format!("{}\0", "Rust"),
-            location: format!("{}\0", ""),
-            repository: format!("{}\0", ""),
-            github_project: format!("{}\0", ""),
-            version: format!("{}\0", ""),
-            todo: format!("{}\0", ""),
+            name: format!("{}", "pro"),
+            tech: format!("{}", "Rust"),
+            location: format!("{}", ""),
+            repository: format!("{}", ""),
+            github_project: format!("{}", ""),
+            version: format!("{}", ""),
+            todo: format!("{}", ""),
         },
     };
     let now = SystemTime::now();
@@ -78,26 +84,18 @@ pub fn create_new_nxp() {
     header_buff.extend_from_slice(&header.project_id);
     header_buff.push(0);
     header_buff.push((header.project_size as u32).try_into().unwrap());
-    header_buff.push(0);
-    println!("nxp_header {:?}", header_buff);
+    header_buff.extend_from_slice(b" ");
     let content: NXPContent = NXPContent {
-        name: format!("{}\0", "pro"),
-        tech: format!("{}\0", "Rust"),
-        location: format!("{}\0", ""),
-        repository: format!("{}\0", ""),
-        github_project: format!("{}\0", ""),
-        version: format!("{}\0", ""),
-        todo: format!("{}\0", ""),
+        name: format!("{}\0", "j"),
+        tech: format!("{}\0", "j"),
+        location: format!("{}\0", "j"),
+        repository: format!("{}\0", "j"),
+        github_project: format!("{}\0", "j"),
+        version: format!("{}\0", "j"),
+        todo: format!("{}\0", "j"),
     };
-    let mut content_buff: Vec<u8> = Vec::new();
-    content_buff.extend_from_slice(content.name.as_bytes());
-    content_buff.extend_from_slice(content.tech.as_bytes());
-    content_buff.extend_from_slice(content.location.as_bytes());
-    content_buff.extend_from_slice(content.repository.as_bytes());
-    content_buff.extend_from_slice(content.github_project.as_bytes());
-    content_buff.extend_from_slice(content.version.as_bytes());
-    content_buff.extend_from_slice(content.todo.as_bytes());
-    println!("nxp_content {:?}", content_buff);
+    let mut content_buff = bincode::serialize(&content).expect("Failed to serialize NXPContent");
+    content_buff.push(0);
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
@@ -115,16 +113,47 @@ pub fn create_new_nxp() {
             lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
         }
     };
-    lrncore::logs::info_log("Initialized NXS file");
+    lrncore::logs::info_log("Initialized NXP file");
 }
 
 pub fn parse_nxp_file(path: &str) {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    let file_result: File;
     let file = match File::open(path) {
-        Ok(f) => file_result = f,
+        Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to open nxp file: {}", e));
+            return;
         }
     };
+    // initialize NXPHeader size from structure and buffer
+    let header_size = std::mem::size_of::<NXPHeader>();
+    let buffer = BufReader::new(file);
+    // vector containing the whole NXP file
+    let mut bytes_vec: Vec<u8> = Vec::new();
+    for byte_or_error in buffer.bytes() {
+        match byte_or_error {
+            Ok(byte) => bytes_vec.push(byte),
+            Err(e) => {
+                lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
+                return;
+            }
+        }
+    }
+
+    // extract a slice of bytes from the `bytes_vec` vector to represent the NXPHeader section of the NXS file.
+    // &bytes_vec[0 to NXPHeader_size]
+    let header_bytes = &bytes_vec[..header_size];
+
+    // convert into the NXPHeader struct
+    let header: NXPHeader =
+        bincode::deserialize(header_bytes).expect("Failed to deserialize NXPHeader");
+    // project content
+    let project_content_bytes = &bytes_vec[header_size..];
+    println!(
+        "{:?}:{:?}",
+        header_bytes.len() + project_content_bytes.len(),
+        bytes_vec.len()
+    );
+    let project_content: NXPContent =
+        bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
 }

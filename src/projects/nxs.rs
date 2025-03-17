@@ -118,7 +118,6 @@ pub fn create_data() {
         projects: ProjectList { entries: vec![] },
     };
     parse_nxs_file(&mut nxs);
-    println!("{:?}", nxs);
     nxp::create_new_nxp();
 }
 
