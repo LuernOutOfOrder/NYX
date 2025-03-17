@@ -29,6 +29,7 @@ struct NXPHeader {
     format_version: [u8; 6],
     project_id: [u8; 11],
     project_size: u32,
+    reserved: u32,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -50,6 +51,7 @@ pub fn create_new_nxp() {
             format_version: *b"0.1.0\0",
             project_id: [0u8; 11],
             project_size: 0,
+            reserved: 0,
         },
         content: NXPContent {
             name: format!("{}", "pro"),
@@ -77,13 +79,15 @@ pub fn create_new_nxp() {
             array
         },
         project_size: 0,
+        reserved: 0,
     };
     let mut header_buff: Vec<u8> = Vec::new();
     header_buff.extend_from_slice(&header.magic_number);
     header_buff.extend_from_slice(&header.format_version);
     header_buff.extend_from_slice(&header.project_id);
     header_buff.push(0);
-    header_buff.push((header.project_size as u32).try_into().unwrap());
+    header_buff.extend_from_slice(&header.project_size.to_le_bytes());
+    header_buff.extend_from_slice(&header.reserved.to_le_bytes());
     header_buff.extend_from_slice(b" ");
     let content: NXPContent = NXPContent {
         name: format!("{}\0", "j"),
@@ -147,13 +151,11 @@ pub fn parse_nxp_file(path: &str) {
     // convert into the NXPHeader struct
     let header: NXPHeader =
         bincode::deserialize(header_bytes).expect("Failed to deserialize NXPHeader");
+    println!("header: {:?}", header);
     // project content
     let project_content_bytes = &bytes_vec[header_size..];
-    println!(
-        "{:?}:{:?}",
-        header_bytes.len() + project_content_bytes.len(),
-        bytes_vec.len()
-    );
+    println!("{:?}", std::mem::size_of::<NXPContent>() % 8);
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
+    println!("project_content: {:?}", project_content);
 }
