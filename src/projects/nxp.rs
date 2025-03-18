@@ -56,11 +56,11 @@ pub fn create_new_nxp() {
     let content: NXPContent = NXPContent {
         name: format!("{}", "testing project"),
         tech: format!("{}", "Rust"),
-        location: format!("{}", "empty"),
-        repository: format!("{}", "empty"),
-        github_project: format!("{}", "empty"),
+        location: format!("{}", ""),
+        repository: format!("{}", ""),
+        github_project: format!("{}", ""),
         version: format!("{}", "0.1.0"),
-        todo: format!("{}", "empty"),
+        todo: format!("{}", ""),
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -98,7 +98,7 @@ pub fn create_new_nxp() {
     lrncore::logs::info_log("Initialized NXP file");
 }
 
-pub fn parse_nxp_file(path: &str) {
+pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let file = match File::open(path) {
         Ok(f) => f,
@@ -128,14 +128,14 @@ pub fn parse_nxp_file(path: &str) {
     // convert into the NXPHeader struct
     let header: NXPHeader =
         bincode::deserialize(header_bytes).expect("Failed to deserialize NXPHeader");
-    println!("header: {:?}", String::from_utf8_lossy(header_bytes));
     // project content
     let project_content_bytes = &bytes_vec[header_size..];
-    println!(
-        "debug bytes {:?}",
-        String::from_utf8_lossy(project_content_bytes)
-    );
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
-    println!("project_content: {:?}", project_content);
+    let nxp: NXP = NXP {
+        header: header,
+        content: project_content,
+    };
+    nxp_ref.header = nxp.header;
+    nxp_ref.content = nxp.content;
 }
