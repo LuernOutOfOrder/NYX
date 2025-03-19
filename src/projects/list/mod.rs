@@ -7,6 +7,8 @@ use std::{env, fs};
 use tabled::settings::Style;
 use tabled::Table;
 
+use super::nxp;
+
 pub fn project_list_help() -> String {
     let usage = r"
 Usage: nyx project-list [options]
@@ -77,8 +79,6 @@ pub fn create_repo_or_not(tech: &str) {
 }
 
 pub fn add_project_to_list(tech: &str) {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
     let current_dir = utils::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let app_id = &app_name[..3];
@@ -114,8 +114,7 @@ pub fn add_project_to_list(tech: &str) {
         version = "0.1.0".to_string();
     }
 
-    let new_app: projects::Project = projects::Project {
-        id: (app_id.to_string().to_lowercase()),
+    let new_app: nxp::NXPContent = nxp::NXPContent {
         name: (app_name.to_string()),
         tech: (tech.to_string()),
         location: (current_dir),
@@ -124,10 +123,7 @@ pub fn add_project_to_list(tech: &str) {
         version: version,
         todo: "[]".to_string(),
     };
-    projects.push(new_app.clone());
-    let updated_data = projects::Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    nxp::create_new_nxp(new_app);
 }
 
 fn create_repo_add_to_list(tech: &str) {

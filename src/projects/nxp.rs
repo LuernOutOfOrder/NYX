@@ -117,7 +117,7 @@ pub fn create_new_nxp(content: NXPContent) {
             todo: String::new(),
         },
     };
-    parse_nxp_file(".data/projects/e71d5170c7d", &mut nxp);
+    parse_nxp_file(".data/projects/fc8623dee5b", &mut nxp);
     println!("nxp {:?}", nxp);
 }
 
