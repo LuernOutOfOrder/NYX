@@ -118,7 +118,6 @@ pub fn create_new_nxp(content: NXPContent) {
         },
     };
     parse_nxp_file(".data/projects/fc8623dee5b", &mut nxp);
-    println!("nxp {:?}", nxp);
 }
 
 pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
