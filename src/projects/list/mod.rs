@@ -128,11 +128,8 @@ fn create_repo_add_to_list(tech: &str) {
     let current_dir = utils::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let choice = vec_of_strings!["public", "private", "internal"];
-    let repository_visibility: String = utils::get_select_option(
-        "Do you want to create a new repository ?".to_string(),
-        choice,
-    )
-    .unwrap();
+    let repository_visibility: String =
+        utils::get_select_option("Select the repository visibility:".to_string(), choice).unwrap();
     gh::create_new_repo(app_name.to_string(), repository_visibility);
     let mut github_project: String;
 
