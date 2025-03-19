@@ -18,7 +18,7 @@ use std::io::Write;
 NXP file structure
 */
 #[derive(Debug, Deserialize, Serialize)]
-struct NXP {
+pub struct NXP {
     header: NXPHeader,
     content: NXPContent,
 }
@@ -33,40 +33,43 @@ struct NXPHeader {
     reserved: u32,
 }
 
+const MAGIC_NUMBER: [u8; 4] = *b"NXP\0";
+const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
+
 #[derive(Serialize, Deserialize, Debug)]
-struct NXPContent {
-    name: String,
-    tech: String,
-    location: String,
-    repository: String,
-    github_project: String,
-    version: String,
-    todo: String,
+pub struct NXPContent {
+    pub name: String,
+    pub tech: String,
+    pub location: String,
+    pub repository: String,
+    pub github_project: String,
+    pub version: String,
+    pub todo: String,
 }
 
-pub fn create_new_nxp() {
+pub fn create_new_nxp(content: NXPContent) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // hash
     let mut new_hash = Sha1::new();
-    new_hash.update("prout".to_owned());
+    new_hash.update(content.name.to_owned());
     let hash_result = new_hash.finalize();
     let folder_hash = format!("{:#x}", hash_result);
     let (file_hash, _) = folder_hash.split_at(11);
     // content
     let content: NXPContent = NXPContent {
-        name: format!("{}", "testing project"),
-        tech: format!("{}", "Rust"),
-        location: format!("{}", ""),
-        repository: format!("{}", ""),
-        github_project: format!("{}", ""),
+        name: format!("{}", content.name),
+        tech: format!("{}", content.tech),
+        location: format!("{}", content.location),
+        repository: format!("{}", content.repository),
+        github_project: format!("{}", content.github_project),
         version: format!("{}", "0.1.0"),
         todo: format!("{}", ""),
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
     let header: NXPHeader = NXPHeader {
-        magic_number: *b"NXP\0",
-        format_version: *b"0.1.0\0",
+        magic_number: MAGIC_NUMBER,
+        format_version: FORMAT_VERSION,
         project_id: {
             let mut array = [0u8; 11];
             let bytes = file_hash.as_bytes();
@@ -96,6 +99,26 @@ pub fn create_new_nxp() {
         }
     };
     lrncore::logs::info_log("Initialized NXP file");
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: MAGIC_NUMBER,
+            format_version: FORMAT_VERSION,
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    parse_nxp_file(".data/projects/e71d5170c7d", &mut nxp);
+    println!("nxp {:?}", nxp);
 }
 
 pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {

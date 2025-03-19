@@ -15,6 +15,8 @@ use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
+use super::nxp::NXPContent;
+
 /*
 NXS file structure
 */
@@ -118,7 +120,16 @@ pub fn create_data() {
         projects: ProjectList { entries: vec![] },
     };
     parse_nxs_file(&mut nxs);
-    nxp::create_new_nxp();
+    let content: NXPContent = NXPContent {
+        name: "Testing project test".to_string(),
+        tech: String::new(),
+        location: String::new(),
+        repository: String::new(),
+        github_project: String::new(),
+        version: String::new(),
+        todo: String::new(),
+    };
+    nxp::create_new_nxp(content);
 }
 
 /// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
