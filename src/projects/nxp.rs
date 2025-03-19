@@ -14,6 +14,8 @@ use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
 
+use super::nxs;
+
 /*
 NXP file structure
 */
@@ -47,6 +49,7 @@ pub struct NXPContent {
     pub todo: String,
 }
 
+// create a new NXP file to store project data
 pub fn create_new_nxp(content: NXPContent) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // hash
@@ -118,8 +121,20 @@ pub fn create_new_nxp(content: NXPContent) {
         },
     };
     parse_nxp_file(".data/projects/fc8623dee5b", &mut nxp);
+    nxs::update_nxs_file(&mut nxp);
 }
 
+/// The `parse_nxp_file` function in Rust reads and parses an NXP file, extracting the header and
+/// project content into a mutable reference to an NXP struct.
+///
+/// Arguments:
+///
+/// * `path`: The `path` parameter in the `parse_nxp_file` function represents the file path to the NXP
+/// file that you want to parse and extract information from. This function reads the contents of the
+/// specified NXP file, extracts the header and project content, and then populates the provided `N
+/// * `nxp_ref`: The `nxp_ref` parameter in the `parse_nxp_file` function is a mutable reference to an
+/// instance of the `NXP` struct. This parameter allows the function to update the content of the `NXP`
+/// struct that is passed in by the caller. By using a mutable reference
 pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let file = match File::open(path) {

@@ -15,7 +15,7 @@ use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
-use super::nxp::NXPContent;
+use super::nxp::{NXPContent, NXP};
 
 /*
 NXS file structure
@@ -218,4 +218,18 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     };
     nxs_ref.header = nxs.header;
     nxs_ref.projects = nxs.projects;
+}
+
+pub fn update_nxs_file(nxp: &mut NXP) {
+    let mut empty_nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut empty_nxs);
+    println!("nxs {:?}", empty_nxs);
 }
