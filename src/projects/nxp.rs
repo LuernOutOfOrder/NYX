@@ -120,8 +120,7 @@ pub fn create_new_nxp(content: NXPContent) {
             todo: String::new(),
         },
     };
-    parse_nxp_file(".data/projects/55290da904b", &mut nxp);
-    println!("{:?}", nxp);
+    // parse_nxp_file(".data/projects/55290da904b", &mut nxp);
     nxs::update_nxs_file(&mut nxp);
 }
 

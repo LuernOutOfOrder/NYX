@@ -12,6 +12,7 @@ use bincode;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
@@ -29,7 +30,7 @@ NXS file structure
 /// information about the overall structure or metadata of the NXS data.
 /// * `projects`: The `projects` property in the `NXS` struct is of type `ProjectList`. It likely
 /// represents a list of projects within the NXS structure.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 struct NXS {
     header: NXSHeader,
     projects: ProjectList,
@@ -53,7 +54,8 @@ struct NXS {
 /// currently marked with `#[allow(dead_code)]`. This attribute is used to suppress the compiler warning
 /// about unused code, indicating that the field is intentionally left unused or reserved for future
 /// use.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
+#[repr(C, packed)]
 struct NXSHeader {
     magic_number: [u8; 4],
     format_version: [u8; 6],
@@ -221,6 +223,7 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
 }
 
 pub fn update_nxs_file(nxp_ref: &mut NXP) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
@@ -239,7 +242,26 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
     );
     let mut nxs_entries: ProjectList = nxs.projects;
     nxs_entries.entries.push(new_entry);
-    println!("{:?}", nxs_entries);
+    nxs.projects = nxs_entries;
+    let file_buff = bincode::serialize(&nxs).expect("Failed to serialize updated NXS file");
+    let mut nxs_file: File = match OpenOptions::new()
+        .write(true)
+        .create(false)
+        .truncate(true)
+        .open(".data/nxs")
+    {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            return;
+        }
+    };
+    match nxs_file.write_all(&file_buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+        }
+    };
 }
 
 fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
