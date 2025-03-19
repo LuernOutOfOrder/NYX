@@ -69,7 +69,7 @@ struct NXSHeader {
 /// * `entries`: The `entries` property in the `ProjectList` struct is a vector of `ProjectEntry`
 /// instances. It represents a list of project entries within the project list.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct ProjectList {
+pub struct ProjectList {
     pub entries: Vec<ProjectEntry>,
 }
 
@@ -80,15 +80,15 @@ struct ProjectList {
 /// * `project_hash`: The `project_hash` property in the `ProjectEntry` struct is defined as an array of
 /// 20 unsigned 8-bit integers (bytes). This array represents a hash value typically used to uniquely
 /// identify a project.
-/// * `project_id`: The `project_id` property in the `ProjectEntry` struct is a vector of unsigned 8-bit
+/// * `project_name`: The `project_name` property in the `ProjectEntry` struct is a vector of unsigned 8-bit
 /// integers (`Vec<u8>`). It is used to store the unique identifier for a project.
 /// * `project_size`: The `project_size` property in the `ProjectEntry` struct represents the size of
 /// the project in bytes. It is of type `u32`, which means it can hold unsigned integer values ranging
 /// from 0 to 2^32 - 1. This property indicates the amount of storage space the
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct ProjectEntry {
-    pub project_hash: [u8; 20],
-    pub project_id: Vec<u8>,
+pub struct ProjectEntry {
+    pub project_name: String,
+    pub project_hash: [u8; 11],
     pub project_size: u32,
 }
 
@@ -149,8 +149,8 @@ fn create_nxs_file() {
     header_buff.extend_from_slice(b" ");
     // project list
     let test: ProjectEntry = ProjectEntry {
-        project_hash: [0; 20],
-        project_id: vec![],
+        project_name: String::new(),
+        project_hash: [0; 11],
         project_size: 0,
     };
     let empty_vec: Vec<ProjectEntry> = vec![test];
@@ -220,8 +220,8 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     nxs_ref.projects = nxs.projects;
 }
 
-pub fn update_nxs_file(nxp: &mut NXP) {
-    let mut empty_nxs: NXS = NXS {
+pub fn update_nxs_file(nxp_ref: &mut NXP) {
+    let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
             format_version: [0; 6],
@@ -230,6 +230,23 @@ pub fn update_nxs_file(nxp: &mut NXP) {
         },
         projects: ProjectList { entries: vec![] },
     };
-    parse_nxs_file(&mut empty_nxs);
-    println!("nxs {:?}", empty_nxs);
+    parse_nxs_file(&mut nxs);
+    println!("nxs {:?}", nxs);
+    let new_entry: ProjectEntry = new_project_entry(
+        &nxp_ref.header.project_id,
+        &nxp_ref.content.name,
+        nxp_ref.header.project_size,
+    );
+    let mut nxs_entries: ProjectList = nxs.projects;
+    nxs_entries.entries.push(new_entry);
+    println!("{:?}", nxs_entries);
+}
+
+fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
+    let new: ProjectEntry = ProjectEntry {
+        project_name: id.clone(),
+        project_hash: *hash,
+        project_size: size,
+    };
+    new
 }

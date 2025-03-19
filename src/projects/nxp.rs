@@ -21,17 +21,17 @@ NXP file structure
 */
 #[derive(Debug, Deserialize, Serialize)]
 pub struct NXP {
-    header: NXPHeader,
-    content: NXPContent,
+    pub header: NXPHeader,
+    pub content: NXPContent,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 #[repr(C, packed)]
-struct NXPHeader {
+pub struct NXPHeader {
     magic_number: [u8; 4],
     format_version: [u8; 6],
-    project_id: [u8; 11],
-    project_size: u32,
+    pub project_id: [u8; 11],
+    pub project_size: u32,
     reserved: u32,
 }
 
@@ -120,7 +120,8 @@ pub fn create_new_nxp(content: NXPContent) {
             todo: String::new(),
         },
     };
-    parse_nxp_file(".data/projects/fc8623dee5b", &mut nxp);
+    parse_nxp_file(".data/projects/55290da904b", &mut nxp);
+    println!("{:?}", nxp);
     nxs::update_nxs_file(&mut nxp);
 }
 
