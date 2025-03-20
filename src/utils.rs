@@ -28,6 +28,7 @@ This module provides various utility functions for the NYX project management to
 This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
 */
 
+use crate::projects::nxp::NXPContent;
 use crate::projects::{self};
 use std::env::var;
 use std::fs;
@@ -245,7 +246,15 @@ pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
     ans.unwrap()
 }
 
-pub fn update_editor(buffer: Vec<u8>) {
+/// The `update_editor` function updates a file using the specified editor and prints its
+/// content.
+///
+/// Arguments:
+///
+/// * `buffer`: The `buffer` parameter in the `update_editor` function is a vector of unsigned 8-bit
+/// integers (`Vec<u8>`) that represents the content to be written to a temporary file and opened in the
+/// user's preferred text editor for editing.
+pub fn update_editor(content: NXPContent) -> Vec<u8> {
     change_work_dir(&get_nyx_env_var());
     let editor = match var("EDITOR") {
         Ok(str) => str,
@@ -259,17 +268,24 @@ pub fn update_editor(buffer: Vec<u8>) {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
-            return;
+            return vec![];
         }
     };
-    match temp_file.write_all(&buffer) {
+    let json = match serde_json::to_string_pretty(&content) {
+        Ok(str) => str,
+        Err(e) => {
+            lrncore::logs::info_log("Failed to parse project content to JSON");
+            return vec![];
+        }
+    };
+    match fs::write(file_path, json) {
         Ok(_) => (),
         Err(e) => {
             lrncore::logs::error_log(&format!(
                 "Failed to write current project buffer to temp file: {}",
                 e
             ));
-            return;
+            return vec![];
         }
     }
     Command::new(editor)
@@ -281,6 +297,14 @@ pub fn update_editor(buffer: Vec<u8>) {
     File::open(file_path)
         .expect("Could not open file")
         .read_to_string(&mut editable);
-
-    println!("File content:\n{}", editable);
+    let update_content: NXPContent = match serde_json::from_str(&editable) {
+        Ok(content) => content,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write JSON str to struct: {}", e));
+            return vec![];
+        }
+    };
+    let buffer: Vec<u8> =
+        bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
+    return buffer;
 }

@@ -35,15 +35,10 @@ pub fn update_project_properties() {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
-        "Enter project id".to_string(),
-        "Error with the project id referred".to_string(),
+        "Enter project name".to_string(),
+        "Error with the project name referred".to_string(),
     );
-    // if an index match the given data,
-    let property = utils::get_select_option(
-        "Which property do you want to update ?".to_string(),
-        utils::get_project_property(),
-    )
-    .expect("Failed to get select option");
+
     let current_selected_project: NXPContent;
     let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
@@ -71,8 +66,6 @@ pub fn update_project_properties() {
     };
     nxp::parse_nxp_file(&format!(".data/projects/{}", hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
-    println!("check output: {:?}", project_content);
-    let project_content_buffer: Vec<u8> =
-        bincode::serialize(&project_content).expect("Failed to serialize current project content");
-    utils::update_editor(project_content_buffer);
+    let buffer = utils::update_editor(project_content);
+    println!("check output: {:?}", String::from_utf8_lossy(&buffer));
 }
