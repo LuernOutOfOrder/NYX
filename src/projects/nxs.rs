@@ -379,3 +379,18 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
     }
     project_vec
 }
+
+pub fn get_all_project() -> Vec<ProjectEntry> {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    nxs.projects.entries
+}

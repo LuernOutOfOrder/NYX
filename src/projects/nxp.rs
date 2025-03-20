@@ -209,3 +209,27 @@ pub fn cat_nxp(hash: Option<String>) {
     parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
+
+pub fn update_nxp(hash: &str) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    parse_nxp_file(&format!(".data/projects/{}", hash), &mut nxp);
+    println!("{:?}", nxp.content.name);
+}
