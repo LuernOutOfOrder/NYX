@@ -162,6 +162,8 @@ fn create_nxs_file() {
     lrncore::logs::info_log("Initialized NXS file");
 }
 
+//TODO
+// refactor to return a structure instead of a ref
 fn parse_nxs_file(nxs_ref: &mut NXS) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // open NXS file and match result
@@ -279,4 +281,19 @@ NXS:
             each.project_size
         );
     }
+}
+
+pub fn get_all_project_entries() -> Vec<ProjectEntry> {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    nxs.projects.entries
 }
