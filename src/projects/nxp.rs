@@ -106,17 +106,17 @@ pub fn create_new_nxp(content: NXPContent) {
         header: NXPHeader {
             magic_number: MAGIC_NUMBER,
             format_version: FORMAT_VERSION,
-            project_id: [0; 11],
-            project_size: 0,
+            project_id: header.project_id,
+            project_size: header.project_size,
             reserved: 0,
         },
         content: NXPContent {
-            name: String::new(),
-            tech: String::new(),
-            location: String::new(),
-            repository: String::new(),
-            github_project: String::new(),
-            version: String::new(),
+            name: content.name,
+            tech: content.tech,
+            location: content.location,
+            repository: content.repository,
+            github_project: content.github_project,
+            version: content.version,
             todo: String::new(),
         },
     };
@@ -175,4 +175,28 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     };
     nxp_ref.header = nxp.header;
     nxp_ref.content = nxp.content;
+}
+
+pub fn cat_nxp(hash: Option<String>) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
+    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }

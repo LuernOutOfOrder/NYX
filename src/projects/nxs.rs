@@ -5,7 +5,6 @@ This module provides the definition of data structures and methods to create and
 It includes functionalities for reading, writing, and manipulating the binary data to ensure efficient storage and retrieval.
 */
 
-use crate::projects::nxp;
 use crate::utils;
 
 use bincode;
@@ -16,7 +15,7 @@ use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
-use super::nxp::{NXPContent, NXP};
+use super::nxp::NXP;
 
 /*
 NXS file structure
@@ -111,27 +110,6 @@ pub fn create_data() {
             lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
         }
     };
-
-    let mut nxs = NXS {
-        header: NXSHeader {
-            magic_number: [0; 4],
-            format_version: [0; 6],
-            project_count: 0,
-            reserved: 0,
-        },
-        projects: ProjectList { entries: vec![] },
-    };
-    parse_nxs_file(&mut nxs);
-    let content: NXPContent = NXPContent {
-        name: "Testing project test".to_string(),
-        tech: String::new(),
-        location: String::new(),
-        repository: String::new(),
-        github_project: String::new(),
-        version: String::new(),
-        todo: String::new(),
-    };
-    nxp::create_new_nxp(content);
 }
 
 /// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
@@ -271,4 +249,33 @@ fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
         project_size: size,
     };
     new
+}
+
+pub fn cat_nxs() {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    lrncore::logs::info_log("Listing all projects entries");
+    println!(
+        "
+NXS:
+    projects: 
+",
+    );
+    for each in nxs.projects.entries {
+        println!(
+            "name: {:?}\n hash: {:?}\n size: {:?}\n",
+            each.project_name,
+            String::from_utf8_lossy(&each.project_hash),
+            each.project_size
+        );
+    }
 }

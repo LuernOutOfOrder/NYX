@@ -216,6 +216,9 @@ Usage: nyx command [options]
 A simple tool to help manage your projects.
 
 Commands:
+    init            Initialize NYX data
+    cat-nxs         Emit NXS object content
+    cat-nxp         Emit specified NXP object content
     project         Initialize a new project
     project-add     Add an existing project to the projects list
     project-list    List all projects

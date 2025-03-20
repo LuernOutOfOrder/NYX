@@ -19,6 +19,8 @@ const VERSION: &'static str = "1.4.0";
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
+    CatNxs,
+    CatNxp { hash: Option<String> },
     Project { name: Option<String> },
     ProjectAdd,
     ProjectList,
@@ -54,6 +56,10 @@ fn main() {
 
     let command = match args.get(1).map(|s| s.as_str()) {
         Some("init") => Commands::Init,
+        Some("cat-nxs") => Commands::CatNxs,
+        Some("cat-nxp") => Commands::CatNxp {
+            hash: args.get(2).cloned(),
+        },
         Some("project") => Commands::Project {
             name: args.get(2).cloned(),
         },
@@ -79,6 +85,8 @@ fn main() {
 
     match command {
         Commands::Init => projects::nxs::create_data(),
+        Commands::CatNxs => projects::nxs::cat_nxs(),
+        Commands::CatNxp { hash } => projects::nxp::cat_nxp(hash),
         Commands::Project { name } => projects::new_project(name),
         Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
         Commands::ProjectList => projects::list::list_projects(),
