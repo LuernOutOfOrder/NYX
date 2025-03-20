@@ -50,20 +50,6 @@ pub fn update_project_properties() {
         println!("Project found");
         let app = projects.remove(pos);
         hash = String::from_utf8_lossy(&app.project_hash).to_string();
-        // current_selected_project = NXPContent {
-        //     name: app.name,
-        //     tech: app.tech,
-        //     location: app.location,
-        //     repository: app.repository,
-        //     github_project: app.github_project,
-        //     version: app.version,
-        //     todo: app.todo,
-        // };
-        // let updated_project = update_select_properties(current_selected_project, property);
-        // projects.push(updated_project);
-        // let update_data = Data { project: projects };
-        // let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        // fs::write(app_data_path, save_json).expect("Failed to write updated data");
     }
     let mut nxp: NXP = NXP {
         header: NXPHeader {
@@ -86,4 +72,7 @@ pub fn update_project_properties() {
     nxp::parse_nxp_file(&format!(".data/projects/{}", hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     println!("check output: {:?}", project_content);
+    let project_content_buffer: Vec<u8> =
+        bincode::serialize(&project_content).expect("Failed to serialize current project content");
+    utils::update_editor(project_content_buffer);
 }

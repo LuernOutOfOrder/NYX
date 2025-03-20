@@ -29,8 +29,12 @@ This module is intended to be used internally by the NYX project management tool
 */
 
 use crate::projects::{self};
+use std::env::var;
+use std::fs;
+use std::io::{Read, Write};
 use std::{
-    env, fs,
+    env,
+    fs::File,
     process::{exit, Command},
 };
 
@@ -239,4 +243,44 @@ pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
         .with_help_message(help_message)
         .prompt();
     ans.unwrap()
+}
+
+pub fn update_editor(buffer: Vec<u8>) {
+    change_work_dir(&get_nyx_env_var());
+    let editor = match var("EDITOR") {
+        Ok(str) => str,
+        Err(e) => {
+            lrncore::logs::info_log("EDITOR var not defined");
+            "vim".to_string()
+        }
+    };
+    let mut file_path = ".data/tmp/PROJECT_EDIT";
+    let mut temp_file = match File::create(&file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
+            return;
+        }
+    };
+    match temp_file.write_all(&buffer) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!(
+                "Failed to write current project buffer to temp file: {}",
+                e
+            ));
+            return;
+        }
+    }
+    Command::new(editor)
+        .arg(&file_path)
+        .status()
+        .expect("Something went wrong");
+
+    let mut editable = String::new();
+    File::open(file_path)
+        .expect("Could not open file")
+        .read_to_string(&mut editable);
+
+    println!("File content:\n{}", editable);
 }
