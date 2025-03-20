@@ -176,3 +176,27 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     nxp_ref.header = nxp.header;
     nxp_ref.content = nxp.content;
 }
+
+pub fn cat_nxp(hash: Option<String>) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
+    println!("{:?}", nxp);
+}

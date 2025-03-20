@@ -251,7 +251,7 @@ fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
     new
 }
 
-pub fn show_nxs() {
+pub fn cat_nxs() {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
