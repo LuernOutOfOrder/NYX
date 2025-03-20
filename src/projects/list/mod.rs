@@ -1,4 +1,5 @@
 use crate::gh;
+use crate::projects::nxs;
 use crate::utils;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
@@ -24,8 +25,8 @@ Options:
 pub fn list_projects() {
     println!("Listing all projects...");
     let args: Vec<String> = env::args().collect();
-    let projects = utils::get_app_vec();
-    let projects_short = utils::get_app_vec_short();
+    let projects = nxs::get_all_project_entries();
+    let projects_short = nxs::get_all_short_project();
     let mut builder = Table::builder(&projects).index().name(None);
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {

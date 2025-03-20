@@ -5,6 +5,7 @@ This module provides the definition of data structures and methods to create and
 It includes functionalities for reading, writing, and manipulating the binary data to ensure efficient storage and retrieval.
 */
 
+use crate::projects::Tabled;
 use crate::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -28,17 +29,17 @@ pub struct NXP {
 #[derive(Debug, Deserialize, Serialize)]
 #[repr(C, packed)]
 pub struct NXPHeader {
-    magic_number: [u8; 4],
-    format_version: [u8; 6],
+    pub magic_number: [u8; 4],
+    pub format_version: [u8; 6],
     pub project_id: [u8; 11],
     pub project_size: u32,
-    reserved: u32,
+    pub reserved: u32,
 }
 
 const MAGIC_NUMBER: [u8; 4] = *b"NXP\0";
 const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Tabled)]
 pub struct NXPContent {
     pub name: String,
     pub tech: String,
@@ -47,6 +48,14 @@ pub struct NXPContent {
     pub github_project: String,
     pub version: String,
     pub todo: String,
+}
+
+#[derive(Debug, Tabled)]
+pub struct NXPContentShort {
+    pub name: String,
+    pub tech: String,
+    pub location: String,
+    pub version: String,
 }
 
 // create a new NXP file to store project data

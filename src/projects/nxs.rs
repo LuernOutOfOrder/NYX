@@ -8,6 +8,7 @@ It includes functionalities for reading, writing, and manipulating the binary da
 use crate::utils;
 
 use bincode;
+use lrncore::logs::time_info_log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -15,7 +16,10 @@ use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
 
+use super::nxp::parse_nxp_file;
+use super::nxp::NXPContentShort;
 use super::nxp::NXP;
+use crate::projects::nxp::{NXPContent, NXPHeader};
 
 /*
 NXS file structure
@@ -161,6 +165,8 @@ fn create_nxs_file() {
     lrncore::logs::info_log("Initialized NXS file");
 }
 
+//TODO
+// refactor to return a structure instead of a ref
 fn parse_nxs_file(nxs_ref: &mut NXS) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // open NXS file and match result
@@ -212,7 +218,6 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
         projects: ProjectList { entries: vec![] },
     };
     parse_nxs_file(&mut nxs);
-    println!("nxs {:?}", nxs);
     let new_entry: ProjectEntry = new_project_entry(
         &nxp_ref.header.project_id,
         &nxp_ref.content.name,
@@ -240,6 +245,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
             lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
         }
     };
+    time_info_log("NXS file updated");
 }
 
 fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
@@ -278,4 +284,98 @@ NXS:
             each.project_size
         );
     }
+}
+
+pub fn get_all_project_entries() -> Vec<NXPContent> {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    let mut project_vec: Vec<NXPContent> = Vec::new();
+    for each in nxs.projects.entries {
+        let mut nxp: NXP = NXP {
+            header: NXPHeader {
+                magic_number: [0; 4],
+                format_version: [0; 6],
+                project_id: [0; 11],
+                project_size: 0,
+                reserved: 0,
+            },
+            content: NXPContent {
+                name: String::new(),
+                tech: String::new(),
+                location: String::new(),
+                repository: String::new(),
+                github_project: String::new(),
+                version: String::new(),
+                todo: String::new(),
+            },
+        };
+        parse_nxp_file(
+            &format!(
+                ".data/projects/{}",
+                String::from_utf8_lossy(&each.project_hash)
+            ),
+            &mut nxp,
+        );
+        project_vec.push(nxp.content);
+    }
+    project_vec
+}
+
+pub fn get_all_short_project() -> Vec<NXPContentShort> {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    let mut project_vec: Vec<NXPContentShort> = Vec::new();
+    for each in nxs.projects.entries {
+        let mut nxp: NXP = NXP {
+            header: NXPHeader {
+                magic_number: [0; 4],
+                format_version: [0; 6],
+                project_id: [0; 11],
+                project_size: 0,
+                reserved: 0,
+            },
+            content: NXPContent {
+                name: String::new(),
+                tech: String::new(),
+                location: String::new(),
+                repository: String::new(),
+                github_project: String::new(),
+                version: String::new(),
+                todo: String::new(),
+            },
+        };
+        parse_nxp_file(
+            &format!(
+                ".data/projects/{}",
+                String::from_utf8_lossy(&each.project_hash)
+            ),
+            &mut nxp,
+        );
+        let short_content: NXPContentShort = NXPContentShort {
+            name: nxp.content.name,
+            tech: nxp.content.tech,
+            location: nxp.content.location,
+            version: nxp.content.version,
+        };
+        project_vec.push(short_content);
+    }
+    project_vec
 }
