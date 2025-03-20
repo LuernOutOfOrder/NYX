@@ -1,9 +1,9 @@
 [package]
 name = "nyx"
-version = "1.4.0"
+version = "1.6.0"
 edition = "2021"
 authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
-description = "A CLI tool for managing your system."
+description = "A CLI tool for managing your projects."
 
 [dependencies]
 inquire = "0.7.5"
