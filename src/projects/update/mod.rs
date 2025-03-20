@@ -1,14 +1,9 @@
-use regex::Regex;
-use std::{env, fs};
+use std::env;
 
 use super::nxs;
 use crate::projects::nxp;
 use crate::{
-    projects::{
-        self,
-        nxp::{NXPContent, NXPHeader, NXP},
-        Data, Project,
-    },
+    projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
 };
 
@@ -37,7 +32,6 @@ pub fn update_project_properties() {
             _ => {}
         }
     }
-    let app_data_path = utils::get_app_data();
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
@@ -71,7 +65,6 @@ pub fn update_project_properties() {
         // let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
         // fs::write(app_data_path, save_json).expect("Failed to write updated data");
     }
-    println!("hash: {}", hash);
     let mut nxp: NXP = NXP {
         header: NXPHeader {
             magic_number: [0; 4],

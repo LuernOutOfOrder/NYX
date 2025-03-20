@@ -107,7 +107,7 @@ pub fn create_new_nxp(content: NXPContent) {
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
         }
     };
     lrncore::logs::info_log("Initialized NXP file");
@@ -210,7 +210,7 @@ pub fn cat_nxp(hash: Option<String>) {
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
 
-pub fn update_nxp(hash: &str) {
+pub fn update_nxp(hash: &str, update_nxp: NXPContent) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let mut nxp: NXP = NXP {
         header: NXPHeader {
@@ -230,6 +230,26 @@ pub fn update_nxp(hash: &str) {
             todo: String::new(),
         },
     };
-    parse_nxp_file(&format!(".data/projects/{}", hash), &mut nxp);
-    println!("{:?}", nxp.content.name);
+    let file_path = format!(".data/projects/{}", hash);
+    parse_nxp_file(&file_path, &mut nxp);
+    let updated_nxp: NXP = NXP {
+        header: nxp.header,
+        content: update_nxp,
+    };
+    let nxp_bytes: Vec<u8> =
+        bincode::serialize(&updated_nxp).expect("Failed to serialize updated NXP file");
+    let mut nxs_file: File = match File::create(file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to create nxp file: {}", e));
+            return;
+        }
+    };
+    match nxs_file.write_all(&nxp_bytes) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
+        }
+    };
+    lrncore::logs::time_info_log("Update NXP file");
 }
