@@ -18,6 +18,7 @@ const VERSION: &'static str = "1.4.0";
 
 #[derive(Debug, Clone)]
 enum Commands {
+    Init,
     Project { name: Option<String> },
     ProjectAdd,
     ProjectList,
@@ -52,6 +53,7 @@ fn main() {
     }
 
     let command = match args.get(1).map(|s| s.as_str()) {
+        Some("init") => Commands::Init,
         Some("project") => Commands::Project {
             name: args.get(2).cloned(),
         },
@@ -76,6 +78,7 @@ fn main() {
     };
 
     match command {
+        Commands::Init => projects::nxs::create_data(),
         Commands::Project { name } => projects::new_project(name),
         Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
         Commands::ProjectList => projects::list::list_projects(),

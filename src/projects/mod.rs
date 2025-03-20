@@ -8,6 +8,8 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
 pub mod delete;
+pub mod nxp;
+pub mod nxs;
 pub mod todo;
 
 pub fn project_help() -> String {
@@ -61,6 +63,7 @@ pub fn new_project(name: Option<String>) {
             _ => {}
         }
     }
+
     inquire::set_global_render_config(utils::get_render_config());
     let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
     let name = if let Some(n) = name {

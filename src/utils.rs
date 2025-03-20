@@ -1,3 +1,33 @@
+/*!
+This module provides various utility functions for the NYX project management tool.
+
+# Functions
+
+- `get_nyx_env_var`: Retrieves the NYX environment variable.
+- `get_app_data`: Gets the path to the application data file.
+- `get_app_vec`: Parses the application data file and returns a vector of `Project` structs.
+- `get_app_vec_short`: Parses the application data file and returns a vector of `ProjectShort` structs.
+- `get_current_path`: Returns the current working directory as a string.
+- `get_render_config`: Returns a customized `RenderConfig` for the inquire library.
+- `change_work_dir`: Changes the current working directory to the specified path.
+- `get_tech_option`: Returns a vector of technology options.
+- `get_select_app_option`: Prompts the user to select a technology option.
+- `get_select_option`: Prompts the user to select an option from a given list.
+- `get_project_property`: Returns a vector of project property names.
+- `prompt_message`: Prompts the user with a message and returns the input.
+- `nyx_ascii_art`: Returns the NYX ASCII art logo.
+- `path_exists`: Checks if a given path exists.
+- `rm_command`: Executes a command to remove a directory.
+- `custom_throbber`: Returns a custom throbber with a message.
+- `nyx_usage`: Returns the usage information for the NYX tool.
+- `command_usage`: Prints the usage information and exits the program.
+- `confirm_prompt`: Prompts the user with a confirmation message.
+
+# Usage
+
+This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
+*/
+
 use crate::projects::{self};
 use std::{
     env, fs,
