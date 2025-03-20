@@ -198,5 +198,5 @@ pub fn cat_nxp(hash: Option<String>) {
         },
     };
     parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
-    println!("{:?}", nxp);
+    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
