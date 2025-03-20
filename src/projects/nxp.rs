@@ -50,6 +50,14 @@ pub struct NXPContent {
     pub todo: String,
 }
 
+#[derive(Debug, Tabled)]
+pub struct NXPContentShort {
+    pub name: String,
+    pub tech: String,
+    pub location: String,
+    pub version: String,
+}
+
 // create a new NXP file to store project data
 pub fn create_new_nxp(content: NXPContent) {
     utils::change_work_dir(&utils::get_nyx_env_var());
