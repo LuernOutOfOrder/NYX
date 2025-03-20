@@ -8,6 +8,7 @@ It includes functionalities for reading, writing, and manipulating the binary da
 use crate::utils;
 
 use bincode;
+use lrncore::logs::time_info_log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -212,7 +213,6 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
         projects: ProjectList { entries: vec![] },
     };
     parse_nxs_file(&mut nxs);
-    println!("nxs {:?}", nxs);
     let new_entry: ProjectEntry = new_project_entry(
         &nxp_ref.header.project_id,
         &nxp_ref.content.name,
@@ -240,6 +240,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
             lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
         }
     };
+    time_info_log("NXS file updated");
 }
 
 fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
