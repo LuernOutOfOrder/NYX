@@ -76,7 +76,7 @@ pub fn create_new_nxp(content: NXPContent) {
         repository: format!("{}", content.repository),
         github_project: format!("{}", content.github_project),
         version: format!("{}", "0.1.0"),
-        todo: format!("{}", ""),
+        todo: format!("{}", "[]"),
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -127,7 +127,7 @@ pub fn create_new_nxp(content: NXPContent) {
             repository: content.repository,
             github_project: content.github_project,
             version: content.version,
-            todo: String::new(),
+            todo: content.todo,
         },
     };
     nxs::update_nxs_file(&mut nxp);
@@ -207,7 +207,7 @@ pub fn cat_nxp(hash: Option<String>) {
         },
     };
     parse_nxp_file(&format!(".nxfs/projects/{}", hash.unwrap()), &mut nxp);
-    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
+    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}\n todo: {:?} ", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version, nxp.content.todo);
 }
 
 pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
