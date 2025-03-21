@@ -1,4 +1,7 @@
-use crate::projects::{self};
+use crate::projects::{
+    self,
+    nxs::{self, NXSHeader, ProjectList, NXS},
+};
 use inquire::{InquireError, Select, Text};
 use std::{env, fs, process::Command};
 
@@ -54,19 +57,25 @@ fn which_remove_project(choice: &str) {
 }
 
 fn remove_project_from_list() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
+    let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the id of the project:")
+    let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
     // if an index match the given data, remove it from the vector
-    if let Some(pos) = projects.iter().position(|x| x.id == app_id) {
+    if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
         projects.remove(pos);
     }
-    let updated_data = projects::Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0u8; 4],
+            format_version: [0u8; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    nxs::update_project_entries(&mut nxs, projects);
     println!("Successfully remove project from list");
 }
 
