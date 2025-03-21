@@ -1,4 +1,5 @@
 use std::env;
+use std::process::exit;
 
 use super::nxs;
 use crate::projects::nxp;
@@ -51,6 +52,9 @@ pub fn update_project_properties() {
         current_project.project_hash = app.project_hash.clone();
         current_project.project_name = app.project_name.clone();
         current_project.project_size = app.project_size.clone();
+    } else {
+        lrncore::logs::error_log("Project not found");
+        exit(1);
     }
     let mut nxp: NXP = NXP {
         header: NXPHeader {
@@ -76,17 +80,19 @@ pub fn update_project_properties() {
     let buffer = utils::update_editor(project_content);
     let updated_content: NXPContent =
         bincode::deserialize(&buffer).expect("Failed to deserialize updated content buffer");
-    if updated_content.name != current_project.project_name {
+    if updated_content.name != current_project.project_name
+        || current_project.project_size != buffer.len() as u32
+    {
         let new_project_entry: ProjectEntry = ProjectEntry {
             project_name: updated_content.name,
             project_hash: current_project.project_hash,
-            project_size: current_project.project_size,
+            project_size: buffer.len() as u32,
         };
         projects.push(new_project_entry);
         let mut update_nxs: NXS = NXS {
             header: NXSHeader {
-                magic_number: [0u8; 4],   // Example magic number
-                format_version: [0u8; 6], // Example format version
+                magic_number: [0u8; 4],
+                format_version: [0u8; 6],
                 project_count: 0,
                 reserved: 0,
             },
