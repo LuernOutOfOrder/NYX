@@ -82,9 +82,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
 
 [[package]]
 name = "cc"
-version = "1.2.16"
+version = "1.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be714c154be609ec7f5dad223a33bf1482fff90472de28f7362806e6d4832b8c"
+checksum = "1fcb57c740ae1daf453ae85f16e37396f672b039e00d9d866e07ddb24e328e3a"
 dependencies = [
  "shlex",
 ]
@@ -305,7 +305,7 @@ checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
 [[package]]
 name = "lrncore"
 version = "0.2.0"
-source = "git+https://github.com/Lrn-projects/LrnCore.git?branch=main#1def547f9b946ab381ada0c1d0074e12519e6420"
+source = "git+https://github.com/Lrn-projects/LrnCore.git?branch=main#3f19a19444279e929aa0809faf64f2375aad566f"
 dependencies = [
  "chrono",
  "colored",

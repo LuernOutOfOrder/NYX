@@ -246,7 +246,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     let editor = match var("EDITOR") {
         Ok(str) => str,
         Err(e) => {
-            lrncore::logs::info_log(&format!("EDITOR var not defined: {}", e));
+            lrncore::logs::warning_log(&format!("EDITOR var not defined: {}", e));
             "vim".to_string()
         }
     };
