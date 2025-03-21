@@ -1,3 +1,23 @@
+/*
+ This module provides functionality to update project properties in the NYX application.
+
+ The main functions include:
+ - `project_update_help`: Generates a help message for the `project-update` command.
+ - `update_project_properties`: Updates the properties of a project based on user input.
+
+ The module interacts with the following components:
+ - `nxs`: For handling project entries and updating project lists.
+ - `nxp`: For parsing and updating project files.
+ - `utils`: For utility functions such as prompting messages and rendering configurations.
+
+ # Usage
+
+ To display the help message for the `project-update` command:
+ ```sh
+ nyx project-update -h
+ ```
+*/
+
 use std::env;
 use std::process::exit;
 
