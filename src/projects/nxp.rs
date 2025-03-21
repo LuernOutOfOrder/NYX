@@ -10,6 +10,7 @@ use crate::utils;
 use serde::Deserialize;
 use serde::Serialize;
 use sha1::{Digest, Sha1};
+use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
@@ -249,4 +250,16 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
         }
     };
     lrncore::logs::time_info_log("Update NXP file");
+}
+
+pub fn delete_nxp(hash: &str) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    match fs::remove_file(format!(".data/projects/{}", hash)) {
+        Ok(_) => {
+            lrncore::logs::time_info_log("Successfully remove project file");
+        }
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to delete file: {}", e));
+        }
+    }
 }

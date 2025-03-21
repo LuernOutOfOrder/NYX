@@ -1,5 +1,5 @@
 use crate::projects::{
-    self,
+    self, nxp,
     nxs::{self, NXSHeader, ProjectList, NXS},
 };
 use inquire::{InquireError, Select, Text};
@@ -63,8 +63,10 @@ fn remove_project_from_list() {
         .prompt()
         .expect("Failed to read project id");
     // if an index match the given data, remove it from the vector
+    let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
-        projects.remove(pos);
+        let app = projects.remove(pos);
+        hash = String::from_utf8_lossy(&app.project_hash).to_string();
     }
     let mut nxs: NXS = NXS {
         header: NXSHeader {
@@ -76,7 +78,8 @@ fn remove_project_from_list() {
         projects: ProjectList { entries: vec![] },
     };
     nxs::update_project_entries(&mut nxs, projects);
-    println!("Successfully remove project from list");
+    nxp::delete_nxp(&hash);
+    lrncore::logs::info_log("Successfully remove project from list");
 }
 
 fn remove_project_from_storage() {
