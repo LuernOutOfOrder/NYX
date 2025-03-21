@@ -250,7 +250,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
             "vim".to_string()
         }
     };
-    let file_path = ".data/tmp/PROJECT_EDIT";
+    let file_path = ".nxfs/tmp/PROJECT_EDIT";
     match File::create(&file_path) {
         Ok(f) => f,
         Err(e) => {

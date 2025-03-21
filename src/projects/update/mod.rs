@@ -75,7 +75,7 @@ pub fn update_project_properties() {
         },
     };
     let hash = String::from_utf8_lossy(&current_project.project_hash);
-    nxp::parse_nxp_file(&format!(".data/projects/{}", &hash), &mut nxp);
+    nxp::parse_nxp_file(&format!(".nxfs/projects/{}", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = utils::update_editor(project_content);
     let updated_content: NXPContent =

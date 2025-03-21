@@ -15,6 +15,8 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::{BufReader, Read, Write};
 use std::path::Path;
+use std::process::exit;
+use std::process::Command;
 
 use super::nxp::parse_nxp_file;
 use super::nxp::NXPContentShort;
@@ -101,19 +103,25 @@ pub struct ProjectEntry {
 /// creates a new data directory, and parses a NXS file.
 pub fn create_data() {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    if Path::new(".data").exists() {
+    if Path::new(".nxfs").exists() {
         lrncore::logs::info_log("Reinitialized data folder");
-        let remove_dir = fs::remove_dir_all(".data");
+        let remove_dir = fs::remove_dir_all(".nxfs");
         if let Err(e) = remove_dir {
-            lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
+            lrncore::logs::error_log(&format!("Failed to remove existing .nxfs directory: {}", e));
         }
     }
-    match std::fs::create_dir_all(".data/projects") {
-        Ok(_) => create_nxs_file(),
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to remove existing .data directory: {}", e));
-        }
-    };
+    let mut mkdir = Command::new("mkdir")
+        .arg(".nxfs")
+        .arg(".nxfs/projects")
+        .arg(".nxfs/tmp")
+        .spawn()
+        .expect("Failed to create all directories");
+    let wait_mkdir = mkdir.wait().expect("Failed to wait mkdir command");
+    if !wait_mkdir.success() {
+        lrncore::logs::error_log("Failed to execute mkdir command");
+        exit(1)
+    }
+    create_nxs_file()
 }
 
 /// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
@@ -149,7 +157,7 @@ fn create_nxs_file() {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&project_list_buff);
-    let mut nxs_file: File = match File::create(".data/nxs") {
+    let mut nxs_file: File = match File::create(".nxfs/nxs") {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to create nxs file: {}", e));
@@ -170,7 +178,7 @@ fn create_nxs_file() {
 fn parse_nxs_file(nxs_ref: &mut NXS) {
     utils::change_work_dir(&utils::get_nyx_env_var());
     // open NXS file and match result
-    let file = match File::open(".data/nxs") {
+    let file = match File::open(".nxfs/nxs") {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
@@ -231,7 +239,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
         .write(true)
         .create(false)
         .truncate(true)
-        .open(".data/nxs")
+        .open(".nxfs/nxs")
     {
         Ok(f) => f,
         Err(e) => {
@@ -257,7 +265,7 @@ pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
         .write(true)
         .create(false)
         .truncate(true)
-        .open(".data/nxs")
+        .open(".nxfs/nxs")
     {
         Ok(f) => f,
         Err(e) => {
@@ -346,7 +354,7 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
         };
         parse_nxp_file(
             &format!(
-                ".data/projects/{}",
+                ".nxfs/projects/{}",
                 String::from_utf8_lossy(&each.project_hash)
             ),
             &mut nxp,
@@ -390,7 +398,7 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
         };
         parse_nxp_file(
             &format!(
-                ".data/projects/{}",
+                ".nxfs/projects/{}",
                 String::from_utf8_lossy(&each.project_hash)
             ),
             &mut nxp,
