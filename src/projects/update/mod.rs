@@ -2,6 +2,7 @@ use std::env;
 
 use super::nxs;
 use crate::projects::nxp;
+use crate::projects::nxs::{NXSHeader, ProjectEntry, ProjectList, NXS};
 use crate::{
     projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
@@ -39,12 +40,17 @@ pub fn update_project_properties() {
         "Error with the project name referred".to_string(),
     );
 
-    let current_selected_project: NXPContent;
-    let mut hash: String = String::new();
+    let mut current_project: ProjectEntry = ProjectEntry {
+        project_name: String::new(),
+        project_hash: [0u8; 11],
+        project_size: 0,
+    };
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         println!("Project found");
         let app = projects.remove(pos);
-        hash = String::from_utf8_lossy(&app.project_hash).to_string();
+        current_project.project_hash = app.project_hash.clone();
+        current_project.project_name = app.project_name.clone();
+        current_project.project_size = app.project_size.clone();
     }
     let mut nxp: NXP = NXP {
         header: NXPHeader {
@@ -64,8 +70,29 @@ pub fn update_project_properties() {
             todo: String::new(),
         },
     };
-    nxp::parse_nxp_file(&format!(".data/projects/{}", hash), &mut nxp);
+    let hash = String::from_utf8_lossy(&current_project.project_hash);
+    nxp::parse_nxp_file(&format!(".data/projects/{}", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = utils::update_editor(project_content);
-    println!("check output: {:?}", String::from_utf8_lossy(&buffer));
+    let updated_content: NXPContent =
+        bincode::deserialize(&buffer).expect("Failed to deserialize updated content buffer");
+    if updated_content.name != current_project.project_name {
+        let new_project_entry: ProjectEntry = ProjectEntry {
+            project_name: updated_content.name,
+            project_hash: current_project.project_hash,
+            project_size: current_project.project_size,
+        };
+        projects.push(new_project_entry);
+        let mut update_nxs: NXS = NXS {
+            header: NXSHeader {
+                magic_number: [0u8; 4],   // Example magic number
+                format_version: [0u8; 6], // Example format version
+                project_count: 0,
+                reserved: 0,
+            },
+            projects: ProjectList { entries: vec![] },
+        };
+        nxs::update_project_entries(&mut update_nxs, projects);
+    }
+    nxp::update_nxp(&hash, buffer);
 }

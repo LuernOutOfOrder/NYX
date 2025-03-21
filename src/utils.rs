@@ -32,7 +32,7 @@ use crate::projects::nxp::NXPContent;
 use crate::projects::{self};
 use std::env::var;
 use std::fs;
-use std::io::{Read, Write};
+use std::io::Read;
 use std::{
     env,
     fs::File,
@@ -141,19 +141,6 @@ pub fn get_select_option(
     return ans;
 }
 
-pub fn get_project_property() -> Vec<String> {
-    let options: Vec<String> = vec![
-        "id".to_string(),
-        "name".to_string(),
-        "tech".to_string(),
-        "location".to_string(),
-        "repository".to_string(),
-        "github_project".to_string(),
-        "version".to_string(),
-    ];
-    return options;
-}
-
 pub fn prompt_message(message: String, error_message: String) -> String {
     inquire::set_global_render_config(get_render_config());
     let message = Text::new(&message).prompt().expect(&error_message);
@@ -259,12 +246,12 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     let editor = match var("EDITOR") {
         Ok(str) => str,
         Err(e) => {
-            lrncore::logs::info_log("EDITOR var not defined");
+            lrncore::logs::info_log(&format!("EDITOR var not defined: {}", e));
             "vim".to_string()
         }
     };
-    let mut file_path = ".data/tmp/PROJECT_EDIT";
-    let mut temp_file = match File::create(&file_path) {
+    let file_path = ".data/tmp/PROJECT_EDIT";
+    match File::create(&file_path) {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
@@ -274,7 +261,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     let json = match serde_json::to_string_pretty(&content) {
         Ok(str) => str,
         Err(e) => {
-            lrncore::logs::info_log("Failed to parse project content to JSON");
+            lrncore::logs::error_log(&format!("Failed to parse project content to JSON: {}", e));
             return vec![];
         }
     };
@@ -294,9 +281,16 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         .expect("Something went wrong");
 
     let mut editable = String::new();
-    File::open(file_path)
+    match File::open(file_path)
         .expect("Could not open file")
-        .read_to_string(&mut editable);
+        .read_to_string(&mut editable)
+    {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open temp file: {}", e));
+            return vec![];
+        }
+    }
     let update_content: NXPContent = match serde_json::from_str(&editable) {
         Ok(content) => content,
         Err(e) => {
