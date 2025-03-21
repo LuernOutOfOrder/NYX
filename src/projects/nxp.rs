@@ -107,7 +107,7 @@ pub fn create_new_nxp(content: NXPContent) {
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
         }
     };
     lrncore::logs::info_log("Initialized NXP file");
@@ -129,7 +129,6 @@ pub fn create_new_nxp(content: NXPContent) {
             todo: String::new(),
         },
     };
-    // parse_nxp_file(".data/projects/55290da904b", &mut nxp);
     nxs::update_nxs_file(&mut nxp);
 }
 
@@ -208,4 +207,46 @@ pub fn cat_nxp(hash: Option<String>) {
     };
     parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
+}
+
+pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    let file_path = format!(".data/projects/{}", hash);
+    parse_nxp_file(&file_path, &mut nxp);
+    let header_buff = bincode::serialize(&nxp.header).expect("Failed to serialize header buffer");
+    let mut file_buff: Vec<u8> = Vec::new();
+    file_buff.extend_from_slice(&header_buff);
+    file_buff.extend_from_slice(&update_nxp);
+    let mut nxs_file: File = match File::create(file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to create nxp file: {}", e));
+            return;
+        }
+    };
+    match nxs_file.write_all(&file_buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
+        }
+    };
+    lrncore::logs::time_info_log("Update NXP file");
 }

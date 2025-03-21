@@ -1,9 +1,9 @@
 [package]
 name = "nyx"
-version = "1.4.0"
+version = "1.7.0"
 edition = "2021"
 authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
-description = "A CLI tool for managing your system."
+description = "A CLI tool for managing your projects."
 
 [dependencies]
 inquire = "0.7.5"
@@ -13,6 +13,6 @@ tabled = "0.18.0"
 colored = "3.0.0"
 throbber = "0.1"
 regex = "1.11.1"
-lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.1.0", branch="main" }
+lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.2.0", branch="main" }
 bincode = "1.0.0"
 sha1 = "0.10.6"

@@ -1,8 +1,11 @@
-use regex::Regex;
-use std::{env, fs};
+use std::env;
+use std::process::exit;
 
+use super::nxs;
+use crate::projects::nxp;
+use crate::projects::nxs::{NXSHeader, ProjectEntry, ProjectList, NXS};
 use crate::{
-    projects::{self, Data, Project},
+    projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
 };
 
@@ -31,195 +34,71 @@ pub fn update_project_properties() {
             _ => {}
         }
     }
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
+    let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_id = utils::prompt_message(
-        "Enter project id".to_string(),
-        "Error with the project id referred".to_string(),
+    let app_name = utils::prompt_message(
+        "Enter project name".to_string(),
+        "Error with the project name referred".to_string(),
     );
-    // if an index match the given data,
-    let property = utils::get_select_option(
-        "Which property do you want to update ?".to_string(),
-        utils::get_project_property(),
-    )
-    .expect("Failed to get select option");
-    let current_selected_project: projects::Project;
-    if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
+
+    let mut current_project: ProjectEntry = ProjectEntry {
+        project_name: String::new(),
+        project_hash: [0u8; 11],
+        project_size: 0,
+    };
+    if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         println!("Project found");
         let app = projects.remove(pos);
-        current_selected_project = Project {
-            id: app.id,
-            name: app.name,
-            tech: app.tech,
-            location: app.location,
-            repository: app.repository,
-            github_project: app.github_project,
-            version: app.version,
-            todo: app.todo,
+        current_project.project_hash = app.project_hash.clone();
+        current_project.project_name = app.project_name.clone();
+        current_project.project_size = app.project_size.clone();
+    } else {
+        lrncore::logs::error_log("Project not found");
+        exit(1);
+    }
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    let hash = String::from_utf8_lossy(&current_project.project_hash);
+    nxp::parse_nxp_file(&format!(".data/projects/{}", &hash), &mut nxp);
+    let project_content: NXPContent = nxp.content;
+    let buffer = utils::update_editor(project_content);
+    let updated_content: NXPContent =
+        bincode::deserialize(&buffer).expect("Failed to deserialize updated content buffer");
+    if updated_content.name != current_project.project_name
+        || current_project.project_size != buffer.len() as u32
+    {
+        let new_project_entry: ProjectEntry = ProjectEntry {
+            project_name: updated_content.name,
+            project_hash: current_project.project_hash,
+            project_size: buffer.len() as u32,
         };
-        let updated_project = update_select_properties(current_selected_project, property);
-        projects.push(updated_project);
-        let update_data = Data { project: projects };
-        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        fs::write(app_data_path, save_json).expect("Failed to write updated data");
+        projects.push(new_project_entry);
+        let mut update_nxs: NXS = NXS {
+            header: NXSHeader {
+                magic_number: [0u8; 4],
+                format_version: [0u8; 6],
+                project_count: 0,
+                reserved: 0,
+            },
+            projects: ProjectList { entries: vec![] },
+        };
+        nxs::update_project_entries(&mut update_nxs, projects);
     }
-}
-
-fn update_select_properties(project: projects::Project, property: String) -> projects::Project {
-    match property {
-        property if property == "id" => update_project_id(project),
-        property if property == "name" => update_project_name(project),
-        property if property == "tech" => update_project_tech(project),
-        property if property == "location" => update_project_location(project),
-        property if property == "repository" => update_project_repository(project),
-        property if property == "github_project" => update_project_github_project(project),
-        property if property == "version" => update_project_version(project),
-        _ => {
-            println!("no property matching detected.");
-            project
-        }
-    }
-}
-
-fn update_project_id(project: projects::Project) -> projects::Project {
-    let new_id = utils::prompt_message(
-        "Enter the new project's id: ".to_string(),
-        "Error getting the new project's id".to_string(),
-    );
-    let update_project: projects::Project = projects::Project {
-        id: new_id.to_lowercase(),
-        name: project.name,
-        tech: project.tech,
-        location: project.location,
-        repository: project.repository,
-        github_project: project.github_project,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_name(project: projects::Project) -> projects::Project {
-    let new_name = utils::prompt_message(
-        "Enter the new project's name: ".to_string(),
-        "Error getting the new project's name".to_string(),
-    );
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: new_name,
-        tech: project.tech,
-        location: project.location,
-        repository: project.repository,
-        github_project: project.github_project,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_location(project: projects::Project) -> projects::Project {
-    let new_location = utils::prompt_message(
-        "Enter the new project's location: ".to_string(),
-        "Error getting the new project's location".to_string(),
-    );
-    let re = Regex::new(r"^(/[^/ ]*)+/?$").unwrap();
-    if !re.is_match(&new_location) {
-        println!(
-            "{}",
-            "The location path is not correct. Please enter a correct path."
-        )
-    }
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: project.name,
-        tech: project.tech,
-        location: new_location,
-        repository: project.repository,
-        github_project: project.github_project,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_tech(project: projects::Project) -> projects::Project {
-    let new_tech = utils::get_select_option(
-        "Select the new project's tech".to_string(),
-        utils::get_tech_option(),
-    )
-    .expect("Failed to select the new project's tech");
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: project.name,
-        tech: new_tech,
-        location: project.location,
-        repository: project.repository,
-        github_project: project.github_project,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_repository(project: projects::Project) -> projects::Project {
-    let new_url = utils::prompt_message(
-        "Enter the new project's repository: ".to_string(),
-        "Error getting the new project's repository".to_string(),
-    );
-    let re = Regex::new(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)").unwrap();
-    if !re.is_match(&new_url) {
-        println!("{}", "The url is not correct. Please enter a correct url.")
-    }
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: project.name,
-        tech: project.tech,
-        location: project.location,
-        repository: new_url,
-        github_project: project.github_project,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_github_project(project: projects::Project) -> projects::Project {
-    let new_url = utils::prompt_message(
-        "Enter the new project's github project: ".to_string(),
-        "Error getting the new project's github project".to_string(),
-    );
-    let re = Regex::new(r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)").unwrap();
-    if !re.is_match(&new_url) {
-        println!("{}", "The url is not correct. Please enter a correct url.")
-    }
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: project.name,
-        tech: project.tech,
-        location: project.location,
-        repository: project.repository,
-        github_project: new_url,
-        version: project.version,
-        todo: project.todo,
-    };
-    return update_project;
-}
-
-fn update_project_version(project: projects::Project) -> projects::Project {
-    let new_version = utils::prompt_message(
-        "Enter the new project's version: ".to_string(),
-        "Error getting the new project's version".to_string(),
-    );
-    let update_project: projects::Project = projects::Project {
-        id: project.id,
-        name: project.name,
-        tech: project.tech,
-        location: project.location,
-        repository: project.repository,
-        github_project: project.github_project,
-        version: new_version,
-        todo: project.todo,
-    };
-    return update_project;
+    nxp::update_nxp(&hash, buffer);
 }

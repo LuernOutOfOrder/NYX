@@ -34,9 +34,9 @@ NXS file structure
 /// * `projects`: The `projects` property in the `NXS` struct is of type `ProjectList`. It likely
 /// represents a list of projects within the NXS structure.
 #[derive(Debug, Deserialize, Clone, Serialize)]
-struct NXS {
-    header: NXSHeader,
-    projects: ProjectList,
+pub struct NXS {
+    pub header: NXSHeader,
+    pub projects: ProjectList,
 }
 
 /// The `NXSHeader` struct in Rust represents a data structure with fields for magic number, format
@@ -59,12 +59,12 @@ struct NXS {
 /// use.
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[repr(C, packed)]
-struct NXSHeader {
-    magic_number: [u8; 4],
-    format_version: [u8; 6],
-    project_count: u8,
+pub struct NXSHeader {
+    pub magic_number: [u8; 4],
+    pub format_version: [u8; 6],
+    pub project_count: u8,
     #[allow(dead_code)]
-    reserved: u32,
+    pub reserved: u32,
 }
 
 /// The `ProjectList` struct contains a vector of `ProjectEntry` instances.
@@ -248,6 +248,32 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
     time_info_log("NXS file updated");
 }
 
+pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    parse_nxs_file(nxs_ref);
+    nxs_ref.projects.entries = vec;
+    let file_buff = bincode::serialize(&nxs_ref).expect("Failed to serialize updated NXS file");
+    let mut nxs_file: File = match OpenOptions::new()
+        .write(true)
+        .create(false)
+        .truncate(true)
+        .open(".data/nxs")
+    {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            return;
+        }
+    };
+    match nxs_file.write_all(&file_buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+        }
+    };
+    time_info_log("NXS file updated");
+}
+
 fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
     let new: ProjectEntry = ProjectEntry {
         project_name: id.clone(),
@@ -378,4 +404,19 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
         project_vec.push(short_content);
     }
     project_vec
+}
+
+pub fn get_all_project() -> Vec<ProjectEntry> {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    parse_nxs_file(&mut nxs);
+    nxs.projects.entries
 }

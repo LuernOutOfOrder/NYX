@@ -304,8 +304,8 @@ checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
 
 [[package]]
 name = "lrncore"
-version = "0.1.0"
-source = "git+https://github.com/Lrn-projects/LrnCore.git?branch=main#a22e2886bf2618b81795d345852172e2536f6343"
+version = "0.2.0"
+source = "git+https://github.com/Lrn-projects/LrnCore.git?branch=main#1def547f9b946ab381ada0c1d0074e12519e6420"
 dependencies = [
  "chrono",
  "colored",
@@ -349,7 +349,7 @@ dependencies = [
 
 [[package]]
 name = "nyx"
-version = "1.4.0"
+version = "1.7.0"
 dependencies = [
  "bincode",
  "colored",

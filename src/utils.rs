@@ -28,9 +28,14 @@ This module provides various utility functions for the NYX project management to
 This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
 */
 
+use crate::projects::nxp::NXPContent;
 use crate::projects::{self};
+use std::env::var;
+use std::fs;
+use std::io::Read;
 use std::{
-    env, fs,
+    env,
+    fs::File,
     process::{exit, Command},
 };
 
@@ -69,22 +74,6 @@ pub fn get_app_vec() -> Vec<projects::Project> {
             github_project: app.github_project.clone(),
             version: app.version.clone(),
             todo: app.todo.clone(),
-        });
-    }
-    return projects;
-}
-
-pub fn get_app_vec_short() -> Vec<projects::ProjectShort> {
-    let app_data_path = get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut projects: Vec<projects::ProjectShort> = Vec::new();
-    for app in &data.project {
-        projects.push(projects::ProjectShort {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
         });
     }
     return projects;
@@ -150,19 +139,6 @@ pub fn get_select_option(
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
 
     return ans;
-}
-
-pub fn get_project_property() -> Vec<String> {
-    let options: Vec<String> = vec![
-        "id".to_string(),
-        "name".to_string(),
-        "tech".to_string(),
-        "location".to_string(),
-        "repository".to_string(),
-        "github_project".to_string(),
-        "version".to_string(),
-    ];
-    return options;
 }
 
 pub fn prompt_message(message: String, error_message: String) -> String {
@@ -255,4 +231,74 @@ pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
         .with_help_message(help_message)
         .prompt();
     ans.unwrap()
+}
+
+/// The `update_editor` function updates a file using the specified editor and prints its
+/// content.
+///
+/// Arguments:
+///
+/// * `buffer`: The `buffer` parameter in the `update_editor` function is a vector of unsigned 8-bit
+/// integers (`Vec<u8>`) that represents the content to be written to a temporary file and opened in the
+/// user's preferred text editor for editing.
+pub fn update_editor(content: NXPContent) -> Vec<u8> {
+    change_work_dir(&get_nyx_env_var());
+    let editor = match var("EDITOR") {
+        Ok(str) => str,
+        Err(e) => {
+            lrncore::logs::info_log(&format!("EDITOR var not defined: {}", e));
+            "vim".to_string()
+        }
+    };
+    let file_path = ".data/tmp/PROJECT_EDIT";
+    match File::create(&file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
+            return vec![];
+        }
+    };
+    let json = match serde_json::to_string_pretty(&content) {
+        Ok(str) => str,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to parse project content to JSON: {}", e));
+            return vec![];
+        }
+    };
+    match fs::write(file_path, json) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!(
+                "Failed to write current project buffer to temp file: {}",
+                e
+            ));
+            return vec![];
+        }
+    }
+    Command::new(editor)
+        .arg(&file_path)
+        .status()
+        .expect("Something went wrong");
+
+    let mut editable = String::new();
+    match File::open(file_path)
+        .expect("Could not open file")
+        .read_to_string(&mut editable)
+    {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open temp file: {}", e));
+            return vec![];
+        }
+    }
+    let update_content: NXPContent = match serde_json::from_str(&editable) {
+        Ok(content) => content,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write JSON str to struct: {}", e));
+            return vec![];
+        }
+    };
+    let buffer: Vec<u8> =
+        bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
+    return buffer;
 }
