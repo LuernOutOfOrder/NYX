@@ -97,7 +97,7 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".data/projects/{}", file_hash);
+    let file_path = format!(".nxfs/projects/{}", file_hash);
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
@@ -206,7 +206,7 @@ pub fn cat_nxp(hash: Option<String>) {
             todo: String::new(),
         },
     };
-    parse_nxp_file(&format!(".data/projects/{}", hash.unwrap()), &mut nxp);
+    parse_nxp_file(&format!(".nxfs/projects/{}", hash.unwrap()), &mut nxp);
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
 
@@ -230,7 +230,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
             todo: String::new(),
         },
     };
-    let file_path = format!(".data/projects/{}", hash);
+    let file_path = format!(".nxfs/projects/{}", hash);
     parse_nxp_file(&file_path, &mut nxp);
     let header_buff = bincode::serialize(&nxp.header).expect("Failed to serialize header buffer");
     let mut file_buff: Vec<u8> = Vec::new();
@@ -254,7 +254,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
 
 pub fn delete_nxp(hash: &str) {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    match fs::remove_file(format!(".data/projects/{}", hash)) {
+    match fs::remove_file(format!(".nxfs/projects/{}", hash)) {
         Ok(_) => {
             lrncore::logs::time_info_log("Successfully remove project file");
         }
