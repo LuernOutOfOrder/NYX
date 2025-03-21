@@ -1,6 +1,10 @@
-use crate::projects::{self};
+use crate::projects::nxp;
+use crate::projects::{
+    nxp::{NXPContent, NXPHeader, NXP},
+    nxs::{self, NXSHeader, ProjectList, NXS},
+};
 use inquire::{InquireError, Select, Text};
-use std::{env, fs, process::Command};
+use std::{env, process::Command};
 
 use crate::utils;
 
@@ -54,41 +58,76 @@ fn which_remove_project(choice: &str) {
 }
 
 fn remove_project_from_list() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
+    let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the id of the project:")
+    let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
     // if an index match the given data, remove it from the vector
-    if let Some(pos) = projects.iter().position(|x| x.id == app_id) {
-        projects.remove(pos);
+    let mut hash: String = String::new();
+    if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
+        let app = projects.remove(pos);
+        hash = String::from_utf8_lossy(&app.project_hash).to_string();
     }
-    let updated_data = projects::Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
-    println!("Successfully remove project from list");
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0u8; 4],
+            format_version: [0u8; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    nxs::update_project_entries(&mut nxs, projects);
+    nxp::delete_nxp(&hash);
+    lrncore::logs::info_log("Successfully remove project from list");
 }
 
 fn remove_project_from_storage() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
+    let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
-    let app_id = Text::new("Enter the id of the project:")
+    let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
-    if let Some(pos) = projects.iter().position(|app| app.id == app_id) {
+    let mut hash: String = String::new();
+    if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
-        let app_location = &app.location;
-        Command::new("rm")
-            .arg("-rf")
-            .arg(app_location)
-            .spawn()
-            .expect("Failed to delete the directory of the project");
-        println!("Successfully delete project from storage");
+        hash = String::from_utf8_lossy(&app.project_hash).to_string();
     }
-    let updated_data = projects::Data { project: projects };
-    let save_json = serde_json::to_string(&updated_data).expect("Failed to serialize data");
-    fs::write(app_data_path, save_json).expect("Failed to write updated data");
-    println!("Successfully remove project from list");
+    let mut nxp: NXP = NXP {
+        header: NXPHeader {
+            magic_number: [0; 4],
+            format_version: [0; 6],
+            project_id: [0; 11],
+            project_size: 0,
+            reserved: 0,
+        },
+        content: NXPContent {
+            name: String::new(),
+            tech: String::new(),
+            location: String::new(),
+            repository: String::new(),
+            github_project: String::new(),
+            version: String::new(),
+            todo: String::new(),
+        },
+    };
+    nxp::parse_nxp_file(&format!(".data/projects/{}", &hash), &mut nxp);
+    Command::new("rm")
+        .arg("-rf")
+        .arg(nxp.content.location)
+        .spawn()
+        .expect("Failed to delete the directory of the project");
+    let mut nxs: NXS = NXS {
+        header: NXSHeader {
+            magic_number: [0u8; 4],
+            format_version: [0u8; 6],
+            project_count: 0,
+            reserved: 0,
+        },
+        projects: ProjectList { entries: vec![] },
+    };
+    nxs::update_project_entries(&mut nxs, projects);
+    nxp::delete_nxp(&hash);
+    lrncore::logs::info_log("Successfully delete project from storage");
 }
