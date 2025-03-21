@@ -37,7 +37,7 @@ pub fn update_project_properties() {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
-        "Enter project name".to_string(),
+        "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
 
