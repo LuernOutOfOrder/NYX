@@ -1,6 +1,7 @@
 use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::io::Write;
 use std::process::exit;
 use tabled::Table;
 use tabled::{settings::Style, Tabled};
@@ -9,7 +10,7 @@ mod parse;
 
 use crate::projects::nxs;
 use crate::{logs, projects, utils, vec_of_strings};
-use std::fs;
+use std::fs::{self, File};
 
 pub struct TodoFile {
     header: TodoHeader,
@@ -316,4 +317,75 @@ fn update_todo_status() {
 
 fn create_todo_file(hash: &str) {
     utils::change_work_dir(&utils::get_nyx_env_var());
+    let content: TodoContent = TodoContent { todos: vec![] };
+    let content_buff: Vec<u8> =
+        bincode::serialize(&content).expect("Failed to serialize todo content");
+    // header
+    let header: TodoHeader = TodoHeader {
+        magic_number: MAGIC_NUMBER,
+        format_version: FORMAT_VERSION,
+        project_id: hash.as_bytes(),
+        project_size: content_buff.len() as u32,
+        reserved: 0,
+    };
+    let header_buff: Vec<u8> =
+        bincode::serialize(&header).expect("Failed to serialize todo header buffer");
+    // file
+    let mut file_buff: Vec<u8> = Vec::new();
+    file_buff.extend_from_slice(&header_buff);
+    file_buff.extend_from_slice(&content_buff);
+    let file_path = format!(".nxfs/projects/{}/todo", hash);
+    let mut todo_file: File = match File::create(file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to create todo file: {}", e));
+            return;
+        }
+    };
+    match todo_file.write_all(&file_buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
+        }
+    }
+    lrncore::logs::info_log("Create new todo file");
+}
+
+fn parse_todo_file(hash: &str) -> TodoFile {
+    utils::change_work_dir(&utils::get_nyx_env_var());
+    let file = match File::open(format!(".nxfs/projects/{}/todo", hash)) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to open todo file: {}", e));
+            return;
+        }
+    };
+    // initialize TodoHeader size from structure and buffer
+    let header_size = std::mem::size_of::<TodoHeader>();
+    let buffer = BufReader::new(file);
+    // vector containing the whole todo file
+    let mut bytes_vec: Vec<u8> = Vec::new();
+    for byte_or_error in buffer.bytes() {
+        match byte_or_error {
+            Ok(byte) => bytes_vec.push(byte),
+            Err(e) => {
+                lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
+                return;
+            }
+        }
+    }
+
+    let header_bytes = &bytes_vec[..header_size];
+    // convert into the TodoHeader struct
+    let header: TodoHeader =
+        bincode::deserialize(header_bytes).expect("Failed to deserialize TodoHeader");
+    // content
+    let todo_content_bytes = &bytes_vec[header_size..];
+    println!("debug {:?}", String::from_utf8_lossy(&todo_content_bytes));
+    let todo_content: NXPContent =
+        bincode::deserialize(todo_content_bytes).expect("Failed to deserialize todo content");
+    let todo: TodoFile = TodoFile {
+        header: header,
+        content: todo_content,
+    };
 }
