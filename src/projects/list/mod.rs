@@ -120,7 +120,6 @@ pub fn add_project_to_list(tech: &str) {
         repository: repository_user_input,
         github_project: github_project,
         version: version,
-        todo: vec![],
     };
     nxp::create_new_nxp(new_app);
 }
@@ -162,7 +161,6 @@ fn create_repo_add_to_list(tech: &str) {
         repository: repository,
         github_project: github_project,
         version: version,
-        todo: vec![],
     };
     nxp::create_new_nxp(new_app);
 }

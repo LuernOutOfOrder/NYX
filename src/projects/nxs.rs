@@ -349,7 +349,6 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
                 repository: String::new(),
                 github_project: String::new(),
                 version: String::new(),
-                todo: Vec::new(),
             },
         };
         parse_nxp_file(
@@ -393,7 +392,6 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
                 repository: String::new(),
                 github_project: String::new(),
                 version: String::new(),
-                todo: Vec::new(),
             },
         };
         parse_nxp_file(

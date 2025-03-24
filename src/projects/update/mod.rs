@@ -91,7 +91,6 @@ pub fn update_project_properties() {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: Vec::new(),
         },
     };
     let hash = String::from_utf8_lossy(&current_project.project_hash);

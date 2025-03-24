@@ -49,14 +49,6 @@ pub struct NXPContent {
     pub repository: String,
     pub github_project: String,
     pub version: String,
-    pub todo: Vec<Todo>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Todo {
-    pub note: String,
-    pub status: String,
-    pub id: u8,
 }
 
 #[derive(Debug, Tabled)]
@@ -84,7 +76,6 @@ pub fn create_new_nxp(content: NXPContent) {
         repository: format!("{}", content.repository),
         github_project: format!("{}", content.github_project),
         version: format!("{}", "0.1.0"),
-        todo: vec![],
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -137,7 +128,6 @@ pub fn create_new_nxp(content: NXPContent) {
             repository: content.repository,
             github_project: content.github_project,
             version: content.version,
-            todo: content.todo,
         },
     };
     nxs::update_nxs_file(&mut nxp);
@@ -217,14 +207,13 @@ pub fn cat_nxp(hash: Option<String>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: Vec::new(),
         },
     };
     parse_nxp_file(
         &format!(".nxfs/projects/{}/content", hash.unwrap()),
         &mut nxp,
     );
-    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}\n todo: {:?} ", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version, nxp.content.todo);
+    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
 
 pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
@@ -244,7 +233,6 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: Vec::new(),
         },
     };
     let file_path = format!(".nxfs/projects/{}/content", hash);

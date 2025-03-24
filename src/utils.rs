@@ -305,7 +305,6 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
 
 pub fn create_dir(path: &str) {
     let mut mkdir = Command::new("mkdir")
-        .arg(".nxfs/projects")
         .arg(path)
         .spawn()
         .expect("Failed to create directories");

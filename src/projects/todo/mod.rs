@@ -1,4 +1,3 @@
-use crate::projects::nxp::Todo;
 use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -15,6 +14,33 @@ use crate::projects::nxs;
 use crate::projects::nxs::ProjectEntry;
 use crate::{logs, projects, utils, vec_of_strings};
 use std::fs;
+
+pub struct TodoFile {
+    header: TodoHeader,
+    content: TodoContent,
+}
+
+pub struct TodoHeader {
+    pub magic_number: [u8; 6],
+    pub format_version: [u8; 6],
+    pub project_id: [u8; 11],
+    pub project_size: u32,
+    pub reserved: u32,
+}
+
+const MAGIC_NUMBER: [u8; 8] = *b"NXPTODO\0";
+const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
+
+pub struct TodoContent {
+    pub todos: Vec<Todo>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Todo {
+    pub note: String,
+    pub status: String,
+    pub id: u8,
+}
 
 pub fn todo_help() -> String {
     let usage = r"
@@ -129,43 +155,20 @@ fn update_todo_list() {
         "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
-    let mut current_project: ProjectEntry = ProjectEntry {
-        project_name: String::new(),
-        project_hash: [0u8; 11],
-        project_size: 0,
-    };
+    let mut project_name: String = String::new();
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
-        current_project.project_hash = app.project_hash;
-        current_project.project_name = app.project_name;
-        current_project.project_size = app.project_size;
+        app_name = app.project_name;
     } else {
         lrncore::logs::error_log("Project not found");
         exit(1);
     }
-    let mut nxp: NXP = NXP {
-        header: NXPHeader {
-            magic_number: [0; 4],
-            format_version: [0; 6],
-            project_id: [0; 11],
-            project_size: 0,
-            reserved: 0,
-        },
-        content: NXPContent {
-            name: String::new(),
-            tech: String::new(),
-            location: String::new(),
-            repository: String::new(),
-            github_project: String::new(),
-            version: String::new(),
-            todo: Vec::new(),
-        },
-    };
+
     let hash = String::from_utf8_lossy(&current_project.project_hash);
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
-    let current_todo_vec = nxp.content.todo;
-    let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
-    nxp.content.todo = new_todo_vec;
+    // let current_todo_vec = nxp.content.todo;
+    // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
+    // nxp.content.todo = new_todo_vec;
     let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
     nxp::update_nxp(&hash, buffer);
 }
@@ -313,4 +316,8 @@ fn update_todo_status() {
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
         logs::info_log("Successfully update to-do status".to_string());
     }
+}
+
+fn create_todo_file(hash: &str) {
+    utils::change_work_dir(&utils::get_nyx_env_var());
 }
