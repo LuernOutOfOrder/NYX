@@ -175,10 +175,6 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
         bincode::deserialize(header_bytes).expect("Failed to deserialize NXPHeader");
     // project content
     let project_content_bytes = &bytes_vec[header_size..];
-    println!(
-        "debug {:?}",
-        String::from_utf8_lossy(&project_content_bytes)
-    );
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
     let nxp: NXP = NXP {

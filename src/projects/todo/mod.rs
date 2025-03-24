@@ -1,7 +1,10 @@
 use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
+use std::io::BufReader;
+use std::io::Read;
 use std::io::Write;
+use std::path::Path;
 use std::process::exit;
 use tabled::Table;
 use tabled::{settings::Style, Tabled};
@@ -12,13 +15,16 @@ use crate::projects::nxs;
 use crate::{logs, projects, utils, vec_of_strings};
 use std::fs::{self, File};
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct TodoFile {
     header: TodoHeader,
     content: TodoContent,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+#[repr(C, packed)]
 pub struct TodoHeader {
-    pub magic_number: [u8; 6],
+    pub magic_number: [u8; 8],
     pub format_version: [u8; 6],
     pub project_id: [u8; 11],
     pub project_size: u32,
@@ -28,6 +34,7 @@ pub struct TodoHeader {
 const MAGIC_NUMBER: [u8; 8] = *b"NXPTODO\0";
 const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
 
+#[derive(Debug, Deserialize, Serialize)]
 pub struct TodoContent {
     pub todos: Vec<Todo>,
 }
@@ -163,7 +170,13 @@ fn update_todo_list() {
         exit(1);
     }
 
-    let hash = String::from_utf8_lossy(&project_hash);
+    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let todo_file = format!(".nxfs/projects/{}/todo", project_hash_str);
+    if !Path::new(&todo_file).exists() {
+        create_todo_file(&project_hash_str);
+    }
+    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    println!("todo {:?}", todo);
     // let current_todo_vec = nxp.content.todo;
     // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
     // nxp.content.todo = new_todo_vec;
@@ -324,7 +337,12 @@ fn create_todo_file(hash: &str) {
     let header: TodoHeader = TodoHeader {
         magic_number: MAGIC_NUMBER,
         format_version: FORMAT_VERSION,
-        project_id: hash.as_bytes(),
+        project_id: {
+            let mut arr = [0u8; 11];
+            let bytes = hash.as_bytes();
+            arr[..bytes.len()].copy_from_slice(bytes);
+            arr
+        },
         project_size: content_buff.len() as u32,
         reserved: 0,
     };
@@ -357,7 +375,7 @@ fn parse_todo_file(hash: &str) -> TodoFile {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to open todo file: {}", e));
-            return;
+            exit(1);
         }
     };
     // initialize TodoHeader size from structure and buffer
@@ -370,7 +388,7 @@ fn parse_todo_file(hash: &str) -> TodoFile {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
                 lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
-                return;
+                exit(1)
             }
         }
     }
@@ -382,10 +400,12 @@ fn parse_todo_file(hash: &str) -> TodoFile {
     // content
     let todo_content_bytes = &bytes_vec[header_size..];
     println!("debug {:?}", String::from_utf8_lossy(&todo_content_bytes));
-    let todo_content: NXPContent =
+    let todo_content: TodoContent =
         bincode::deserialize(todo_content_bytes).expect("Failed to deserialize todo content");
     let todo: TodoFile = TodoFile {
         header: header,
         content: todo_content,
     };
+
+    todo
 }
