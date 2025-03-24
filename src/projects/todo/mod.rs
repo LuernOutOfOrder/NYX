@@ -7,11 +7,7 @@ use tabled::{settings::Style, Tabled};
 
 mod parse;
 
-use crate::projects::nxp;
-use crate::projects::nxp::NXP;
-use crate::projects::nxp::{NXPContent, NXPHeader};
 use crate::projects::nxs;
-use crate::projects::nxs::ProjectEntry;
 use crate::{logs, projects, utils, vec_of_strings};
 use std::fs;
 
@@ -156,21 +152,21 @@ fn update_todo_list() {
         "Error with the project name referred".to_string(),
     );
     let mut project_name: String = String::new();
+    let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
-        app_name = app.project_name;
+        project_name = app.project_name;
+        project_hash = app.project_hash
     } else {
         lrncore::logs::error_log("Project not found");
         exit(1);
     }
 
-    let hash = String::from_utf8_lossy(&current_project.project_hash);
-    nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
+    let hash = String::from_utf8_lossy(&project_hash);
     // let current_todo_vec = nxp.content.todo;
     // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
     // nxp.content.todo = new_todo_vec;
-    let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
-    nxp::update_nxp(&hash, buffer);
+    // let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
 }
 
 fn show_todo() {

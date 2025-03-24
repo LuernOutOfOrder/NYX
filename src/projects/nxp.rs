@@ -10,7 +10,6 @@ use crate::utils;
 use serde::Deserialize;
 use serde::Serialize;
 use sha1::{Digest, Sha1};
-use std::fmt::format;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
