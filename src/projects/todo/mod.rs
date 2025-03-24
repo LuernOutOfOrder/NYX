@@ -151,7 +151,7 @@ fn which_todo(choice: &str) {
 fn update_todo_list() {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let new_todo = utils::prompt_message(
-        "Enter new todo".to_string(),
+        "Enter new todo:".to_string(),
         "Error getting user input".to_string(),
     );
     let mut projects = nxs::get_all_project();
@@ -399,13 +399,11 @@ fn parse_todo_file(hash: &str) -> TodoFile {
         bincode::deserialize(header_bytes).expect("Failed to deserialize TodoHeader");
     // content
     let todo_content_bytes = &bytes_vec[header_size..];
-    println!("debug {:?}", String::from_utf8_lossy(&todo_content_bytes));
     let todo_content: TodoContent =
         bincode::deserialize(todo_content_bytes).expect("Failed to deserialize todo content");
     let todo: TodoFile = TodoFile {
         header: header,
         content: todo_content,
     };
-
     todo
 }
