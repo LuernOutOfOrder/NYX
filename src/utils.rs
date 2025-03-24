@@ -302,3 +302,16 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
     return buffer;
 }
+
+pub fn create_dir(path: &str) {
+    let mut mkdir = Command::new("mkdir")
+        .arg(".nxfs/projects")
+        .arg(path)
+        .spawn()
+        .expect("Failed to create directories");
+    let wait_mkdir = mkdir.wait().expect("Failed to wait mkdir command");
+    if !wait_mkdir.success() {
+        lrncore::logs::error_log("Failed to execute mkdir command");
+        exit(1)
+    }
+}

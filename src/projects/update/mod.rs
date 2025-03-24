@@ -91,11 +91,11 @@ pub fn update_project_properties() {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
+            todo: Vec::new(),
         },
     };
     let hash = String::from_utf8_lossy(&current_project.project_hash);
-    nxp::parse_nxp_file(&format!(".nxfs/projects/{}", &hash), &mut nxp);
+    nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = utils::update_editor(project_content);
     let updated_content: NXPContent =

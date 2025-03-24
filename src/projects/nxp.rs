@@ -10,6 +10,7 @@ use crate::utils;
 use serde::Deserialize;
 use serde::Serialize;
 use sha1::{Digest, Sha1};
+use std::fmt::format;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
@@ -40,7 +41,7 @@ pub struct NXPHeader {
 const MAGIC_NUMBER: [u8; 4] = *b"NXP\0";
 const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
 
-#[derive(Serialize, Deserialize, Debug, Tabled)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct NXPContent {
     pub name: String,
     pub tech: String,
@@ -48,7 +49,14 @@ pub struct NXPContent {
     pub repository: String,
     pub github_project: String,
     pub version: String,
-    pub todo: String,
+    pub todo: Vec<Todo>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Todo {
+    pub note: String,
+    pub status: String,
+    pub id: u8,
 }
 
 #[derive(Debug, Tabled)]
@@ -76,7 +84,7 @@ pub fn create_new_nxp(content: NXPContent) {
         repository: format!("{}", content.repository),
         github_project: format!("{}", content.github_project),
         version: format!("{}", "0.1.0"),
-        todo: format!("{}", "[]"),
+        todo: vec![],
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -97,7 +105,9 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".nxfs/projects/{}", file_hash);
+    let file_path = format!(".nxfs/projects/{}/content", file_hash);
+    let folder_path = format!(".nxfs/projects/{}", file_hash);
+    utils::create_dir(&folder_path);
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
@@ -176,6 +186,10 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
         bincode::deserialize(header_bytes).expect("Failed to deserialize NXPHeader");
     // project content
     let project_content_bytes = &bytes_vec[header_size..];
+    println!(
+        "debug {:?}",
+        String::from_utf8_lossy(&project_content_bytes)
+    );
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
     let nxp: NXP = NXP {
@@ -203,10 +217,13 @@ pub fn cat_nxp(hash: Option<String>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
+            todo: Vec::new(),
         },
     };
-    parse_nxp_file(&format!(".nxfs/projects/{}", hash.unwrap()), &mut nxp);
+    parse_nxp_file(
+        &format!(".nxfs/projects/{}/content", hash.unwrap()),
+        &mut nxp,
+    );
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}\n todo: {:?} ", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version, nxp.content.todo);
 }
 
@@ -227,10 +244,10 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
+            todo: Vec::new(),
         },
     };
-    let file_path = format!(".nxfs/projects/{}", hash);
+    let file_path = format!(".nxfs/projects/{}/content", hash);
     parse_nxp_file(&file_path, &mut nxp);
     let header_buff = bincode::serialize(&nxp.header).expect("Failed to serialize header buffer");
     let mut file_buff: Vec<u8> = Vec::new();
@@ -254,7 +271,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
 
 pub fn delete_nxp(hash: &str) {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    match fs::remove_file(format!(".nxfs/projects/{}", hash)) {
+    match fs::remove_dir_all(format!(".nxfs/projects/{}/", hash)) {
         Ok(_) => {
             lrncore::logs::time_info_log("Successfully remove project file");
         }

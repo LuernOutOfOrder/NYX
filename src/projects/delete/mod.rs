@@ -109,10 +109,10 @@ fn remove_project_from_storage() {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
+            todo: Vec::new(),
         },
     };
-    nxp::parse_nxp_file(&format!(".nxfs/projects/{}", &hash), &mut nxp);
+    nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     Command::new("rm")
         .arg("-rf")
         .arg(nxp.content.location)

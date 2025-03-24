@@ -1,3 +1,4 @@
+use crate::projects::nxp::Todo;
 use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -14,18 +15,6 @@ use crate::projects::nxs;
 use crate::projects::nxs::ProjectEntry;
 use crate::{logs, projects, utils, vec_of_strings};
 use std::fs;
-
-#[derive(Serialize, Tabled, Deserialize, Clone, Debug)]
-pub struct Todo {
-    pub id: u8,
-    pub note: String,
-    pub status: String,
-}
-
-#[derive(Serialize, Debug)]
-pub struct TodoData {
-    todos: Vec<Todo>,
-}
 
 pub fn todo_help() -> String {
     let usage = r"
@@ -169,47 +158,40 @@ fn update_todo_list() {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
+            todo: Vec::new(),
         },
     };
     let hash = String::from_utf8_lossy(&current_project.project_hash);
-    nxp::parse_nxp_file(&format!(".nxfs/projects/{}", &hash), &mut nxp);
-    let current_todo_vec = parse::parse_todo(nxp.content.todo);
-    println!("debug todo current todo{:?}", current_todo_vec);
+    nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
+    let current_todo_vec = nxp.content.todo;
     let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
-    println!("debug todo new todo{:?}", new_todo_vec);
-    let stringify_todo_vec = parse::stringify_todo(new_todo_vec);
-    println!("debug todo string todo{:?}", stringify_todo_vec);
-    nxp.content.todo = stringify_todo_vec;
+    nxp.content.todo = new_todo_vec;
     let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
     nxp::update_nxp(&hash, buffer);
 }
 
 fn show_todo() {
-    let mut projects = utils::get_app_vec();
-    let get_current_workdir = utils::get_current_path();
-    if let Some(pos) = projects
-        .iter()
-        .position(|app| app.location == get_current_workdir)
-    {
-        let app = projects.remove(pos);
-        let todo_vec = parse::parse_todo(app.todo.clone());
-        let parse_todo_vec: Vec<Todo> = todo_vec
-            .iter()
-            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
-            .collect();
-        let builder = Table::builder(&parse_todo_vec).index().name(None);
-        let mut table = builder.build();
-        table.with(Style::modern());
-        println!("{}", table);
-    }
+    // let mut projects = utils::get_app_vec();
+    // let get_current_workdir = utils::get_current_path();
+    // if let Some(pos) = projects
+    //     .iter()
+    //     .position(|app| app.location == get_current_workdir)
+    // {
+    //     let app = projects.remove(pos);
+    //     let todo_vec = parse::parse_todo(app.todo.clone());
+    //     let parse_todo_vec: Vec<Todo> = todo_vec
+    //         .iter()
+    //         .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
+    //         .collect();
+    //     let builder = Table::builder(&parse_todo_vec).index().name(None);
+    //     let mut table = builder.build();
+    //     table.with(Style::modern());
+    //     println!("{}", table);
+    // }
 }
 
-fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
-    let deserial_todo_vec: Vec<Todo> = todo_vec
-        .iter()
-        .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
-        .collect();
+fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
+    let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
     let id: u8;
     if !deserial_todo_vec.is_empty() {
         id = deserial_todo_vec.last().clone().unwrap().id + 1;
@@ -221,8 +203,7 @@ fn add_new_todo(mut todo_vec: Vec<String>, new_todo: &str) -> Vec<String> {
         status: "".to_string(),
         note: new_todo.to_string(),
     };
-    let stringify_new_todo_inst = serde_json::to_string(&new_todo_inst);
-    todo_vec.push(stringify_new_todo_inst.unwrap());
+    todo_vec.push(new_todo_inst);
     todo_vec
 }
 

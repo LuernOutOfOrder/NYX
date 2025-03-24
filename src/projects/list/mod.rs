@@ -27,7 +27,7 @@ pub fn list_projects() {
     let args: Vec<String> = env::args().collect();
     let projects = nxs::get_all_project_entries();
     let projects_short = nxs::get_all_short_project();
-    let mut builder = Table::builder(&projects).index().name(None);
+    let mut builder = Table::builder(&projects_short).index().name(None);
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-s" => {
@@ -120,7 +120,7 @@ pub fn add_project_to_list(tech: &str) {
         repository: repository_user_input,
         github_project: github_project,
         version: version,
-        todo: "[]".to_string(),
+        todo: vec![],
     };
     nxp::create_new_nxp(new_app);
 }
@@ -162,7 +162,7 @@ fn create_repo_add_to_list(tech: &str) {
         repository: repository,
         github_project: github_project,
         version: version,
-        todo: "[]".to_string(),
+        todo: vec![],
     };
     nxp::create_new_nxp(new_app);
 }
