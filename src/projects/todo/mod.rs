@@ -2,18 +2,19 @@ use inquire::{InquireError, Select};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::io::BufReader;
-use std::io::Read;
-use std::io::Write;
 use std::path::Path;
 use std::process::exit;
 use tabled::Table;
 use tabled::{settings::Style, Tabled};
 
+mod helpers;
 mod parse;
+
+use helpers::{add_new_todo, create_todo_file, parse_todo_file, update_todo_file};
 
 use crate::projects::nxs;
 use crate::{logs, projects, utils, vec_of_strings};
-use std::fs::{self, File};
+use std::fs::{self};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct TodoFile {
@@ -159,11 +160,10 @@ fn update_todo_list() {
         "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
-    let mut project_name: String = String::new();
+    #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
-        project_name = app.project_name;
         project_hash = app.project_hash
     } else {
         lrncore::logs::error_log("Project not found");
@@ -176,7 +176,7 @@ fn update_todo_list() {
         create_todo_file(&project_hash_str);
     }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_vec_update = add_new_todo(todo_vec, &new_todo);
     println!("todo {:?}", todo_vec_update);
     update_todo_file(&project_hash_str, todo_vec_update, todo);
@@ -193,6 +193,7 @@ fn show_todo() {
         "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
+    #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
@@ -207,29 +208,12 @@ fn show_todo() {
         create_todo_file(&project_hash_str);
     }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let todo_vec: Vec<Todo> = todo.content.todos.clone();
     // display todos
     let builder = Table::builder(&todo_vec).index().name(None);
     let mut table = builder.build();
     table.with(Style::modern());
     println!("{}", table);
-}
-
-fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
-    let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
-    let id: u8;
-    if !deserial_todo_vec.is_empty() {
-        id = deserial_todo_vec.last().clone().unwrap().id + 1;
-    } else {
-        id = 1;
-    }
-    let new_todo_inst: Todo = Todo {
-        id: id,
-        status: "".to_string(),
-        note: new_todo.to_string(),
-    };
-    todo_vec.push(new_todo_inst);
-    todo_vec
 }
 
 fn prune_todo() {
@@ -338,107 +322,4 @@ fn update_todo_status() {
         fs::write(app_data_path, save_json).expect("Failed to write updated data");
         logs::info_log("Successfully update to-do status".to_string());
     }
-}
-
-fn create_todo_file(hash: &str) {
-    let content: TodoContent = TodoContent { todos: vec![] };
-    let content_buff: Vec<u8> =
-        bincode::serialize(&content).expect("Failed to serialize todo content");
-    // header
-    let header: TodoHeader = TodoHeader {
-        magic_number: MAGIC_NUMBER,
-        format_version: FORMAT_VERSION,
-        project_id: {
-            let mut arr = [0u8; 11];
-            let bytes = hash.as_bytes();
-            arr[..bytes.len()].copy_from_slice(bytes);
-            arr
-        },
-        project_size: content_buff.len() as u32,
-        reserved: 0,
-    };
-    let header_buff: Vec<u8> =
-        bincode::serialize(&header).expect("Failed to serialize todo header buffer");
-    // file
-    let mut file_buff: Vec<u8> = Vec::new();
-    file_buff.extend_from_slice(&header_buff);
-    file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".nxfs/projects/{}/todo", hash);
-    let mut todo_file: File = match File::create(file_path) {
-        Ok(f) => f,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to create todo file: {}", e));
-            return;
-        }
-    };
-    match todo_file.write_all(&file_buff) {
-        Ok(_) => (),
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
-        }
-    }
-    lrncore::logs::info_log("Create new todo file");
-}
-
-fn parse_todo_file(hash: &str) -> TodoFile {
-    let file = match File::open(format!(".nxfs/projects/{}/todo", hash)) {
-        Ok(f) => f,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open todo file: {}", e));
-            exit(1);
-        }
-    };
-    // initialize TodoHeader size from structure and buffer
-    let header_size = std::mem::size_of::<TodoHeader>();
-    let buffer = BufReader::new(file);
-    // vector containing the whole todo file
-    let mut bytes_vec: Vec<u8> = Vec::new();
-    for byte_or_error in buffer.bytes() {
-        match byte_or_error {
-            Ok(byte) => bytes_vec.push(byte),
-            Err(e) => {
-                lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
-                exit(1)
-            }
-        }
-    }
-
-    let header_bytes = &bytes_vec[..header_size];
-    // convert into the TodoHeader struct
-    let header: TodoHeader =
-        bincode::deserialize(header_bytes).expect("Failed to deserialize TodoHeader");
-    // content
-    let todo_content_bytes = &bytes_vec[header_size..];
-    let todo_content: TodoContent =
-        bincode::deserialize(todo_content_bytes).expect("Failed to deserialize todo content");
-    let todo: TodoFile = TodoFile {
-        header: header,
-        content: todo_content,
-    };
-    todo
-}
-
-fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
-    let file_path = format!(".nxfs/projects/{}/todo", hash);
-    let update_todo: TodoFile = TodoFile {
-        header: todo.header,
-        content: TodoContent { todos: vec },
-    };
-    let buff: Vec<u8> =
-        bincode::serialize(&update_todo).expect("Failed to serialize updated todo file");
-    let mut todo_file: File = match File::create(file_path) {
-        Ok(f) => f,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to update todo file: {}", e));
-            return;
-        }
-    };
-    match todo_file.write_all(&buff) {
-        Ok(_) => (),
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
-            return;
-        }
-    }
-    lrncore::logs::time_info_log("Successfully update todo file");
 }

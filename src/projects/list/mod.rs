@@ -27,7 +27,7 @@ pub fn list_projects() {
     let args: Vec<String> = env::args().collect();
     let projects = nxs::get_all_project_entries();
     let projects_short = nxs::get_all_short_project();
-    let mut builder = Table::builder(&projects_short).index().name(None);
+    let mut builder = Table::builder(&projects).index().name(None);
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-s" => {

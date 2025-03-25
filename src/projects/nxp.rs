@@ -40,7 +40,7 @@ pub struct NXPHeader {
 const MAGIC_NUMBER: [u8; 4] = *b"NXP\0";
 const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Tabled)]
 pub struct NXPContent {
     pub name: String,
     pub tech: String,
