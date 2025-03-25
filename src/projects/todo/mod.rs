@@ -176,7 +176,10 @@ fn update_todo_list() {
         create_todo_file(&project_hash_str);
     }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
-    println!("todo {:?}", todo);
+    let mut todo_vec: Vec<Todo> = todo.content.todos;
+    let todo_vec_update = add_new_todo(todo_vec, &new_todo);
+    println!("todo {:?}", todo_vec_update);
+
     // let current_todo_vec = nxp.content.todo;
     // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
     // nxp.content.todo = new_todo_vec;
@@ -407,3 +410,5 @@ fn parse_todo_file(hash: &str) -> TodoFile {
     };
     todo
 }
+
+fn update_todo_file(hash: &str, vec: Vec<Todo>) {}
