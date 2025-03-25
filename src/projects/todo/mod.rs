@@ -68,8 +68,6 @@ pub fn choose_todo() {
     utils::change_work_dir(&utils::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
-        //todo
-        // flag to list or add directly to the todo
         match arg.as_str().trim() {
             "-a" => {
                 update_todo_list();
@@ -80,11 +78,11 @@ pub fn choose_todo() {
                 exit(0);
             }
             "-s" => {
-                show_todo();
+                display_todo_list();
                 exit(0);
             }
             "--show" => {
-                show_todo();
+                display_todo_list();
                 exit(0);
             }
             "-p" => {
@@ -142,7 +140,7 @@ pub fn choose_todo() {
 fn which_todo(choice: &str) {
     match choice {
         choice if choice == "Add to to-do" => update_todo_list(),
-        choice if choice == "Show to-do list" => show_todo(),
+        choice if choice == "Show to-do list" => display_todo_list(),
         choice if choice == "Clear the to-do list" => prune_todo(),
         choice if choice == "Remove one to-do" => remove_todo(),
         choice if choice == "Update one to-do status" => update_todo_status(),
@@ -186,7 +184,7 @@ fn update_todo_list() {
     // let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
 }
 
-fn show_todo() {
+fn display_todo_list() {
     // get todos from project name
     let mut projects = nxs::get_all_project();
     let app_name = utils::prompt_message(
