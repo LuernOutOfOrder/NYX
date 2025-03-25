@@ -203,10 +203,6 @@ fn show_todo() {
         exit(1);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo_file = format!(".nxfs/projects/{}/todo", project_hash_str);
-    if !Path::new(&todo_file).exists() {
-        create_todo_file(&project_hash_str);
-    }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
     let todo_vec: Vec<Todo> = todo.content.todos.clone();
     // display todos
@@ -219,7 +215,7 @@ fn show_todo() {
 fn prune_todo() {
     let confirm = utils::confirm_prompt(
         "Are you sure to clear the list ?",
-        "It will clear completely the list.",
+        "It will remove completely the todo file from your system.",
     );
     if !confirm {
         exit(0);
