@@ -34,12 +34,12 @@ pub struct TodoHeader {
 const MAGIC_NUMBER: [u8; 8] = *b"NXPTODO\0";
 const FORMAT_VERSION: [u8; 6] = *b"0.1.0\0";
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TodoContent {
     pub todos: Vec<Todo>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone, Tabled)]
 pub struct Todo {
     pub note: String,
     pub status: String,
@@ -64,6 +64,7 @@ Options:
 }
 
 pub fn choose_todo() {
+    utils::change_work_dir(&utils::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         //todo
@@ -149,7 +150,6 @@ fn which_todo(choice: &str) {
 }
 
 fn update_todo_list() {
-    utils::change_work_dir(&utils::get_nyx_env_var());
     let new_todo = utils::prompt_message(
         "Enter new todo:".to_string(),
         "Error getting user input".to_string(),
@@ -176,10 +176,10 @@ fn update_todo_list() {
         create_todo_file(&project_hash_str);
     }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let mut todo_vec: Vec<Todo> = todo.content.todos;
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_vec_update = add_new_todo(todo_vec, &new_todo);
     println!("todo {:?}", todo_vec_update);
-
+    update_todo_file(&project_hash_str, todo_vec_update, todo);
     // let current_todo_vec = nxp.content.todo;
     // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
     // nxp.content.todo = new_todo_vec;
@@ -187,23 +187,32 @@ fn update_todo_list() {
 }
 
 fn show_todo() {
-    // let mut projects = utils::get_app_vec();
-    // let get_current_workdir = utils::get_current_path();
-    // if let Some(pos) = projects
-    //     .iter()
-    //     .position(|app| app.location == get_current_workdir)
-    // {
-    //     let app = projects.remove(pos);
-    //     let todo_vec = parse::parse_todo(app.todo.clone());
-    //     let parse_todo_vec: Vec<Todo> = todo_vec
-    //         .iter()
-    //         .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
-    //         .collect();
-    //     let builder = Table::builder(&parse_todo_vec).index().name(None);
-    //     let mut table = builder.build();
-    //     table.with(Style::modern());
-    //     println!("{}", table);
-    // }
+    // get todos from project name
+    let mut projects = nxs::get_all_project();
+    let app_name = utils::prompt_message(
+        "Enter project name:".to_string(),
+        "Error with the project name referred".to_string(),
+    );
+    let mut project_hash: [u8; 11] = [0u8; 11];
+    if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
+        let app = projects.remove(pos);
+        project_hash = app.project_hash
+    } else {
+        lrncore::logs::error_log("Project not found");
+        exit(1);
+    }
+    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let todo_file = format!(".nxfs/projects/{}/todo", project_hash_str);
+    if !Path::new(&todo_file).exists() {
+        create_todo_file(&project_hash_str);
+    }
+    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    // display todos
+    let builder = Table::builder(&todo_vec).index().name(None);
+    let mut table = builder.build();
+    table.with(Style::modern());
+    println!("{}", table);
 }
 
 fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
@@ -332,7 +341,6 @@ fn update_todo_status() {
 }
 
 fn create_todo_file(hash: &str) {
-    utils::change_work_dir(&utils::get_nyx_env_var());
     let content: TodoContent = TodoContent { todos: vec![] };
     let content_buff: Vec<u8> =
         bincode::serialize(&content).expect("Failed to serialize todo content");
@@ -373,7 +381,6 @@ fn create_todo_file(hash: &str) {
 }
 
 fn parse_todo_file(hash: &str) -> TodoFile {
-    utils::change_work_dir(&utils::get_nyx_env_var());
     let file = match File::open(format!(".nxfs/projects/{}/todo", hash)) {
         Ok(f) => f,
         Err(e) => {
@@ -411,4 +418,27 @@ fn parse_todo_file(hash: &str) -> TodoFile {
     todo
 }
 
-fn update_todo_file(hash: &str, vec: Vec<Todo>) {}
+fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
+    let file_path = format!(".nxfs/projects/{}/todo", hash);
+    let update_todo: TodoFile = TodoFile {
+        header: todo.header,
+        content: TodoContent { todos: vec },
+    };
+    let buff: Vec<u8> =
+        bincode::serialize(&update_todo).expect("Failed to serialize updated todo file");
+    let mut todo_file: File = match File::create(file_path) {
+        Ok(f) => f,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to update todo file: {}", e));
+            return;
+        }
+    };
+    match todo_file.write_all(&buff) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
+            return;
+        }
+    }
+    lrncore::logs::time_info_log("Successfully update todo file");
+}
