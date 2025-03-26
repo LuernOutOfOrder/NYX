@@ -62,6 +62,9 @@ pub struct Data {
 
 pub fn project_command() {
     let args: Vec<String> = env::args().collect();
+    if args.len() <= 2 {
+        utils::command_usage(&project_help());
+    }
     match args[2].as_str() {
         "new" => {
             if args.len() <= 3 {
@@ -77,6 +80,7 @@ pub fn project_command() {
         "update" => update_project_properties(),
         "todo" => choose_todo(),
         _ => {
+            lrncore::logs::warning_log("Unknown command");
             utils::command_usage(&project_help());
         }
     }
