@@ -176,12 +176,7 @@ fn update_todo_list() {
     let todo: TodoFile = parse_todo_file(&project_hash_str);
     let todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_vec_update = add_new_todo(todo_vec, &new_todo);
-    println!("todo {:?}", todo_vec_update);
     update_todo_file(&project_hash_str, todo_vec_update, todo);
-    // let current_todo_vec = nxp.content.todo;
-    // let new_todo_vec = add_new_todo(current_todo_vec, &new_todo);
-    // nxp.content.todo = new_todo_vec;
-    // let mut buffer = bincode::serialize(&nxp).expect("Failed to serialize NXP structure");
 }
 
 fn display_todo_list() {
@@ -244,38 +239,32 @@ fn prune_todo() {
 }
 
 fn remove_todo() {
+    let mut projects = nxs::get_all_project();
+    let project_name = utils::prompt_message("Enter project name:".to_string(), "Error getting user input".to_string());
     let ask_id = utils::prompt_message(
-        "Enter todo id you want to delete".to_string(),
+        "Enter todo id you want to delete:".to_string(),
         "Failed to get the user input".to_string(),
     );
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    let get_current_workdir = utils::get_current_path();
-    if let Some(pos) = projects
+    let project_hash: [u8;11];
+   if let Some(pos) = projects
         .iter()
-        .position(|app| app.location == get_current_workdir)
+        .position(|app| app.project_name == project_name)
     {
         let app = projects.remove(pos);
-        let mut updated_app = app.clone();
-        let mut todo_vec = parse::parse_todo(app.todo.clone());
-        let parse_todo_vec: Vec<Todo> = todo_vec
-            .iter()
-            .map(|todo| serde_json::from_str(todo).expect("Failed to parse todo"))
-            .collect();
-        // find the dodo and return it's index in the vector
-        let find_todo_by_id = parse_todo_vec
-            .iter()
-            .position(|todo| todo.id == ask_id.parse::<u8>().unwrap())
-            .unwrap();
-        todo_vec.remove(find_todo_by_id);
-        let stringify_todo_vec = parse::stringify_todo(todo_vec);
-        updated_app.todo = stringify_todo_vec;
-        projects.push(updated_app);
-        let update_data = projects::Data { project: projects };
-        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        fs::write(app_data_path, save_json).expect("Failed to write updated data");
-        logs::info_log("Successfully remove the to-do".to_string());
+        project_hash = app.project_hash;
+    }else {
+        lrncore::logs::error_log("Project not found");
+        exit(1);
     }
+
+    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let todo_id_stdi = ask_id.parse::<u8>().expect("Failed to parse todo id to u8");
+    if let Some(todo) = todo_vec.iter().position(|todo| todo.id == todo_id_stdi) {
+        todo_vec.remove(todo);
+    };
+   update_todo_file(&project_hash_str, todo_vec, todo);logs::info_log("Successfully remove the to-do".to_string());
 }
 
 //TODO
