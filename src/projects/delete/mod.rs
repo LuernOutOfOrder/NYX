@@ -4,6 +4,7 @@ use crate::projects::{
     nxs::{self, NXSHeader, ProjectList, NXS},
 };
 use inquire::{InquireError, Select, Text};
+use lrncore::usage_exit::command_usage;
 use std::{env, process::Command};
 
 use crate::utils;
@@ -25,10 +26,10 @@ pub fn select_remove_project() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                utils::command_usage(&project_delete_help());
+                command_usage(&project_delete_help());
             }
             "--help" => {
-                utils::command_usage(&project_delete_help());
+                command_usage(&project_delete_help());
             }
             _ => {}
         }

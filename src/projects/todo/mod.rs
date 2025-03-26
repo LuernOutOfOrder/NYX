@@ -12,6 +12,7 @@ mod helpers;
 use helpers::{
     add_new_todo, create_todo_file, parse_todo_file, todos_status_list, update_todo_file,
 };
+use lrncore::usage_exit::command_usage;
 
 use crate::projects::nxs;
 use crate::{logs, utils};
@@ -66,7 +67,7 @@ Options:
 }
 
 pub fn choose_todo() {
-    utils::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
@@ -112,10 +113,10 @@ pub fn choose_todo() {
             }
 
             "-h" => {
-                utils::command_usage(&todo_help());
+                command_usage(&todo_help());
             }
             "--help" => {
-                utils::command_usage(&todo_help());
+                command_usage(&todo_help());
             }
             _ => {}
         }
@@ -158,7 +159,7 @@ fn update_todo_list() {
         "Enter new todo:".to_string(),
         "Error getting user input".to_string(),
     );
-    let mut projects = nxs::get_all_project(); 
+    let mut projects = nxs::get_all_project();
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {

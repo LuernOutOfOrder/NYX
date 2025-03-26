@@ -3,6 +3,7 @@ use crate::projects::nxs;
 use crate::utils;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
+use lrncore::usage_exit::command_usage;
 use std::env;
 use tabled::settings::Style;
 use tabled::Table;
@@ -37,10 +38,10 @@ pub fn list_projects() {
                 builder = Table::builder(&projects_short).index().name(None);
             }
             "-h" => {
-                utils::command_usage(&project_list_help());
+                command_usage(&project_list_help());
             }
             "--help" => {
-                utils::command_usage(&project_list_help());
+                command_usage(&project_list_help());
             }
             _ => {}
         }
@@ -79,7 +80,7 @@ pub fn create_repo_or_not(tech: &str) {
 }
 
 pub fn add_project_to_list(tech: &str) {
-    let current_dir = utils::get_current_path();
+    let current_dir = lrncore::path::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let mut repository_user_input: String;
     repository_user_input = utils::prompt_message(
@@ -125,7 +126,7 @@ pub fn add_project_to_list(tech: &str) {
 }
 
 fn create_repo_add_to_list(tech: &str) {
-    let current_dir = utils::get_current_path();
+    let current_dir = lrncore::path::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
     let choice = vec_of_strings!["public", "private", "internal"];
     let repository_visibility: String =

@@ -1,8 +1,10 @@
 use std::process::Command;
 
+use crate::env;
 use crate::logs;
 use crate::utils;
-use crate::env;
+
+use lrncore::usage_exit::command_usage;
 
 fn git_help() -> String {
     let usage = r"
@@ -25,17 +27,17 @@ Options:
 pub fn git_command() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        utils::command_usage(&git_help());
+        command_usage(&git_help());
     }
-    match args[2].as_str() { 
+    match args[2].as_str() {
         "stash" => nyx_git_stash(),
-        "tag" => nyx_git_tag(),      
+        "tag" => nyx_git_tag(),
         "summarize" => git_summarize(),
         "all-commit" => show_all_commit(),
-        "last-commit" => show_last_commit_with_stat(), 
+        "last-commit" => show_last_commit_with_stat(),
         _ => {
             lrncore::logs::warning_log("Unknown command");
-            utils::command_usage(&git_help());
+            command_usage(&git_help());
         }
     }
 }
@@ -87,7 +89,7 @@ pub fn git_init() {
     let mut git_init = Command::new("git")
         .arg("init")
         .spawn()
-        .expect("Failed to create the remote repostory");
+        .expect("Failed to create the remote repository");
     let wait_git_init = git_init.wait().expect("Failed to wait the gh command");
     if !wait_git_init.success() {
         panic!();

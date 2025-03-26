@@ -8,6 +8,7 @@ mod projects;
 mod update;
 mod utils;
 use crate::projects::todo;
+use lrncore::usage_exit::command_usage;
 
 use std::env;
 
@@ -30,16 +31,42 @@ enum Commands {
     Version,
 }
 
+fn nyx_usage() -> &'static str {
+    let usage = r"
+Usage: nyx command [options]
+
+A lightweight utility for efficient project management and useful tools.
+
+Commands:
+    init            Initialize NYX data
+    cat-nxs         Emit NXS object content
+    cat-nxp         Emit specified NXP object content
+    project         Manage project-related tasks
+    cleanup         Cleanup all unused files
+    git             Git command wrapped in a simplified interface
+    health          Display current development system health
+    update          Update the current version of NYX
+    help            Show this help message
+
+Options:
+
+    -h, --help      Show command usage
+    -v, --version   Show the current version of NYX
+";
+
+    return usage;
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-v" => {
-                utils::command_usage(&nyx_version());
+                command_usage(&nyx_version());
             }
             "--version" => {
-                utils::command_usage(&nyx_version());
+                command_usage(&nyx_version());
             }
             _ => {}
         }
@@ -59,7 +86,7 @@ fn main() {
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
         _ => {
-            lrncore::usage_exit::usage_and_exit("Invalid command", utils::nyx_usage());
+            lrncore::usage_exit::usage_and_exit("Invalid command", nyx_usage());
             return;
         }
     };
@@ -73,8 +100,8 @@ fn main() {
         Commands::Git => git::git_command(),
         Commands::Health => health::dev_env_health(),
         Commands::Update => update::update_bin(),
-        Commands::Help => lrncore::usage_exit::command_usage(utils::nyx_usage()),
-        Commands::Version => utils::command_usage(&nyx_version()),
+        Commands::Help => command_usage(nyx_usage()),
+        Commands::Version => command_usage(&nyx_version()),
     }
 }
 
