@@ -1,3 +1,23 @@
+/*
+ This module provides functionality to update project properties in the NYX application.
+
+ The main functions include:
+ - `project_update_help`: Generates a help message for the `project-update` command.
+ - `update_project_properties`: Updates the properties of a project based on user input.
+
+ The module interacts with the following components:
+ - `nxs`: For handling project entries and updating project lists.
+ - `nxp`: For parsing and updating project files.
+ - `utils`: For utility functions such as prompting messages and rendering configurations.
+
+ # Usage
+
+ To display the help message for the `project-update` command:
+ ```sh
+ nyx project-update -h
+ ```
+*/
+
 use std::env;
 use std::process::exit;
 
@@ -71,11 +91,10 @@ pub fn update_project_properties() {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
         },
     };
     let hash = String::from_utf8_lossy(&current_project.project_hash);
-    nxp::parse_nxp_file(&format!(".nxfs/projects/{}", &hash), &mut nxp);
+    nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = utils::update_editor(project_content);
     let updated_content: NXPContent =

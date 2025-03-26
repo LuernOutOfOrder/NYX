@@ -349,12 +349,11 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
                 repository: String::new(),
                 github_project: String::new(),
                 version: String::new(),
-                todo: String::new(),
             },
         };
         parse_nxp_file(
             &format!(
-                ".nxfs/projects/{}",
+                ".nxfs/projects/{}/content",
                 String::from_utf8_lossy(&each.project_hash)
             ),
             &mut nxp,
@@ -393,12 +392,11 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
                 repository: String::new(),
                 github_project: String::new(),
                 version: String::new(),
-                todo: String::new(),
             },
         };
         parse_nxp_file(
             &format!(
-                ".nxfs/projects/{}",
+                ".nxfs/projects/{}/content",
                 String::from_utf8_lossy(&each.project_hash)
             ),
             &mut nxp,

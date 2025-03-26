@@ -48,7 +48,6 @@ pub struct NXPContent {
     pub repository: String,
     pub github_project: String,
     pub version: String,
-    pub todo: String,
 }
 
 #[derive(Debug, Tabled)]
@@ -76,7 +75,6 @@ pub fn create_new_nxp(content: NXPContent) {
         repository: format!("{}", content.repository),
         github_project: format!("{}", content.github_project),
         version: format!("{}", "0.1.0"),
-        todo: format!("{}", ""),
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -97,7 +95,9 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".nxfs/projects/{}", file_hash);
+    let file_path = format!(".nxfs/projects/{}/content", file_hash);
+    let folder_path = format!(".nxfs/projects/{}", file_hash);
+    utils::create_dir(&folder_path);
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
@@ -127,7 +127,6 @@ pub fn create_new_nxp(content: NXPContent) {
             repository: content.repository,
             github_project: content.github_project,
             version: content.version,
-            todo: String::new(),
         },
     };
     nxs::update_nxs_file(&mut nxp);
@@ -203,10 +202,12 @@ pub fn cat_nxp(hash: Option<String>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
         },
     };
-    parse_nxp_file(&format!(".nxfs/projects/{}", hash.unwrap()), &mut nxp);
+    parse_nxp_file(
+        &format!(".nxfs/projects/{}/content", hash.unwrap()),
+        &mut nxp,
+    );
     println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
 
@@ -227,10 +228,9 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
             repository: String::new(),
             github_project: String::new(),
             version: String::new(),
-            todo: String::new(),
         },
     };
-    let file_path = format!(".nxfs/projects/{}", hash);
+    let file_path = format!(".nxfs/projects/{}/content", hash);
     parse_nxp_file(&file_path, &mut nxp);
     let header_buff = bincode::serialize(&nxp.header).expect("Failed to serialize header buffer");
     let mut file_buff: Vec<u8> = Vec::new();
@@ -254,7 +254,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
 
 pub fn delete_nxp(hash: &str) {
     utils::change_work_dir(&utils::get_nyx_env_var());
-    match fs::remove_file(format!(".nxfs/projects/{}", hash)) {
+    match fs::remove_dir_all(format!(".nxfs/projects/{}/", hash)) {
         Ok(_) => {
             lrncore::logs::time_info_log("Successfully remove project file");
         }
