@@ -1,30 +1,6 @@
 /*!
 This module provides various utility functions for the NYX project management tool.
 
-# Functions
-
-- `get_nyx_env_var`: Retrieves the NYX environment variable.
-- `get_app_data`: Gets the path to the application data file.
-- `get_app_vec`: Parses the application data file and returns a vector of `Project` structs.
-- `get_app_vec_short`: Parses the application data file and returns a vector of `ProjectShort` structs.
-- `get_current_path`: Returns the current working directory as a string.
-- `get_render_config`: Returns a customized `RenderConfig` for the inquire library.
-- `change_work_dir`: Changes the current working directory to the specified path.
-- `get_tech_option`: Returns a vector of technology options.
-- `get_select_app_option`: Prompts the user to select a technology option.
-- `get_select_option`: Prompts the user to select an option from a given list.
-- `get_project_property`: Returns a vector of project property names.
-- `prompt_message`: Prompts the user with a message and returns the input.
-- `nyx_ascii_art`: Returns the NYX ASCII art logo.
-- `path_exists`: Checks if a given path exists.
-- `rm_command`: Executes a command to remove a directory.
-- `custom_throbber`: Returns a custom throbber with a message.
-- `nyx_usage`: Returns the usage information for the NYX tool.
-- `command_usage`: Prints the usage information and exits the program.
-- `confirm_prompt`: Prompts the user with a confirmation message.
-
-# Usage
-
 This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
 */
 
@@ -81,7 +57,7 @@ pub fn get_tech_option() -> Vec<String> {
     return options;
 }
 
-pub fn get_select_app_option(prompt: String) -> std::result::Result<String, InquireError> {
+pub fn get_select_project_option(prompt: String) -> std::result::Result<String, InquireError> {
     let options = get_tech_option();
 
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
@@ -123,37 +99,6 @@ pub fn nyx_ascii_art() -> String {
 pub fn custom_throbber(message: String) -> Throbber {
     let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
     return custom_throbber;
-}
-
-pub fn nyx_usage() -> &'static str {
-    let usage = r"
-Usage: nyx command [options]
-
-A lightweight utility for efficient project management and useful tools.
-
-Commands:
-    init            Initialize NYX data
-    cat-nxs         Emit NXS object content
-    cat-nxp         Emit specified NXP object content
-    project         Manage project-related tasks
-    cleanup         Cleanup all unused files
-    git             Git command wrapped in a simplified interface
-    health          Display current development system health
-    update          Update the current version of NYX
-    help            Show this help message
-
-Options:
-
-    -h, --help      Show command usage
-    -v, --version   Show the current version of NYX
-";
-
-    return usage;
-}
-
-pub fn command_usage(usage: &str) {
-    println!("{}", usage);
-    exit(0);
 }
 
 pub fn confirm_prompt(message: &str, help_message: &str) -> bool {

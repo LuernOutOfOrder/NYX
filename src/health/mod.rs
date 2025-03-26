@@ -4,8 +4,8 @@ use std::process::Command;
 use colored::Colorize;
 
 use crate::logs;
-use crate::utils;
 use crate::vec_of_strings;
+use lrncore::usage_exit::command_usage;
 
 pub fn health_help() -> String {
     let usage = r"
@@ -24,10 +24,10 @@ pub fn dev_env_health() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                utils::command_usage(&health_help());
+                command_usage(&health_help());
             }
             "--help" => {
-                utils::command_usage(&health_help());
+                command_usage(&health_help());
             }
             _ => {}
         }

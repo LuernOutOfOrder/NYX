@@ -29,6 +29,7 @@ use crate::{
     projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
 };
+use lrncore::usage_exit::command_usage;
 
 pub fn project_update_help() -> String {
     let usage = r"
@@ -47,10 +48,10 @@ pub fn update_project_properties() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                utils::command_usage(&project_update_help());
+                command_usage(&project_update_help());
             }
             "--help" => {
-                utils::command_usage(&project_update_help());
+                command_usage(&project_update_help());
             }
             _ => {}
         }

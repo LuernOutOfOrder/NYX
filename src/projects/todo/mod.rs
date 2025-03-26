@@ -12,6 +12,7 @@ mod helpers;
 use helpers::{
     add_new_todo, create_todo_file, parse_todo_file, todos_status_list, update_todo_file,
 };
+use lrncore::usage_exit::command_usage;
 
 use crate::projects::nxs;
 use crate::{logs, utils};
@@ -112,10 +113,10 @@ pub fn choose_todo() {
             }
 
             "-h" => {
-                utils::command_usage(&todo_help());
+                command_usage(&todo_help());
             }
             "--help" => {
-                utils::command_usage(&todo_help());
+                command_usage(&todo_help());
             }
             _ => {}
         }

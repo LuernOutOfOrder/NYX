@@ -12,6 +12,7 @@ use tabled::Tabled;
 use todo::choose_todo;
 use update::update_project_properties;
 pub mod delete;
+use lrncore::usage_exit::command_usage;
 pub mod nxp;
 pub mod nxs;
 pub mod todo;
@@ -63,7 +64,7 @@ pub struct Data {
 pub fn project_command() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        utils::command_usage(&project_help());
+        command_usage(&project_help());
     }
     match args[2].as_str() {
         "new" => {
@@ -81,7 +82,7 @@ pub fn project_command() {
         "todo" => choose_todo(),
         _ => {
             lrncore::logs::warning_log("Unknown command");
-            utils::command_usage(&project_help());
+            command_usage(&project_help());
         }
     }
 }
@@ -92,17 +93,18 @@ fn new_project(name: String) {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                utils::command_usage(&project_help());
+                command_usage(&project_help());
             }
             "--help" => {
-                utils::command_usage(&project_help());
+                command_usage(&project_help());
             }
             _ => {}
         }
     }
 
     inquire::set_global_render_config(utils::get_render_config());
-    let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
+    let option_select =
+        utils::get_select_project_option("Which tech do you want to use ?".to_string());
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),

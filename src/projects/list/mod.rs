@@ -3,6 +3,7 @@ use crate::projects::nxs;
 use crate::utils;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
+use lrncore::usage_exit::command_usage;
 use std::env;
 use tabled::settings::Style;
 use tabled::Table;
@@ -37,10 +38,10 @@ pub fn list_projects() {
                 builder = Table::builder(&projects_short).index().name(None);
             }
             "-h" => {
-                utils::command_usage(&project_list_help());
+                command_usage(&project_list_help());
             }
             "--help" => {
-                utils::command_usage(&project_list_help());
+                command_usage(&project_list_help());
             }
             _ => {}
         }
