@@ -8,6 +8,8 @@ use crate::todo::BufReader;
 use std::io::Read;
 use std::io::Write;
 
+use lrncore::vec_of_strings;
+
 pub fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
     let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
     let id: u8;
@@ -126,4 +128,9 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
         }
     }
     lrncore::logs::time_info_log("Successfully update todo file");
+}
+
+pub fn todos_status_list() -> Vec<String> {
+    let vec = vec_of_strings!("pending", "done", "wip");
+    vec
 }

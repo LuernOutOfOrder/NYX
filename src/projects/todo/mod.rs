@@ -8,12 +8,13 @@ use tabled::Table;
 use tabled::{settings::Style, Tabled};
 
 mod helpers;
-mod parse;
 
-use helpers::{add_new_todo, create_todo_file, parse_todo_file, update_todo_file};
+use helpers::{
+    add_new_todo, create_todo_file, parse_todo_file, todos_status_list, update_todo_file,
+};
 
 use crate::projects::nxs;
-use crate::{logs, projects, utils, vec_of_strings};
+use crate::{logs, utils};
 use std::fs::{self};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -149,15 +150,15 @@ fn which_todo(choice: &str) {
 }
 
 fn update_todo_list() {
-    let new_todo = utils::prompt_message(
-        "Enter new todo:".to_string(),
-        "Error getting user input".to_string(),
-    );
-    let mut projects = nxs::get_all_project();
     let app_name = utils::prompt_message(
         "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
+    let new_todo = utils::prompt_message(
+        "Enter new todo:".to_string(),
+        "Error getting user input".to_string(),
+    );
+    let mut projects = nxs::get_all_project(); 
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
@@ -207,10 +208,16 @@ fn display_todo_list() {
 
 fn prune_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message("Enter project name:".to_string(), "Error with the user input".to_string());
- #[allow(unused_assignments)]
+    let project_name = utils::prompt_message(
+        "Enter project name:".to_string(),
+        "Error with the user input".to_string(),
+    );
+    #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
-    if let Some(pos) = projects.iter().position(|app| app.project_name == project_name) {
+    if let Some(pos) = projects
+        .iter()
+        .position(|app| app.project_name == project_name)
+    {
         let app = projects.remove(pos);
         project_hash = app.project_hash
     } else {
@@ -218,7 +225,7 @@ fn prune_todo() {
         exit(1);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
-    
+
     let confirm = utils::confirm_prompt(
         "Are you sure to clear the list ?",
         "It will remove completely the todo file from your system.",
@@ -230,7 +237,7 @@ fn prune_todo() {
     match fs::remove_file(file_path) {
         Ok(_) => {
             lrncore::logs::time_info_log("Successfully remove todo file");
-        },
+        }
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to remove todo file: {}", e));
         }
@@ -240,19 +247,22 @@ fn prune_todo() {
 
 fn remove_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message("Enter project name:".to_string(), "Error getting user input".to_string());
+    let project_name = utils::prompt_message(
+        "Enter project name:".to_string(),
+        "Error getting user input".to_string(),
+    );
     let ask_id = utils::prompt_message(
         "Enter todo id you want to delete:".to_string(),
         "Failed to get the user input".to_string(),
     );
-    let project_hash: [u8;11];
-   if let Some(pos) = projects
+    let project_hash: [u8; 11];
+    if let Some(pos) = projects
         .iter()
         .position(|app| app.project_name == project_name)
     {
         let app = projects.remove(pos);
         project_hash = app.project_hash;
-    }else {
+    } else {
         lrncore::logs::error_log("Project not found");
         exit(1);
     }
@@ -264,52 +274,51 @@ fn remove_todo() {
     if let Some(todo) = todo_vec.iter().position(|todo| todo.id == todo_id_stdi) {
         todo_vec.remove(todo);
     };
-   update_todo_file(&project_hash_str, todo_vec, todo);logs::info_log("Successfully remove the to-do".to_string());
+    update_todo_file(&project_hash_str, todo_vec, todo);
+    logs::info_log("Successfully remove the to-do".to_string());
 }
 
 //TODO
 // can update one todo status by id
 fn update_todo_status() {
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    let get_current_workdir = utils::get_current_path();
+    let project_name = utils::prompt_message(
+        "Enter project name:".to_string(),
+        "Error getting user input".to_string(),
+    );
+    let ask_todo_id = utils::prompt_message(
+        "Enter todo id:".to_string(),
+        "Error getting user input".to_string(),
+    );
+    let new_status =
+        utils::get_select_option("Select new status:".to_string(), todos_status_list());
+    let mut projects = nxs::get_all_project();
+    let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects
         .iter()
-        .position(|app| app.location == get_current_workdir)
+        .position(|app| app.project_name == project_name)
     {
         let app = projects.remove(pos);
-        let mut updated_app = app.clone();
-        let mut todo_vec = parse::parse_todo(app.todo.clone());
-        let ask_todo =
-            utils::get_select_option("Select the todo to update".to_string(), todo_vec.clone())
-                .unwrap();
-        let todo_status_vec: Vec<String> = vec_of_strings!("pending", "done", "wip");
-        let mut updated_todo: Todo;
-        let todo_to_update: Result<Todo, serde_json::Error> = serde_json::from_str(&ask_todo);
-        match todo_to_update {
-            Ok(todo) => {
-                let select_status =
-                    utils::get_select_option("Select the new status".to_string(), todo_status_vec)
-                        .unwrap();
-                // find the dodo and return it's index in the vectors
-                let todo_vec_index = todo_vec.iter().position(|todo| todo == &ask_todo);
-                todo_vec.remove(todo_vec_index.unwrap());
-                updated_todo = todo;
-                updated_todo.status = select_status;
-                let stringify_updated_todo = serde_json::to_string(&updated_todo).unwrap();
-                todo_vec.push(stringify_updated_todo);
-            }
-            Err(e) => {
-                // Handle the error
-                println!("Failed to parse todo: {:?}", e);
-            }
-        }
-        let stringify_todo_vec = parse::stringify_todo(todo_vec);
-        updated_app.todo = stringify_todo_vec;
-        projects.push(updated_app);
-        let update_data = projects::Data { project: projects };
-        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        fs::write(app_data_path, save_json).expect("Failed to write updated data");
-        logs::info_log("Successfully update to-do status".to_string());
+        project_hash = app.project_hash;
     }
+    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let todo_id_stdi = ask_todo_id
+        .parse::<u8>()
+        .expect("Failed to parse todo id to u8");
+    let mut updated_todo: Todo = Todo {
+        note: String::new(),
+        status: String::new(),
+        id: 0,
+    };
+    if let Some(todo) = todo_vec.iter().position(|todo| todo.id == todo_id_stdi) {
+        let find_todo = todo_vec.remove(todo);
+        updated_todo.id = find_todo.id;
+        updated_todo.note = find_todo.note;
+    };
+    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    updated_todo.status = new_status.expect("Failed to get the updated status");
+    todo_vec.push(updated_todo);
+    update_todo_file(&project_hash_str, todo_vec, todo);
+    logs::info_log("Successfully update to-do status".to_string());
 }
