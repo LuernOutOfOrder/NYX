@@ -278,8 +278,6 @@ fn remove_todo() {
     logs::info_log("Successfully remove the to-do".to_string());
 }
 
-//TODO
-// can update one todo status by id
 fn update_todo_status() {
     let project_name = utils::prompt_message(
         "Enter project name:".to_string(),
