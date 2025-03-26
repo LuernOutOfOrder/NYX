@@ -13,7 +13,7 @@ Subcommands:
     tag         Create a new tag and push to origin
     summarize   Summarize current git repository with last commit, all commits, all branches and stash list
     all-commit  Shortlog all commits with number and users
-    last-commit Show last 4 detailled commits
+    last-commit Show last 4 detailed commits
 
 Options:
     -h, --help      Show this help message
