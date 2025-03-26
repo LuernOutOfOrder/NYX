@@ -22,7 +22,7 @@ pub fn update_bin() {
         .output()
         .expect("Failed to get the current version of NYX");
     let nyx_target_build_location = utils::get_nyx_env_var() + "/target/release";
-    utils::change_work_dir(&nyx_target_build_location);
+    lrncore::path::change_work_dir(&nyx_target_build_location);
     let mut build_target = Command::new("cargo")
         .arg("build")
         .arg("--release")
@@ -45,7 +45,7 @@ pub fn update_bin() {
     {
         println!("A new version of NYX has been found");
         update_throbber.start();
-        utils::change_work_dir(&utils::get_nyx_env_var());
+        lrncore::path::change_work_dir(&utils::get_nyx_env_var());
         let mut cargo_install = Command::new("cargo")
             .arg("install")
             .arg("--path")

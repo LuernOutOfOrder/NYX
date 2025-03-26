@@ -29,9 +29,9 @@ This module is intended to be used internally by the NYX project management tool
 */
 
 use crate::projects::nxp::NXPContent;
-use crate::projects::{self};
+use lrncore::path::change_work_dir;
 use std::env::var;
-use std::fs;
+use std::fs::write;
 use std::io::Read;
 use std::{
     env,
@@ -44,6 +44,7 @@ use inquire::{
     Confirm, InquireError, Select, Text,
 };
 use throbber::Throbber;
+pub mod sys;
 
 pub fn get_nyx_env_var() -> String {
     let env_var = "NYX";
@@ -51,37 +52,6 @@ pub fn get_nyx_env_var() -> String {
         Ok(v) => return v,
         Err(e) => panic!("${} is not set ({})", env_var, e),
     }
-}
-
-pub fn get_app_data() -> String {
-    let nyx_path = get_nyx_env_var();
-    let app_data = nyx_path + "/src/data/app.json";
-    return app_data;
-}
-
-pub fn get_app_vec() -> Vec<projects::Project> {
-    let app_data_path = get_app_data();
-    let json_data = fs::read_to_string(app_data_path.clone()).expect("Failed to read app data");
-    let data: projects::Data = serde_json::from_str(&json_data).expect("Invalid JSON");
-    let mut projects: Vec<projects::Project> = Vec::new();
-    for app in &data.project {
-        projects.push(projects::Project {
-            id: app.id.clone(),
-            name: app.name.clone(),
-            tech: app.tech.clone(),
-            location: app.location.clone(),
-            repository: app.repository.clone(),
-            github_project: app.github_project.clone(),
-            version: app.version.clone(),
-            todo: app.todo.clone(),
-        });
-    }
-    return projects;
-}
-
-pub fn get_current_path() -> String {
-    let path = env::current_dir().expect("Failed to get current directory");
-    return path.display().to_string();
 }
 
 pub fn get_render_config() -> RenderConfig<'static> {
@@ -106,10 +76,6 @@ pub fn get_render_config() -> RenderConfig<'static> {
     render_config.help_message = StyleSheet::new().with_fg(Color::DarkYellow);
 
     render_config
-}
-
-pub fn change_work_dir(dir: &String) {
-    env::set_current_dir(&dir).expect("Failed to change directory");
 }
 
 pub fn get_tech_option() -> Vec<String> {
@@ -163,27 +129,10 @@ pub fn nyx_ascii_art() -> String {
     return ascii_art.to_string();
 }
 
-pub fn path_exists(path: &str) -> bool {
-    fs::metadata(path).is_ok()
-}
-
-pub fn rm_command(path: String) {
-    Command::new("rm")
-        .arg("-rf")
-        .arg(path)
-        .spawn()
-        .expect("Failed to delete the directory of the project");
-}
-
 pub fn custom_throbber(message: String) -> Throbber {
     let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
     return custom_throbber;
 }
-
-// pub fn unknown_flag(arg: &str) {
-//     println!("Unknown flag parsed: {}", arg);
-//     exit(1);
-// }
 
 pub fn nyx_usage() -> &'static str {
     let usage = r"
@@ -265,7 +214,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
             return vec![];
         }
     };
-    match fs::write(file_path, json) {
+    match write(file_path, json) {
         Ok(_) => (),
         Err(e) => {
             lrncore::logs::error_log(&format!(
@@ -301,16 +250,4 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     let buffer: Vec<u8> =
         bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
     return buffer;
-}
-
-pub fn create_dir(path: &str) {
-    let mut mkdir = Command::new("mkdir")
-        .arg(path)
-        .spawn()
-        .expect("Failed to create directories");
-    let wait_mkdir = mkdir.wait().expect("Failed to wait mkdir command");
-    if !wait_mkdir.success() {
-        lrncore::logs::error_log("Failed to execute mkdir command");
-        exit(1)
-    }
 }

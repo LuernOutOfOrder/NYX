@@ -66,7 +66,7 @@ Options:
 }
 
 pub fn choose_todo() {
-    utils::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
@@ -158,7 +158,7 @@ fn update_todo_list() {
         "Enter new todo:".to_string(),
         "Error getting user input".to_string(),
     );
-    let mut projects = nxs::get_all_project(); 
+    let mut projects = nxs::get_all_project();
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {

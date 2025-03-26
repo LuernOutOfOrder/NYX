@@ -108,7 +108,7 @@ fn new_project(name: String) {
         Ok(_) => println!("Directory created successfully"),
         Err(e) => println!("Failed to create directory: {}", e),
     }
-    utils::change_work_dir(&name);
+    lrncore::path::change_work_dir(&name);
     match option_select {
         Ok(choice) => new_project_by_choice(&choice, &name),
         Err(_) => println!("There was an error, please try again"),

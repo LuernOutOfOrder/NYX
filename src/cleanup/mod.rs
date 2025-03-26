@@ -2,7 +2,7 @@ use std::{env, process::Command};
 
 use inquire::{InquireError, Select};
 
-use crate::utils;
+use crate::{projects::nxs, utils};
 
 pub fn cleanup_help() -> String {
     let usage = r"
@@ -109,26 +109,26 @@ fn prune_docker_unused() {
 // node_modules, bin folder content of the
 // project managed by nyx
 fn prune_project_unused() {
-    let projects = utils::get_app_vec();
+    let projects = nxs::get_all_project();
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
     for i in &projects {
         // Node.js
         let node_module_path = i.location.to_string() + "/node_modules";
         let nodejs_dist_path = i.location.to_string() + "/dist";
-        utils::change_work_dir(&i.location);
-        if utils::path_exists(&node_module_path) {
-            utils::rm_command(node_module_path);
-            utils::rm_command(nodejs_dist_path);
+        lrncore::path::change_work_dir(&i.location);
+        if lrncore::path::path_exists(&node_module_path) {
+            utils::sys::rm_command(node_module_path);
+            utils::sys::rm_command(nodejs_dist_path);
         }
         // Golang
         let bin_folder = i.location.to_string() + "/bin/";
-        if utils::path_exists(&bin_folder) {
-            utils::rm_command(bin_folder);
+        if lrncore::path::path_exists(&bin_folder) {
+            utils::sys::rm_command(bin_folder);
         }
         // Rust
         let target_folder = i.location.to_string() + "/target";
-        if utils::path_exists(&target_folder) {
-            utils::rm_command(target_folder);
+        if lrncore::path::path_exists(&target_folder) {
+            utils::sys::rm_command(target_folder);
         }
     }
 }
