@@ -211,6 +211,19 @@ fn display_todo_list() {
 }
 
 fn prune_todo() {
+    let mut projects = nxs::get_all_project();
+    let project_name = utils::prompt_message("Enter project name:".to_string(), "Error with the user input".to_string());
+ #[allow(unused_assignments)]
+    let mut project_hash: [u8; 11] = [0u8; 11];
+    if let Some(pos) = projects.iter().position(|app| app.project_name == project_name) {
+        let app = projects.remove(pos);
+        project_hash = app.project_hash
+    } else {
+        lrncore::logs::error_log("Project not found");
+        exit(1);
+    }
+    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    
     let confirm = utils::confirm_prompt(
         "Are you sure to clear the list ?",
         "It will remove completely the todo file from your system.",
@@ -218,21 +231,15 @@ fn prune_todo() {
     if !confirm {
         exit(0);
     }
-    let app_data_path = utils::get_app_data();
-    let mut projects = utils::get_app_vec();
-    let get_current_workdir = utils::get_current_path();
-    if let Some(pos) = projects
-        .iter()
-        .position(|app| app.location == get_current_workdir)
-    {
-        let app = projects.remove(pos);
-        let mut updated_app = app;
-        updated_app.todo = "[]".to_string();
-        projects.push(updated_app);
-        let update_data = projects::Data { project: projects };
-        let save_json = serde_json::to_string(&update_data).expect("Failed to serialize data");
-        fs::write(app_data_path, save_json).expect("Failed to write updated data");
-    }
+    let file_path = format!(".nxfs/projects/{}/todo", project_hash_str);
+    match fs::remove_file(file_path) {
+        Ok(_) => {
+            lrncore::logs::time_info_log("Successfully remove todo file");
+        },
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to remove todo file: {}", e));
+        }
+    };
     logs::info_log("To-do list cleared successfully".to_string());
 }
 
