@@ -102,7 +102,7 @@ pub struct ProjectEntry {
 /// The `create_data` function initializes a data folder, removes any existing data directory,
 /// creates a new data directory, and parses a NXS file.
 pub fn create_data() {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     if Path::new(".nxfs").exists() {
         lrncore::logs::info_log("Reinitialized data folder");
         let remove_dir = fs::remove_dir_all(".nxfs");
@@ -176,7 +176,7 @@ fn create_nxs_file() {
 //TODO
 // refactor to return a structure instead of a ref
 fn parse_nxs_file(nxs_ref: &mut NXS) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     // open NXS file and match result
     let file = match File::open(".nxfs/nxs") {
         Ok(f) => f,
@@ -215,7 +215,7 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
 }
 
 pub fn update_nxs_file(nxp_ref: &mut NXP) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
@@ -257,7 +257,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
 }
 
 pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     parse_nxs_file(nxs_ref);
     nxs_ref.projects.entries = vec;
     let file_buff = bincode::serialize(&nxs_ref).expect("Failed to serialize updated NXS file");
@@ -292,7 +292,7 @@ fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
 }
 
 pub fn cat_nxs() {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
@@ -321,7 +321,7 @@ NXS:
 }
 
 pub fn get_all_project_entries() -> Vec<NXPContent> {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
@@ -364,7 +364,7 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
 }
 
 pub fn get_all_short_project() -> Vec<NXPContentShort> {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],
@@ -413,7 +413,7 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
 }
 
 pub fn get_all_project() -> Vec<ProjectEntry> {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0; 4],

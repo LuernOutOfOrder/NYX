@@ -60,7 +60,7 @@ pub struct NXPContentShort {
 
 // create a new NXP file to store project data
 pub fn create_new_nxp(content: NXPContent) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     // hash
     let mut new_hash = Sha1::new();
     new_hash.update(content.name.to_owned());
@@ -97,7 +97,7 @@ pub fn create_new_nxp(content: NXPContent) {
     file_buff.extend_from_slice(&content_buff);
     let file_path = format!(".nxfs/projects/{}/content", file_hash);
     let folder_path = format!(".nxfs/projects/{}", file_hash);
-    utils::sys::create_dir(&folder_path);
+    utils::fsys::create_dir(&folder_path);
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
@@ -144,7 +144,7 @@ pub fn create_new_nxp(content: NXPContent) {
 /// instance of the `NXP` struct. This parameter allows the function to update the content of the `NXP`
 /// struct that is passed in by the caller. By using a mutable reference
 pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let file = match File::open(path) {
         Ok(f) => f,
         Err(e) => {
@@ -186,7 +186,7 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
 }
 
 pub fn cat_nxp(hash: Option<String>) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxp: NXP = NXP {
         header: NXPHeader {
             magic_number: [0; 4],
@@ -212,7 +212,7 @@ pub fn cat_nxp(hash: Option<String>) {
 }
 
 pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxp: NXP = NXP {
         header: NXPHeader {
             magic_number: [0; 4],
@@ -253,7 +253,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
 }
 
 pub fn delete_nxp(hash: &str) {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     match fs::remove_dir_all(format!(".nxfs/projects/{}/", hash)) {
         Ok(_) => {
             lrncore::logs::time_info_log("Successfully remove project file");

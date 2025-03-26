@@ -66,7 +66,7 @@ Options:
 }
 
 pub fn choose_todo() {
-    lrncore::path::change_work_dir(&utils::get_nyx_env_var());
+    lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {

@@ -29,12 +29,9 @@ This module is intended to be used internally by the NYX project management tool
 */
 
 use crate::projects::nxp::NXPContent;
-use lrncore::path::change_work_dir;
 use std::env::var;
 use std::fs::write;
-use std::io::Read;
 use std::{
-    env,
     fs::File,
     process::{exit, Command},
 };
@@ -44,15 +41,9 @@ use inquire::{
     Confirm, InquireError, Select, Text,
 };
 use throbber::Throbber;
-pub mod sys;
-
-pub fn get_nyx_env_var() -> String {
-    let env_var = "NYX";
-    match env::var(env_var) {
-        Ok(v) => return v,
-        Err(e) => panic!("${} is not set ({})", env_var, e),
-    }
-}
+pub mod editor;
+pub mod env;
+pub mod fsys;
 
 pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();
@@ -138,24 +129,15 @@ pub fn nyx_usage() -> &'static str {
     let usage = r"
 Usage: nyx command [options]
 
-A simple tool to help manage your projects.
+A lightweight utility for efficient project management and useful tools.
 
 Commands:
     init            Initialize NYX data
     cat-nxs         Emit NXS object content
     cat-nxp         Emit specified NXP object content
-    project         Initialize a new project
-    project-add     Add an existing project to the projects list
-    project-list    List all projects
-    project-delete  Remove project from list or completely from storage.
-    project-build   Build the current project in working directory
-    project-update  Update specified project properties
-    project-todo    Manage to-do list for current project
+    project         Manage project-related tasks
     cleanup         Cleanup all unused files
-    git-stash       Stash with message
-    git-tag         Create a new tag and push it to the origin branch
-    git-reverse     Revert to the specified commit
-    git-summarize   Show a summary of the current Git repository
+    git             Git command wrapped in a simplified interface
     health          Display current development system health
     update          Update the current version of NYX
     help            Show this help message
@@ -180,74 +162,4 @@ pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
         .with_help_message(help_message)
         .prompt();
     ans.unwrap()
-}
-
-/// The `update_editor` function updates a file using the specified editor and prints its
-/// content.
-///
-/// Arguments:
-///
-/// * `buffer`: The `buffer` parameter in the `update_editor` function is a vector of unsigned 8-bit
-/// integers (`Vec<u8>`) that represents the content to be written to a temporary file and opened in the
-/// user's preferred text editor for editing.
-pub fn update_editor(content: NXPContent) -> Vec<u8> {
-    change_work_dir(&get_nyx_env_var());
-    let editor = match var("EDITOR") {
-        Ok(str) => str,
-        Err(e) => {
-            lrncore::logs::warning_log(&format!("EDITOR var not defined: {}", e));
-            "vim".to_string()
-        }
-    };
-    let file_path = ".nxfs/tmp/PROJECT_EDIT";
-    match File::create(&file_path) {
-        Ok(f) => f,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
-            return vec![];
-        }
-    };
-    let json = match serde_json::to_string_pretty(&content) {
-        Ok(str) => str,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to parse project content to JSON: {}", e));
-            return vec![];
-        }
-    };
-    match write(file_path, json) {
-        Ok(_) => (),
-        Err(e) => {
-            lrncore::logs::error_log(&format!(
-                "Failed to write current project buffer to temp file: {}",
-                e
-            ));
-            return vec![];
-        }
-    }
-    Command::new(editor)
-        .arg(&file_path)
-        .status()
-        .expect("Something went wrong");
-
-    let mut editable = String::new();
-    match File::open(file_path)
-        .expect("Could not open file")
-        .read_to_string(&mut editable)
-    {
-        Ok(_) => (),
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open temp file: {}", e));
-            return vec![];
-        }
-    }
-    let update_content: NXPContent = match serde_json::from_str(&editable) {
-        Ok(content) => content,
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write JSON str to struct: {}", e));
-            return vec![];
-        }
-    };
-    let buffer: Vec<u8> =
-        bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
-    return buffer;
 }

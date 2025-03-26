@@ -24,6 +24,7 @@ use std::process::exit;
 use super::nxs;
 use crate::projects::nxp;
 use crate::projects::nxs::{NXSHeader, ProjectEntry, ProjectList, NXS};
+use crate::utils::editor::update_editor;
 use crate::{
     projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
@@ -96,7 +97,7 @@ pub fn update_project_properties() {
     let hash = String::from_utf8_lossy(&current_project.project_hash);
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
-    let buffer = utils::update_editor(project_content);
+    let buffer = update_editor(project_content);
     let updated_content: NXPContent =
         bincode::deserialize(&buffer).expect("Failed to deserialize updated content buffer");
     if updated_content.name != current_project.project_name
