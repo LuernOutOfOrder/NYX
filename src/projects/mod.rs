@@ -1,12 +1,16 @@
 use crate::utils;
-use std::fs;
 use std::process::Command;
+use std::{fs, process::exit};
 pub mod list;
 mod templates;
 pub mod update;
+use delete::select_remove_project;
+use list::{add_existing_project_to_list, list_projects};
 use serde::{Deserialize, Serialize};
 use std::env;
 use tabled::Tabled;
+use todo::choose_todo;
+use update::update_project_properties;
 pub mod delete;
 pub mod nxp;
 pub mod nxs;
@@ -14,10 +18,17 @@ pub mod todo;
 
 pub fn project_help() -> String {
     let usage = r"
-Usage: nyx project [name]
+Usage: nyx project [subcommand] [arguments] [options]
+
+Subcommands:
+    new        Create a new project
+    add         Add an existing project to the list
+    list        List all projects
+    delete      Remove a project from the list
+    update      Update project properties
+    todo        Manage project todos
 
 Options:
-
     -h, --help      Show this help message
 ";
 
@@ -49,8 +60,30 @@ pub struct Data {
     pub project: Vec<Project>,
 }
 
+pub fn project_command() {
+    let args: Vec<String> = env::args().collect();
+    match args[2].as_str() {
+        "new" => {
+            if args.len() <= 3 {
+                lrncore::logs::error_log("Enter a new project name");
+                exit(1);
+            }
+            let project_name = &args[3];
+            new_project(project_name.to_string());
+        }
+        "add" => add_existing_project_to_list(),
+        "list" => list_projects(),
+        "delete" => select_remove_project(),
+        "update" => update_project_properties(),
+        "todo" => choose_todo(),
+        _ => {
+            utils::command_usage(&project_help());
+        }
+    }
+}
+
 // new project
-pub fn new_project(name: Option<String>) {
+fn new_project(name: String) {
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
@@ -66,15 +99,6 @@ pub fn new_project(name: Option<String>) {
 
     inquire::set_global_render_config(utils::get_render_config());
     let option_select = utils::get_select_app_option("Which tech do you want to use ?".to_string());
-    let name = if let Some(n) = name {
-        if n.is_empty() {
-            "new_project".to_string()
-        } else {
-            n
-        }
-    } else {
-        "new_project".to_string()
-    };
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),

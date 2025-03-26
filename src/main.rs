@@ -21,12 +21,7 @@ enum Commands {
     Init,
     CatNxs,
     CatNxp { hash: Option<String> },
-    Project { name: Option<String> },
-    ProjectAdd,
-    ProjectList,
-    ProjectDelete,
-    ProjectUpdate,
-    ProjectTodo,
+    Project,
     Cleanup,
     GitStash,
     GitTag,
@@ -39,7 +34,6 @@ enum Commands {
 }
 
 fn main() {
-    // let args = Args::parse();
     let args: Vec<String> = env::args().collect();
 
     if let Some(arg) = args.iter().last() {
@@ -60,14 +54,7 @@ fn main() {
         Some("cat-nxp") => Commands::CatNxp {
             hash: args.get(2).cloned(),
         },
-        Some("project") => Commands::Project {
-            name: args.get(2).cloned(),
-        },
-        Some("project-add") => Commands::ProjectAdd,
-        Some("project-list") => Commands::ProjectList,
-        Some("project-delete") => Commands::ProjectDelete,
-        Some("project-update") => Commands::ProjectUpdate,
-        Some("project-todo") => Commands::ProjectTodo,
+        Some("project") => Commands::Project,
         Some("cleanup") => Commands::Cleanup,
         Some("git-stash") => Commands::GitStash,
         Some("git-tag") => Commands::GitTag,
@@ -87,12 +74,7 @@ fn main() {
         Commands::Init => projects::nxs::create_data(),
         Commands::CatNxs => projects::nxs::cat_nxs(),
         Commands::CatNxp { hash } => projects::nxp::cat_nxp(hash),
-        Commands::Project { name } => projects::new_project(name),
-        Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
-        Commands::ProjectList => projects::list::list_projects(),
-        Commands::ProjectDelete => projects::delete::select_remove_project(),
-        Commands::ProjectUpdate => projects::update::update_project_properties(),
-        Commands::ProjectTodo => todo::choose_todo(),
+        Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::GitStash => git::nyx_git_stash(),
         Commands::GitTag => git::nyx_git_tag(),
