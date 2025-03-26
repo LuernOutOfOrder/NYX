@@ -1,5 +1,5 @@
 /*
-This module provide utility functions for managing directory, file or using system's file system.
+This module provides utility functions for managing directory, file or using system's file system.
 */
 
 use crate::utils::exit;
