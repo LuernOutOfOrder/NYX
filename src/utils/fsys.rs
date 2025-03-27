@@ -1,6 +1,6 @@
 /*
-This module provides utility functions for managing directory, file or using system's file system.
-*/
+   This module provides utility functions for managing directory, file or using system's file system.
+   */
 
 use crate::utils::exit;
 use crate::utils::Command;
@@ -21,6 +21,11 @@ pub fn create_dir(path: &str) {
 }
 
 pub fn rm_command(path: String) {
+    if path.is_empty() {
+        lrncore::logs::time_error_log("Path is empty");
+        exit(1)
+    }
+
     let forbidden_names = ["/", ".", ".."];
     let forbidden_patterns = ['*', '?', '&', ';', '|', '`'];
     if forbidden_names.contains(&path.as_str()) {
@@ -30,11 +35,6 @@ pub fn rm_command(path: String) {
 
     if path.chars().any(|c| forbidden_patterns.contains(&c)) {
         lrncore::logs::time_error_log("Input contains forbidden patterns (*, ?, &, ;, |, `).");
-        exit(1)
-    }
-
-    if path.is_empty() {
-        lrncore::logs::time_error_log("Path is empty");
         exit(1)
     }
 
