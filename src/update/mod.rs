@@ -1,10 +1,12 @@
+use crate::utils;
+
 use colored::Colorize;
+use lrncore::path::change_work_dir;
 use std::process::Command;
 use throbber::Throbber;
 
-use crate::utils;
-
 pub fn update_bin() {
+    change_work_dir(&utils::env::get_nyx_env_var());
     let nyx_art = utils::nyx_ascii_art();
     // throbber
     let mut building_throbber = Throbber::new()
