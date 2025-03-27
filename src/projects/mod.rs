@@ -16,13 +16,16 @@ use lrncore::usage_exit::command_usage;
 pub mod nxp;
 pub mod nxs;
 pub mod todo;
+pub mod open;
+use open::open_editor;
 
 pub fn project_help() -> String {
     let usage = r"
 Usage: nyx project [subcommand] [arguments] [options]
 
 Subcommands:
-    new        Create a new project
+    new         Create a new project
+    open        Open your editor in project location
     add         Add an existing project to the list
     list        List all projects
     delete      Remove a project from the list
@@ -75,6 +78,7 @@ pub fn project_command() {
             let project_name = &args[3];
             new_project(project_name.to_string());
         }
+        "open" => open_editor(),
         "add" => add_existing_project_to_list(),
         "list" => list_projects(),
         "delete" => select_remove_project(),
