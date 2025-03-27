@@ -21,6 +21,23 @@ pub fn create_dir(path: &str) {
 }
 
 pub fn rm_command(path: String) {
+    let forbidden_names = ["/", ".", ".."];
+    let forbidden_patterns = ['*', '?', '&', ';', '|', '`'];
+    if forbidden_names.contains(&path.as_str()) {
+        lrncore::logs::time_error_log("Input contains forbidden names.");
+        exit(1)
+    };
+
+    if path.chars().any(|c| forbidden_patterns.contains(&c)) {
+        lrncore::logs::time_error_log("Input contains forbidden patterns (*, ?, &, ;, |, `).");
+        exit(1)
+    }
+
+    if path.is_empty() {
+        lrncore::logs::time_error_log("Path is empty");
+        exit(1)
+    }
+
     let mut rm = Command::new("rm")
         .arg("-rf")
         .arg(path)
