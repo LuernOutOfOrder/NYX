@@ -81,7 +81,7 @@ pub fn create_repo_or_not(tech: &str) {
 
 pub fn add_project_to_list(tech: &str) {
     let current_dir = lrncore::path::get_current_path();
-    let app_name = current_dir.split("/").last().unwrap();
+    let app_name = current_dir.split("/").last().unwrap().to_lowercase();
     let mut repository_user_input: String;
     repository_user_input = utils::prompt_message(
         "Enter the url of the github's repository of the project: ".to_string(),
