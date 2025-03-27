@@ -48,7 +48,7 @@ pub fn choose_cleanup() {
 fn which_remove_files(choice: &str) {
     match choice {
         choice if choice == "Remove all docker unused files" => prune_docker_unused(),
-        // choice if choice == "Remove all projects build caches and files" => prune_project_unused(),
+        choice if choice == "Remove all projects build caches and files" => prune_project_unused(),
         _ => println!("please make a choice"),
     }
 }
@@ -108,27 +108,27 @@ fn prune_docker_unused() {
 // this function remove all build cache,
 // node_modules, bin folder content of the
 // project managed by nyx
-// fn prune_project_unused() {
-//     let projects = nxs::get_all_project();
-//     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
-//     for i in &projects {
-//         // Node.js
-//         let node_module_path = i.location.to_string() + "/node_modules";
-//         let nodejs_dist_path = i.location.to_string() + "/dist";
-//         lrncore::path::change_work_dir(&i.location);
-//         if lrncore::path::path_exists(&node_module_path) {
-//             utils::fsys::rm_command(node_module_path);
-//             utils::fsys::rm_command(nodejs_dist_path);
-//         }
-//         // Golang
-//         let bin_folder = i.location.to_string() + "/bin/";
-//         if lrncore::path::path_exists(&bin_folder) {
-//             utils::fsys::rm_command(bin_folder);
-//         }
-//         // Rust
-//         let target_folder = i.location.to_string() + "/target";
-//         if lrncore::path::path_exists(&target_folder) {
-//             utils::fsys::rm_command(target_folder);
-//         }
-//     }
-// }
+fn prune_project_unused() {
+    let projects = nxs::get_all_project_entries();
+    println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
+    for i in &projects {
+        // Node.js
+        let node_module_path = i.location.to_string() + "/node_modules";
+        let nodejs_dist_path = i.location.to_string() + "/dist";
+        lrncore::path::change_work_dir(&i.location);
+        if lrncore::path::path_exists(&node_module_path) {
+            utils::fsys::rm_command(node_module_path);
+            utils::fsys::rm_command(nodejs_dist_path);
+        }
+        // Golang
+        let bin_folder = i.location.to_string() + "/bin/";
+        if lrncore::path::path_exists(&bin_folder) {
+            utils::fsys::rm_command(bin_folder);
+        }
+        // Rust
+        let target_folder = i.location.to_string() + "/target";
+        if lrncore::path::path_exists(&target_folder) {
+            utils::fsys::rm_command(target_folder);
+        }
+    }
+}
