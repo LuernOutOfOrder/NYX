@@ -1,10 +1,12 @@
+use crate::utils;
+
 use colored::Colorize;
+use lrncore::path::change_work_dir;
 use std::process::Command;
 use throbber::Throbber;
 
-use crate::utils;
-
 pub fn update_bin() {
+    change_work_dir(&utils::env::get_nyx_env_var());
     let nyx_art = utils::nyx_ascii_art();
     // throbber
     let mut building_throbber = Throbber::new()
@@ -21,8 +23,8 @@ pub fn update_bin() {
         .arg("version")
         .output()
         .expect("Failed to get the current version of NYX");
-    let nyx_target_build_location = utils::get_nyx_env_var() + "/target/release";
-    utils::change_work_dir(&nyx_target_build_location);
+    let nyx_target_build_location = utils::env::get_nyx_env_var() + "/target/release";
+    lrncore::path::change_work_dir(&nyx_target_build_location);
     let mut build_target = Command::new("cargo")
         .arg("build")
         .arg("--release")
@@ -45,7 +47,7 @@ pub fn update_bin() {
     {
         println!("A new version of NYX has been found");
         update_throbber.start();
-        utils::change_work_dir(&utils::get_nyx_env_var());
+        lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
         let mut cargo_install = Command::new("cargo")
             .arg("install")
             .arg("--path")

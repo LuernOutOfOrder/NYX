@@ -1,31 +1,12 @@
 # NYX
-Assistant to help in daily development tasks.
 
+A project manager in CLI using a lightweight storage system.
 
-## Project Data File 
-The project data file is a JSON file that contains the data of the projects that NYX will manage. The file is located in the `data` folder and is named `app.json`. The file has the following structure:
+## Project Data File
 
-```json
-{
-  "project": [
-    {
-      "id": "nyx",
-      "name": "NYX",
-      "tech": "Rust",
-      "location": "/Users/elouan/Project/Personnal_project/NYX"
-    },
-    {
-      "id": "tes",
-      "name": "Test",
-      "tech": "Golang",
-      "location": "/Users/elouan/Project/Personnal_project/Test"
-    },
-    {
-      "id": "mer",
-      "name": "Mercure-Services",
-      "tech": "Golang",
-      "location": "/Users/elouan/Project/Work_project/orion/Mercure-Services"
-    }
-  ]
-}
-```
+NYX uses a unique file system called NXFS (Nyx File System). NXFS works using a .nxfs directory in the NYX source code. All project data is stored there. There is two object file type in NXFS:
+
+- nxs: it's an index file containing information about all stored projects.
+- nxp: a unique file per project. Containing all projects informations.
+
+They are unique binary file format using a strict defined structure. Using a header and a content.

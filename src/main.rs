@@ -1,93 +1,107 @@
 mod cleanup;
+pub mod gh;
 mod git;
+mod health;
+pub mod logs;
+pub mod macros;
 mod projects;
 mod update;
 mod utils;
+use crate::projects::todo;
+use lrncore::usage_exit::command_usage;
 
-use std::{env, process::exit};
+use std::env;
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &'static str = "1.0.0";
-
+const VERSION: &str = "1.12.0";
 #[derive(Debug, Clone)]
 enum Commands {
-    Project { name: Option<String> },
-    ProjectAdd,
-    ProjectList,
-    ProjectDelete,
-    ProjectUpdate,
+    Init,
+    CatNxs,
+    CatNxp { hash: Option<String> },
+    Project,
     Cleanup,
-    GitStash,
-    GitTag,
-    GitReverse,
+    Git,
+    Health,
     Update,
     Help,
     Version,
 }
 
+fn nyx_usage() -> &'static str {
+    let usage = r"
+Usage: nyx command [options]
+
+A lightweight utility for efficient project management and useful tools.
+
+Commands:
+    init            Initialize NYX data
+    cat-nxs         Emit NXS object content
+    cat-nxp         Emit specified NXP object content
+    project         Manage project-related tasks
+    cleanup         Cleanup all unused files
+    git             Git command wrapped in a simplified interface
+    health          Display current development system health
+    update          Update the current version of NYX
+    help            Show this help message
+
+Options:
+
+    -h, --help      Show command usage
+    -v, --version   Show the current version of NYX
+";
+
+    return usage;
+}
+
 fn main() {
-    // let args = Args::parse();
     let args: Vec<String> = env::args().collect();
 
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-v" => {
-                utils::command_usage(&nyx_version());
+                command_usage(&nyx_version());
             }
             "--version" => {
-                utils::command_usage(&nyx_version());
+                command_usage(&nyx_version());
             }
             _ => {}
         }
     }
 
     let command = match args.get(1).map(|s| s.as_str()) {
-        Some("project") => Commands::Project {
-            name: args.get(2).cloned(),
+        Some("init") => Commands::Init,
+        Some("cat-nxs") => Commands::CatNxs,
+        Some("cat-nxp") => Commands::CatNxp {
+            hash: args.get(2).cloned(),
         },
-        Some("project-add") => Commands::ProjectAdd,
-        Some("project-list") => Commands::ProjectList,
-        Some("project-delete") => Commands::ProjectDelete,
-        Some("project-update") => Commands::ProjectUpdate,
+        Some("project") => Commands::Project,
         Some("cleanup") => Commands::Cleanup,
-        Some("git-stash") => Commands::GitStash,
-        Some("git-tag") => Commands::GitTag,
-        Some("git-reverse") => Commands::GitReverse,
+        Some("git") => Commands::Git,
+        Some("health") => Commands::Health,
         Some("update") => Commands::Update,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
         _ => {
-            usage_and_exit("Invalid command".to_string());
+            lrncore::usage_exit::usage_and_exit("Invalid command", nyx_usage());
             return;
         }
     };
 
     match command {
-        Commands::Project { name } => projects::new_project(name),
-        Commands::ProjectAdd => projects::list::add_existing_project_to_list(),
-        Commands::ProjectList => projects::list::list_projects(),
-        Commands::ProjectDelete => projects::delete::select_remove_project(),
-        Commands::ProjectUpdate => projects::update::update_project_properties(),
+        Commands::Init => projects::nxs::create_data(),
+        Commands::CatNxs => projects::nxs::cat_nxs(),
+        Commands::CatNxp { hash } => projects::nxp::cat_nxp(hash),
+        Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
-        Commands::GitStash => git::nyx_git_stash(),
-        Commands::GitTag => git::nyx_git_tag(),
-        Commands::GitReverse => git::nyx_git_revert(),
+        Commands::Git => git::git_command(),
+        Commands::Health => health::dev_env_health(),
         Commands::Update => update::update_bin(),
-        Commands::Help => utils::nyx_usage(),
-        Commands::Version => utils::command_usage(&nyx_version()),
+        Commands::Help => command_usage(nyx_usage()),
+        Commands::Version => command_usage(&nyx_version()),
     }
-}
-
-fn usage_and_exit(msg: String) {
-    if msg != "" {
-        eprintln!("{}", msg);
-    }
-
-    utils::nyx_usage();
-
-    exit(0);
 }
 
 pub fn nyx_version() -> String {

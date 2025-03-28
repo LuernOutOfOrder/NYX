@@ -1,8 +1,48 @@
 use std::process::Command;
 
+use crate::env;
+use crate::logs;
 use crate::utils;
 
-pub fn nyx_git_stash() {
+use lrncore::usage_exit::command_usage;
+
+fn git_help() -> String {
+    let usage = r"
+Usage: nyx git [subcommand] [arguments] [options]
+
+Subcommands:
+    stash       Stash with a message
+    tag         Create a new tag and push to origin
+    summarize   Summarize current git repository with last commit, all commits, all branches and stash list
+    all-commit  Shortlog all commits with number and users
+    last-commit Show last 4 detailed commits
+
+Options:
+    -h, --help      Show this help message
+";
+
+    return usage.to_string();
+}
+
+pub fn git_command() {
+    let args: Vec<String> = env::args().collect();
+    if args.len() <= 2 {
+        command_usage(&git_help());
+    }
+    match args[2].as_str() {
+        "stash" => nyx_git_stash(),
+        "tag" => nyx_git_tag(),
+        "summarize" => git_summarize(),
+        "all-commit" => show_all_commit(),
+        "last-commit" => show_last_commit_with_stat(),
+        _ => {
+            lrncore::logs::warning_log("Unknown command");
+            command_usage(&git_help());
+        }
+    }
+}
+
+fn nyx_git_stash() {
     let message = utils::prompt_message(
         "Enter stash message: ".to_string(),
         "Failed to read stash message".to_string(),
@@ -20,7 +60,7 @@ pub fn nyx_git_stash() {
     }
 }
 
-pub fn nyx_git_tag() {
+fn nyx_git_tag() {
     let name = utils::prompt_message(
         "Enter new tag name:".to_string(),
         "Failed to read tag name".to_string(),
@@ -45,18 +85,63 @@ pub fn nyx_git_tag() {
     }
 }
 
-pub fn nyx_git_revert() {
-    let commit_name = utils::prompt_message(
-        "Enter commit id: ".to_string(),
-        "Failed to read commit id".to_string(),
-    );
-    let mut reverse = Command::new("git")
-        .arg("reverse")
-        .arg(commit_name)
+pub fn git_init() {
+    let mut git_init = Command::new("git")
+        .arg("init")
         .spawn()
-        .expect("Failed to execute reverse command");
-    let reverse_status = reverse.wait().expect("Failed to wait the reverse command");
-    if !reverse_status.success() {
-        panic!("Error running the reverse commit command");
+        .expect("Failed to create the remote repository");
+    let wait_git_init = git_init.wait().expect("Failed to wait the gh command");
+    if !wait_git_init.success() {
+        panic!();
     }
+}
+
+fn git_summarize() {
+    logs::nyx_log("Last commits with stat: \n");
+    show_last_commit_with_stat();
+    logs::nyx_log("All commits by all users: ");
+    show_all_commit();
+    logs::nyx_log("All branches: ");
+    show_all_branch();
+    logs::nyx_log("Stash: ");
+    show_stash();
+}
+
+fn show_all_commit() {
+    let shortlog = Command::new("git")
+        .arg("shortlog")
+        .arg("--summary")
+        .arg("--numbered")
+        .arg("--all")
+        .arg("--no-merges")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&shortlog.stdout));
+}
+
+fn show_last_commit_with_stat() {
+    let commits = Command::new("git")
+        .arg("log")
+        .arg("-4")
+        .arg("--stat")
+        .output()
+        .expect("Failed to call the git log command");
+    println!("{}", String::from_utf8_lossy(&commits.stdout));
+}
+
+fn show_all_branch() {
+    let branches = Command::new("git")
+        .arg("branch")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&branches.stdout));
+}
+
+fn show_stash() {
+    let list = Command::new("git")
+        .arg("stash")
+        .arg("list")
+        .output()
+        .expect("Failed to call the git shortlog command");
+    println!("{}", String::from_utf8_lossy(&list.stdout));
 }
