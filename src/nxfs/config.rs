@@ -5,7 +5,8 @@ use lrncore::usage_exit::command_usage;
 use std::env;
 use crate::utils;
 use std::fmt::Debug;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::fs::OpenOptions;
 
 fn config_help() -> String {
     let usage = r"
@@ -21,21 +22,56 @@ Options:
         ";
     usage.to_string()
 }
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct Config {
     config: ConfigHeader,
-    git: ConfigGit
+    user: ConfigUser,
+    git: ConfigGit,
+    behavior: ConfigBehavior,
+    ui: ConfigUi,
+    internal_path: ConfigInternPath,
+    security: ConfigSecure,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct ConfigHeader {
     format: String,
     version: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
+struct ConfigUser {
+    name: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 struct ConfigGit {
     profile_url: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct ConfigBehavior {
+    default_editor: String,
+    auto_update: bool,
+    ask_confirmation: bool,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct ConfigUi {
+
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct ConfigInternPath {
+    data: String,
+    logs: String,
+    cache: String,
+
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct ConfigSecure {
+    secure_mode: bool,
 }
 
 fn config_template() -> String {
@@ -43,10 +79,27 @@ fn config_template() -> String {
 format = 'nxs_config'
 version = '0.1.0'
 
+[user]
+name = ''
+
 [git]
 profile_url = ''
 
-        ";
+[behavior]
+default_editor = 'vim'
+auto_update = false
+ask_confirmation = true
+
+[ui]
+
+[internal_path]
+data = ''
+logs = ''
+cache = ''
+
+[security]
+secure_mode = false
+    ";
     template.to_string()
 }
 
@@ -90,14 +143,41 @@ fn init_config() {
 
 fn parse_config_file() {
     let config_path = ".nxfs/config.toml".to_string();
-    let file = std::fs::read_to_string(config_path).expect("Failed to read the config file to string");
-    let config_config: Config = match toml::from_str(&file) {
+    let file = std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
+    let mut config: Config = match toml::from_str(&file) {
         Ok(c) => c,            
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
             exit(1);      
         }
     };
-
-    println!("debug {:?}", config_config);
+    let ask_username = utils::prompt_message("Enter a username:".to_string(), "Failed to get user input".to_string());
+    let ask_github_profile = utils::prompt_message("Enter your github profile url:".to_string(), "Failed to get user input".to_string());
+    let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
+    let log_dir = data_dir.clone() + "logs/";
+    let cache_dir = data_dir.clone() + "cache/";
+    config.user.name = ask_username;
+    config.git.profile_url = ask_github_profile;
+    config.internal_path.data = data_dir;
+    config.internal_path.logs = log_dir;
+    config.internal_path.cache = cache_dir;
+    let mut nxs_file: File = match OpenOptions::new()
+        .write(true)
+        .create(false)
+        .truncate(true)
+        .open(config_path)
+        {
+            Ok(f) => f,
+            Err(e) => {
+                lrncore::logs::error_log(&format!("Failed to open config file: {}", e));
+                return;
+            }
+        };
+    let buf = bincode::serialize(&config).expect("Failed to serialize new config file");
+    match nxs_file.write_all(&buf) {
+        Ok(_) => (),
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write buffer in config file: {}", e));
+        }
+    };
 }
