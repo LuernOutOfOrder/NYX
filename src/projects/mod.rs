@@ -78,7 +78,16 @@ pub fn project_command() {
             let project_name = &args[3];
             new_project(project_name.to_string());
         }
-        "open" => open_editor(),
+        "open" => {
+            let project_name: String;
+            if args.len() <= 3 {
+                project_name = "".to_string();
+                open_editor(&project_name);
+            } else {
+                project_name = args[3].clone();
+                open_editor(&project_name);
+            } 
+        },        
         "add" => add_existing_project_to_list(),
         "list" => list_projects(),
         "delete" => select_remove_project(),
