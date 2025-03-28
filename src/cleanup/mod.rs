@@ -1,6 +1,6 @@
 use std::{env, process::Command};
 
-use crate::{projects::nxs, utils};
+use crate::{nxfs::nxs, utils};
 use inquire::{InquireError, Select};
 use lrncore::usage_exit::command_usage;
 
