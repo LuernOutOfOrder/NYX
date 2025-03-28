@@ -4,7 +4,7 @@ This module provides various utility functions for the NYX project management to
 This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
 */
 
-use crate::projects::nxp::NXPContent;
+use crate::nxfs::nxp::NXPContent;
 use std::env::var;
 use std::fs::write;
 use std::{

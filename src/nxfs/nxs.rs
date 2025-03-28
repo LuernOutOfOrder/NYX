@@ -21,7 +21,7 @@ use std::process::Command;
 use super::nxp::parse_nxp_file;
 use super::nxp::NXPContentShort;
 use super::nxp::NXP;
-use crate::projects::nxp::{NXPContent, NXPHeader};
+use crate::nxfs::nxp::{NXPContent, NXPHeader};
 
 /*
 NXS file structure

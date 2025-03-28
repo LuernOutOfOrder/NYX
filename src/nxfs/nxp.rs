@@ -5,7 +5,6 @@ This module provides the definition of data structures and methods to create and
 It includes functionalities for reading, writing, and manipulating the binary data to ensure efficient storage and retrieval.
 */
 
-use crate::projects::Tabled;
 use crate::utils;
 use serde::Deserialize;
 use serde::Serialize;
@@ -15,6 +14,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
+use tabled::Tabled;
 
 use super::nxs;
 

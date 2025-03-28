@@ -12,11 +12,11 @@ use tabled::Tabled;
 use todo::choose_todo;
 use update::update_project_properties;
 pub mod delete;
+use crate::nxfs;
 use lrncore::usage_exit::command_usage;
-pub mod nxp;
-pub mod nxs;
-pub mod todo;
+use nxfs::{nxp, nxs};
 pub mod open;
+pub mod todo;
 use open::open_editor;
 
 pub fn project_help() -> String {
@@ -86,8 +86,8 @@ pub fn project_command() {
             } else {
                 project_name = args[3].clone();
                 open_editor(&project_name);
-            } 
-        },        
+            }
+        }
         "add" => add_existing_project_to_list(),
         "list" => list_projects(),
         "delete" => select_remove_project(),
