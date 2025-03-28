@@ -1,5 +1,5 @@
 use crate::gh;
-use crate::projects::nxs;
+use crate::nxfs::nxs;
 use crate::utils;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};

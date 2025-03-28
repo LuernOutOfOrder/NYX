@@ -9,7 +9,7 @@ mod update;
 mod utils;
 use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
-
+pub mod nxfs;
 use std::env;
 
 // Current version of NYX
@@ -91,9 +91,9 @@ fn main() {
     };
 
     match command {
-        Commands::Init => projects::nxs::create_data(),
-        Commands::CatNxs => projects::nxs::cat_nxs(),
-        Commands::CatNxp { hash } => projects::nxp::cat_nxp(hash),
+        Commands::Init => nxfs::nxs::create_data(),
+        Commands::CatNxs => nxfs::nxs::cat_nxs(),
+        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash),
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
