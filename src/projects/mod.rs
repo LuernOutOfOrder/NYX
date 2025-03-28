@@ -36,7 +36,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 #[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]

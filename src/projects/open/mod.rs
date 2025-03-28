@@ -2,11 +2,41 @@ use crate::projects::exit;
 use crate::utils;
 use lrncore::path::change_work_dir;
 use std::process::Command;
+use lrncore::usage_exit::command_usage;
+use std::env;
 
 use super::nxs;
 
+pub fn open_help() -> String {
+    let usage = r"
+Usage: nyx project open [args]
+
+Arguments:
+    <project-name>  Enter project name to quickly open your editor
+
+Options:
+
+    -h, --help      Show this help message
+    ";
+
+    usage.to_string()
+}
+
+
 pub fn open_editor(project: &str) {
     change_work_dir(&utils::env::get_nyx_env_var());
+    let args: Vec<String> = env::args().collect();
+    if let Some(arg) = args.iter().last() {
+        match arg.as_str().trim() {
+            "-h" => {
+                command_usage(&open_help());
+            }
+            "--help" => {
+                command_usage(&open_help());
+            }
+            _ => {}
+        }
+    }
     let mut user_input_project = project.to_string();
     if project.is_empty() {
         let app_name = utils::prompt_message(
