@@ -1,12 +1,15 @@
-use std::{fs::File, io::Write, process::exit};
+use std::{
+    fs::File,
+    io::Write,
+    process::exit,
+};
 
+use crate::utils;
 use lrncore::path::change_work_dir;
 use lrncore::usage_exit::command_usage;
-use std::env;
-use crate::utils;
-use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
-use std::fs::OpenOptions;
+use std::env;
+use std::fmt::Debug;
 
 fn config_help() -> String {
     let usage = r"
@@ -57,16 +60,13 @@ struct ConfigBehavior {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigUi {
-
-}
+struct ConfigUi {}
 
 #[derive(Debug, Deserialize, Serialize)]
 struct ConfigInternPath {
     data: String,
     logs: String,
     cache: String,
-
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -122,37 +122,28 @@ pub fn config_command() {
 fn init_config() {
     let config_path = ".nxfs/config.toml".to_string();
     let mut config_file = match File::create_new(config_path) {
-        Ok(f)=> f,
+        Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to initialize config file: {}", e));
-            return;      
+            return;
         }
     };
     let template = config_template();
-    let buf = template.as_bytes();
-    match config_file.write_all(buf) {
-        Ok(_) => (),
+    let mut config: Config = match toml::from_str(&template) {
+        Ok(c) => c,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
-            exit(1);      
+            lrncore::logs::error_log(&format!("Failed to deserialize config template: {}", e));
+            return;
         }
     };
-    lrncore::logs::info_log("Successfully initialized nyx config file!");
-    parse_config_file();
-}
-
-fn parse_config_file() {
-    let config_path = ".nxfs/config.toml".to_string();
-    let file = std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
-    let mut config: Config = match toml::from_str(&file) {
-        Ok(c) => c,            
-        Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
-            exit(1);      
-        }
-    };
-    let ask_username = utils::prompt_message("Enter a username:".to_string(), "Failed to get user input".to_string());
-    let ask_github_profile = utils::prompt_message("Enter your github profile url:".to_string(), "Failed to get user input".to_string());
+    let ask_username = utils::prompt_message(
+        "Enter a username:".to_string(),
+        "Failed to get user input".to_string(),
+    );
+    let ask_github_profile = utils::prompt_message(
+        "Enter your github profile url:".to_string(),
+        "Failed to get user input".to_string(),
+    );
     let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
     let log_dir = data_dir.clone() + "logs/";
     let cache_dir = data_dir.clone() + "cache/";
@@ -161,23 +152,29 @@ fn parse_config_file() {
     config.internal_path.data = data_dir;
     config.internal_path.logs = log_dir;
     config.internal_path.cache = cache_dir;
-    let mut nxs_file: File = match OpenOptions::new()
-        .write(true)
-        .create(false)
-        .truncate(true)
-        .open(config_path)
-        {
-            Ok(f) => f,
-            Err(e) => {
-                lrncore::logs::error_log(&format!("Failed to open config file: {}", e));
-                return;
-            }
-        };
-    let buf = bincode::serialize(&config).expect("Failed to serialize new config file");
-    match nxs_file.write_all(&buf) {
+
+    let config_str = toml::to_string(&config).expect("Failed to parse config struct to string");
+    let buf = config_str.as_bytes();
+    match config_file.write_all(buf) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in config file: {}", e));
+            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            exit(1);
         }
     };
+    lrncore::logs::info_log("Successfully initialized nyx config file!");
+}
+
+fn parse_config_file() -> Config {
+    let config_path = ".nxfs/config.toml".to_string();
+    let file =
+        std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
+    let config: Config = match toml::from_str(&file) {
+        Ok(c) => c,
+        Err(e) => {
+            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            exit(1);
+        }
+    };
+    config
 }
