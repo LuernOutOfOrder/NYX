@@ -1,8 +1,4 @@
-use std::{
-    fs::File,
-    io::Write,
-    process::exit,
-};
+use std::{fs::File, io::Write, process::exit};
 
 use crate::utils;
 use lrncore::path::change_work_dir;
@@ -10,6 +6,7 @@ use lrncore::usage_exit::command_usage;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fmt::Debug;
+use toml::de::Error as toml_error;
 
 fn config_help() -> String {
     let usage = r"
@@ -111,7 +108,7 @@ pub fn config_command() {
     }
     match args[2].as_str() {
         "init" => init_config(),
-        
+
         _ => {
             lrncore::logs::warning_log("Unknown command");
             command_usage(&config_help());
@@ -165,7 +162,7 @@ fn init_config() {
     lrncore::logs::info_log("Successfully initialized nyx config file!");
 }
 
-fn parse_config_file() -> Config {
+fn parse_config_file() -> Result<Config, toml_error> {
     let config_path = ".nxfs/config.toml".to_string();
     let file =
         std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
@@ -173,8 +170,8 @@ fn parse_config_file() -> Config {
         Ok(c) => c,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
-            exit(1);
+            return Err(e);
         }
     };
-    config
+    Ok(config)
 }
