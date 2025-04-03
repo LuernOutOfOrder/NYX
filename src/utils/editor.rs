@@ -6,7 +6,6 @@ use crate::utils::File;
 use crate::utils::NXPContent;
 use lrncore::path::change_work_dir;
 use std::io::Read;
-use toml::de::Error;
 
 /// The `update_editor` function updates a file using the specified editor and prints its
 /// content.
@@ -23,10 +22,6 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Ok(c) => {
             editor = c.behavior.default_editor
         },
-        Ok(_) => {
-            lrncore::logs::warning_log("EDITOR var not defined in config file.");
-            editor = "vim".to_string();
-        }
         Err(e) => {
             lrncore::logs::warning_log(&format!("Failed to parse config file: {}", e));
             return vec![];
@@ -58,7 +53,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         }
     }
     Command::new(editor)
-        .arg(&file_path)
+        .arg(file_path)
         .status()
         .expect("Something went wrong");
 
@@ -82,5 +77,5 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     };
     let buffer: Vec<u8> =
         bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
-    return buffer;
+    buffer
 }

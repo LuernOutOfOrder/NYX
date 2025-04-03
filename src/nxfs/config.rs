@@ -23,52 +23,52 @@ Options:
     usage.to_string()
 }
 #[derive(Debug, Deserialize, Serialize)]
-struct Config {
-    config: ConfigHeader,
-    user: ConfigUser,
-    git: ConfigGit,
-    behavior: ConfigBehavior,
-    ui: ConfigUi,
-    internal_path: ConfigInternPath,
-    security: ConfigSecure,
+pub struct Config {
+    pub config: ConfigHeader,
+    pub user: ConfigUser,
+    pub git: ConfigGit,
+    pub behavior: ConfigBehavior,
+    pub ui: ConfigUi,
+    pub internal_path: ConfigInternPath,
+    pub security: ConfigSecure,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigHeader {
-    format: String,
-    version: String,
+pub struct ConfigHeader {
+    pub format: String,
+    pub version: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigUser {
-    name: String,
+pub struct ConfigUser {
+    pub name: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigGit {
-    profile_url: String,
+pub struct ConfigGit {
+    pub profile_url: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigBehavior {
-    default_editor: String,
-    auto_update: bool,
-    ask_confirmation: bool,
+pub struct ConfigBehavior {
+    pub default_editor: String,
+    pub auto_update: bool,
+    pub ask_confirmation: bool,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigUi {}
+pub struct ConfigUi {}
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigInternPath {
-    data: String,
-    logs: String,
-    cache: String,
+pub struct ConfigInternPath {
+    pub data: String,
+    pub logs: String,
+    pub cache: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-struct ConfigSecure {
-    secure_mode: bool,
+pub struct ConfigSecure {
+    pub secure_mode: bool,
 }
 
 fn config_template() -> String {
@@ -162,7 +162,7 @@ fn init_config() {
     lrncore::logs::info_log("Successfully initialized nyx config file!");
 }
 
-fn parse_config_file() -> Result<Config, toml_error> {
+pub fn parse_config_file() -> Result<Config, toml_error> {
     let config_path = ".nxfs/config.toml".to_string();
     let file =
         std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
