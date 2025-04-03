@@ -138,7 +138,7 @@ fn new_project_by_choice(tech: &String, name: &str) {
         tech if tech == "Rust" => new_rust_project(tech),
         _ => println!("please select a tech"),
     }
-    list::create_repo_or_not(&tech);
+    list::create_repo_or_not(tech);
 }
 
 // tech project
