@@ -114,6 +114,8 @@ pub fn create_data() {
         .arg(".nxfs")
         .arg(".nxfs/projects")
         .arg(".nxfs/tmp")
+        .arg(".nxfs/logs")
+        .arg(".nxfs/cache")
         .spawn()
         .expect("Failed to create all directories");
     let wait_mkdir = mkdir.wait().expect("Failed to wait mkdir command");

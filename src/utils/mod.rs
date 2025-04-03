@@ -5,7 +5,6 @@ This module is intended to be used internally by the NYX project management tool
 */
 
 use crate::nxfs::nxp::NXPContent;
-use std::env::var;
 use std::fs::write;
 use std::{
     fs::File,
@@ -54,7 +53,7 @@ pub fn get_tech_option() -> Vec<String> {
         "C++".to_string(),
         "Other".to_string(),
     ];
-    return options;
+    options
 }
 
 pub fn get_select_project_option(prompt: String) -> std::result::Result<String, InquireError> {
@@ -62,7 +61,7 @@ pub fn get_select_project_option(prompt: String) -> std::result::Result<String, 
 
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
 
-    return ans;
+    ans
 }
 
 pub fn get_select_option(
@@ -71,7 +70,7 @@ pub fn get_select_option(
 ) -> std::result::Result<String, InquireError> {
     let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
 
-    return ans;
+    ans
 }
 
 pub fn prompt_message(message: String, error_message: String) -> String {
@@ -93,7 +92,7 @@ pub fn nyx_ascii_art() -> String {
 
 ";
 
-    return ascii_art.to_string();
+    ascii_art.to_string()
 }
 
 pub fn custom_throbber(message: String) -> Throbber {

@@ -1,5 +1,5 @@
 use crate::projects::exit;
-use crate::utils;
+use crate::{nxfs, utils};
 use lrncore::path::change_work_dir;
 use std::process::Command;
 use lrncore::usage_exit::command_usage;
@@ -21,7 +21,6 @@ Options:
 
     usage.to_string()
 }
-
 
 pub fn open_editor(project: &str) {
     change_work_dir(&utils::env::get_nyx_env_var());
@@ -58,7 +57,8 @@ pub fn open_editor(project: &str) {
         exit(1);
     }
 
-    let editor_var = utils::env::get_editor_env_var();
+    let config = nxfs::config::parse_config_file().expect("Failed to parse nyx config file");
+    let editor_var = config.behavior.default_editor;
     Command::new(editor_var)
         .arg(&location)
         .status()

@@ -16,3 +16,4 @@ regex = "1.11.1"
 lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.2.0", branch="main" }
 bincode = "1.0.0"
 sha1 = "0.10.6"
+toml = "0.8.20"

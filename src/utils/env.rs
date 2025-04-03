@@ -13,10 +13,3 @@ pub fn get_nyx_env_var() -> String {
     }
 }
 
-pub fn get_editor_env_var() -> String {
-    let env_var = "EDITOR";
-    match env::var(env_var) {
-        Ok(e) => e,
-        Err(e) => panic!("${} is not set ({})", env_var, e),
-    }
-}
