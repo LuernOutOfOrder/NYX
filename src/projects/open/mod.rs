@@ -56,11 +56,10 @@ pub fn open_editor(project: &str) {
         lrncore::logs::error_log("Project not found");
         exit(1);
     }
-
     let config = nxfs::config::parse_config_file().expect("Failed to parse nyx config file");
     let editor_var = config.behavior.default_editor;
+    change_work_dir(&location);
     Command::new(editor_var)
-        .arg(&location)
         .status()
         .expect("Something went wrong");
 }
