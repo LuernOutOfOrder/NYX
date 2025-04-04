@@ -1,10 +1,12 @@
 use crate::gh;
+use crate::nxfs;
 use crate::nxfs::nxs;
 use crate::utils;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
 use lrncore::usage_exit::command_usage;
 use std::env;
+use std::process::exit;
 use tabled::settings::Style;
 use tabled::Table;
 
@@ -133,8 +135,13 @@ fn create_repo_add_to_list(tech: &str) {
         utils::get_select_option("Select the repository visibility:".to_string(), choice).unwrap();
     gh::create_new_repo(app_name.to_string(), repository_visibility);
     let mut github_project: String;
-
-    let repository: String = " https://github.com/ElouanDaCosta/".to_string() + app_name;
+    let config = nxfs::config::parse_config_file().expect("Failed to parse the nyx config file");
+    let user_github_url = config.git.profile_url;
+    if user_github_url.is_empty() {
+        lrncore::logs::time_error_log("No github url was specified. Please enter one in config file.");
+        exit(1);
+    }
+    let repository: String = user_github_url + app_name;
     github_project = utils::prompt_message(
         "Enter the url of the github project: ".to_string(),
         "Error getting the user input".to_string(),
