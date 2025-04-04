@@ -34,7 +34,7 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-";
+    ";
 
     usage.to_string()
 }
