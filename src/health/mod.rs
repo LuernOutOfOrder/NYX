@@ -1,9 +1,11 @@
 use std::env;
 use std::process::Command;
+mod helper;
 
-use colored::Colorize;
+use helper::{installed, not_installed};
 
 use crate::logs;
+use crate::nxfs;
 use crate::vec_of_strings;
 use lrncore::usage_exit::command_usage;
 
@@ -16,7 +18,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn dev_env_health() {
@@ -39,6 +41,8 @@ pub fn dev_env_health() {
     check_tech();
     logs::nyx_log("Environment var: ");
     check_var();
+    logs::nyx_log("Configuration file: ");
+    check_config_file();
     logs::info_log("Health check done".to_string());
 }
 
@@ -90,12 +94,15 @@ fn check_var() {
     }
 }
 
-fn not_installed(msg: &str) {
-    let not_installed = "not installed".truecolor(255, 0, 0);
-    println!("\t{} {}", msg, not_installed);
-}
+fn check_config_file() {
+    let config = nxfs::config::parse_config_file();
+    match config {
+        Ok(_) => {
+            println!("\t configuration file is present");
+        }
+        Err(_) => {
+            println!("\t configuration file is not present");
+        }
+    }
 
-fn installed(msg: &str) {
-    let installed = "installed".truecolor(0, 255, 0);
-    println!("\t{} {}", msg, installed);
 }
