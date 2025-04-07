@@ -104,5 +104,4 @@ fn check_config_file() {
             println!("\t configuration file is not present");
         }
     }
-
 }
