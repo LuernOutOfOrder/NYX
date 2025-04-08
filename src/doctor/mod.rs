@@ -9,9 +9,9 @@ use crate::nxfs;
 use crate::vec_of_strings;
 use lrncore::usage_exit::command_usage;
 
-pub fn health_help() -> String {
+pub fn doctor_help() -> String {
     let usage = r"
-Usage: nyx health [options]
+Usage: nyx doctor [options]
 
 Options:
 
@@ -21,15 +21,15 @@ Options:
     usage.to_string()
 }
 
-pub fn dev_env_health() {
+pub fn doctor_health() {
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&health_help());
+                command_usage(&doctor_help());
             }
             "--help" => {
-                command_usage(&health_help());
+                command_usage(&doctor_help());
             }
             _ => {}
         }
@@ -43,6 +43,7 @@ pub fn dev_env_health() {
     check_config_file();
     logs::nyx_log("[Optionnal Tools]");
     check_docker();
+    check_gh();
     logs::info_log("Health check done".to_string());
 }
 
@@ -52,15 +53,29 @@ fn check_docker() {
         .arg("--no-stream")
         .output()
         .expect("Failed to call the docker stats command");
-    if docker_stats.status.code() == Some(0) {
-        logs::active_log("\tDocker");
-    } else {
-        warning("Docker");
+    match docker_stats.status.code() == Some(0) {
+        true => {
+            logs::active_log("\tDocker");
+        }
+        false => {
+            warning("Docker");
+        }
     }
 }
 
+fn check_gh() {
+    let gh = Command::new("gh").arg("").output().expect("Failed to execute the github cli");
+    match gh.status.code() == Some(0) {
+        true => {
+            installed("Github-CLI");
+        }
+        false => not_installed("Github-CLI"),
+    }
+
+}
+
 fn check_tech() {
-    let tech_vec = vec_of_strings!("Git", "rustup", "go", "node");
+    let tech_vec = vec_of_strings!("Git", "cargo");
     for tech in tech_vec {
         match Command::new(tech.clone())
             .stdout(std::process::Stdio::null())
