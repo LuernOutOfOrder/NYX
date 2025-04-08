@@ -2,7 +2,7 @@ use std::env;
 use std::process::Command;
 mod helper;
 
-use helper::{installed, not_installed};
+use helper::{installed, not_installed, warning};
 
 use crate::logs;
 use crate::nxfs;
@@ -34,15 +34,15 @@ pub fn dev_env_health() {
             _ => {}
         }
     }
-    logs::info_log("Dev environment health status".to_string());
-    logs::nyx_log("Services: ");
-    check_docker();
-    logs::nyx_log("Tools: ");
+    logs::info_log("Development environment health status:".to_string());
+    logs::nyx_log("[System Requirements]");
     check_tech();
-    logs::nyx_log("Environment var: ");
+    logs::nyx_log("[Environments variables]");
     check_var();
-    logs::nyx_log("Configuration file: ");
+    logs::nyx_log("[NYX Environment]");
     check_config_file();
+    logs::nyx_log("[Optionnal Tools]");
+    check_docker();
     logs::info_log("Health check done".to_string());
 }
 
@@ -53,14 +53,14 @@ fn check_docker() {
         .output()
         .expect("Failed to call the docker stats command");
     if docker_stats.status.code() == Some(0) {
-        logs::active_log("\tDocker:");
+        logs::active_log("\tDocker");
     } else {
-        logs::inactive_log("\tDocker:");
+        warning("Docker");
     }
 }
 
 fn check_tech() {
-    let tech_vec = vec_of_strings!("git", "rustup", "go", "node");
+    let tech_vec = vec_of_strings!("Git", "rustup", "go", "node");
     for tech in tech_vec {
         match Command::new(tech.clone())
             .stdout(std::process::Stdio::null())
@@ -87,9 +87,9 @@ fn check_var() {
             .expect("Failed to call the printenv command");
 
         if !env_command.stdout.is_empty() {
-            println!("\t{} is present", var.clone());
+            installed(&var);
         } else {
-            println!("\t{} is not present", var);
+            warning(&var);
         }
     }
 }
@@ -98,10 +98,10 @@ fn check_config_file() {
     let config = nxfs::config::parse_config_file();
     match config {
         Ok(_) => {
-            println!("\t configuration file is present");
+            installed("Configuration file");
         }
         Err(_) => {
-            println!("\t configuration file is not present");
+            not_installed("Configuration file");
         }
     }
 }
