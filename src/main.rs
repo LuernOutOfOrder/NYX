@@ -15,7 +15,8 @@ use std::env;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "1.12.2";
+const VERSION: &str = "2.2.0";
+
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
