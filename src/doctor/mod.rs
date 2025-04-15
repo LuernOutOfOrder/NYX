@@ -64,14 +64,16 @@ fn check_docker() {
 }
 
 fn check_gh() {
-    let gh = Command::new("gh").arg("").output().expect("Failed to execute the github cli");
-    match gh.status.code() == Some(0) {
-        true => {
+    let gh = Command::new("gh")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn();
+    match gh {
+        Ok(_) => {
             installed("Github-CLI");
         }
-        false => not_installed("Github-CLI"),
+        Err(_) => not_installed("Github-CLI"),
     }
-
 }
 
 fn check_tech() {
@@ -93,7 +95,7 @@ fn check_tech() {
 }
 
 fn check_var() {
-    let env_var_vec = vec_of_strings!("PATH", "RUSTUP_HOME");
+    let env_var_vec = vec_of_strings!("NYX", "RUSTUP_HOME");
     for var in env_var_vec {
         let env_command = Command::new("printenv")
             .arg(var.clone())
