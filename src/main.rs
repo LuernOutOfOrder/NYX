@@ -1,7 +1,7 @@
 mod cleanup;
 pub mod gh;
 mod git;
-mod health;
+mod doctor;
 pub mod logs;
 pub mod macros;
 mod projects;
@@ -24,7 +24,7 @@ enum Commands {
     Project,
     Cleanup,
     Git,
-    Health,
+    Doctor,
     Update,
     Config,
     Help,
@@ -44,7 +44,7 @@ Commands:
     project         Manage project-related tasks
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
-    health          Display current development system health
+    doctor          Display current NYX system health
     update          Update the current version of NYX
     config          Manage nyx configuration
     help            Show this help message
@@ -80,7 +80,7 @@ fn main() {
         Some("project") => Commands::Project,
         Some("cleanup") => Commands::Cleanup,
         Some("git") => Commands::Git,
-        Some("health") => Commands::Health,
+        Some("doctor") => Commands::Doctor,
         Some("config") => Commands::Config,
         Some("update") => Commands::Update,
         Some("help") => Commands::Help,
@@ -98,7 +98,7 @@ fn main() {
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
-        Commands::Health => health::dev_env_health(),
+        Commands::Doctor => doctor::doctor_health(),
         Commands::Config => nxfs::config::config_command(),
         Commands::Update => update::update_bin(),
         Commands::Help => command_usage(nyx_usage()),
