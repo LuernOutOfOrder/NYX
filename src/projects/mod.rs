@@ -34,7 +34,7 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-";
+    ";
 
     usage.to_string()
 }
@@ -138,7 +138,7 @@ fn new_project_by_choice(tech: &String, name: &str) {
         tech if tech == "Rust" => new_rust_project(tech),
         _ => println!("please select a tech"),
     }
-    list::create_repo_or_not(&tech);
+    list::create_repo_or_not(tech);
 }
 
 // tech project
@@ -165,11 +165,15 @@ fn new_nodejs_project(tech: &str) {
     if !ts_status.success() {
         panic!("Error installing typescript");
     }
-    Command::new("touch")
+    let mut touch = Command::new("touch")
         .arg("tsconfig.json")
         .spawn()
         .expect("failed to generate tsconfig.json");
-    templates::new_gitignore(&tech);
+    let wait_touch = touch.wait().expect("Failed to wait touch command");
+    if !wait_touch.success() {
+        panic!("Error in the execution of touch command");
+    }
+    templates::new_gitignore(tech);
     println!("Successfully generate the new Node.js project")
 }
 
@@ -186,7 +190,7 @@ fn new_python_project(tech: &str) {
     if !venv_status.success() {
         panic!("Error init python virtual environment")
     }
-    templates::new_gitignore(&tech);
+    templates::new_gitignore(tech);
     println!("Successfully generate the new Python project");
 }
 
@@ -203,7 +207,7 @@ fn new_golang_project(name: &str, tech: &str) {
     if !go_status.success() {
         panic!("Error init the Golang project");
     }
-    templates::new_gitignore(&tech);
+    templates::new_gitignore(tech);
 }
 
 fn new_rust_project(tech: &str) {
@@ -217,5 +221,5 @@ fn new_rust_project(tech: &str) {
     if !cargo_status.success() {
         panic!("Error init the Rust project")
     }
-    templates::new_gitignore(&tech);
+    templates::new_gitignore(tech);
 }

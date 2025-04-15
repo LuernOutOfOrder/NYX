@@ -1,7 +1,7 @@
 mod cleanup;
 pub mod gh;
 mod git;
-mod health;
+mod doctor;
 pub mod logs;
 pub mod macros;
 mod projects;
@@ -15,7 +15,7 @@ use std::env;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.0.0";
+const VERSION: &str = "2.2.0";
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
@@ -24,14 +24,15 @@ enum Commands {
     Project,
     Cleanup,
     Git,
-    Health,
+    Doctor,
     Update,
+    Config,
     Help,
     Version,
 }
 
 fn nyx_usage() -> &'static str {
-    let usage = r"
+    r"
 Usage: nyx command [options]
 
 A lightweight utility for efficient project management and useful tools.
@@ -43,17 +44,16 @@ Commands:
     project         Manage project-related tasks
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
-    health          Display current development system health
+    doctor          Display current NYX system health
     update          Update the current version of NYX
+    config          Manage nyx configuration
     help            Show this help message
 
 Options:
 
     -h, --help      Show command usage
     -v, --version   Show the current version of NYX
-";
-
-    return usage;
+"
 }
 
 fn main() {
@@ -80,7 +80,8 @@ fn main() {
         Some("project") => Commands::Project,
         Some("cleanup") => Commands::Cleanup,
         Some("git") => Commands::Git,
-        Some("health") => Commands::Health,
+        Some("doctor") => Commands::Doctor,
+        Some("config") => Commands::Config,
         Some("update") => Commands::Update,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
@@ -97,7 +98,8 @@ fn main() {
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
-        Commands::Health => health::dev_env_health(),
+        Commands::Doctor => doctor::doctor_health(),
+        Commands::Config => nxfs::config::config_command(),
         Commands::Update => update::update_bin(),
         Commands::Help => command_usage(nyx_usage()),
         Commands::Version => command_usage(&nyx_version()),

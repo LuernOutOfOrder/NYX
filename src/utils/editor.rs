@@ -1,5 +1,5 @@
+use crate::nxfs;
 use crate::utils::env::get_nyx_env_var;
-use crate::utils::var;
 use crate::utils::write;
 use crate::utils::Command;
 use crate::utils::File;
@@ -17,15 +17,18 @@ use std::io::Read;
 /// user's preferred text editor for editing.
 pub fn update_editor(content: NXPContent) -> Vec<u8> {
     change_work_dir(&get_nyx_env_var());
-    let editor = match var("EDITOR") {
-        Ok(str) => str,
+    let editor: String;
+    match nxfs::config::parse_config_file() {
+        Ok(c) => {
+            editor = c.behavior.default_editor
+        },
         Err(e) => {
-            lrncore::logs::warning_log(&format!("EDITOR var not defined: {}", e));
-            "vim".to_string()
+            lrncore::logs::warning_log(&format!("Failed to parse config file: {}", e));
+            return vec![];
         }
     };
     let file_path = ".nxfs/tmp/PROJECT_EDIT";
-    match File::create(&file_path) {
+    match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
             lrncore::logs::error_log(&format!("Failed to temp file: {}", e));
@@ -50,7 +53,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         }
     }
     Command::new(editor)
-        .arg(&file_path)
+        .arg(file_path)
         .status()
         .expect("Something went wrong");
 
@@ -74,5 +77,5 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     };
     let buffer: Vec<u8> =
         bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
-    return buffer;
+    buffer
 }
