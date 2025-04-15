@@ -41,7 +41,7 @@ pub fn doctor_health() {
     check_var();
     logs::nyx_log("[NYX Environment]");
     check_config_file();
-    logs::nyx_log("[Optionnal Tools]");
+    logs::nyx_log("[Optional Tools]");
     check_docker();
     check_gh();
     logs::info_log("Health check done".to_string());
