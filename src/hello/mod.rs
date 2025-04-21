@@ -5,7 +5,7 @@ use chrono::{Datelike, Month};
 use lrncore::usage_exit::command_usage;
 use systemstat::{saturating_sub_bytes, Platform, System};
 
-use crate::nxfs;
+use crate::{nxfs, utils};
 
 pub fn hello_help() -> String {
     let usage = r"
@@ -45,7 +45,12 @@ fn hello() {
         .user
         .name;
     // welcome
-    println!("Welcome {}\t({}/{})", user_name, std::env::consts::OS, std::env::consts::ARCH);
+    println!(
+        "Welcome {}\t({}/{})",
+        user_name,
+        std::env::consts::OS,
+        std::env::consts::ARCH
+    );
     // date
     let date = chrono::Local::now();
     let month = Month::try_from(u8::try_from(date.month()).unwrap()).ok();
@@ -60,10 +65,7 @@ fn hello() {
     // Display system information:
     let sys = System::new();
     match sys.load_average() {
-        Ok(loadavg) => println!(
-            "\tSystem load average: {}",
-            loadavg.one
-        ),
+        Ok(loadavg) => println!("\tSystem load average: {}", loadavg.one),
         Err(x) => println!("\tSystem load average: error: {}", x),
     }
     match sys.mount_at("/") {
@@ -74,16 +76,33 @@ fn hello() {
         Err(x) => println!("\tMount at /: error: {}", x),
     }
     match sys.memory() {
-        Ok(mem) => println!("\tMemory: {} used / {} ", saturating_sub_bytes(mem.total, mem.free), mem.total),
-        Err(x) => println!("\tMemory: error: {}", x)
+        Ok(mem) => println!(
+            "\tMemory: {} used / {} ",
+            saturating_sub_bytes(mem.total, mem.free),
+            mem.total
+        ),
+        Err(x) => println!("\tMemory: error: {}", x),
     }
     match sys.swap() {
-        Ok(swap) => println!("\tSwap: {} used / {}", saturating_sub_bytes(swap.total, swap.free), swap.total),
-        Err(x) => println!("\tSwap: error: {}", x)
+        Ok(swap) => println!(
+            "\tSwap: {} used / {}",
+            saturating_sub_bytes(swap.total, swap.free),
+            swap.total
+        ),
+        Err(x) => println!("\tSwap: error: {}", x),
     }
     match sys.cpu_temp() {
         Ok(cpu_temp) => println!("\tCPU temp: {}", cpu_temp),
-        Err(x) => println!("\tCPU temp: {}", x)
+        Err(x) => println!("\tCPU temp: {}", x),
     }
-    // print size of nxfs or just nxfs/projects ?
+
+    println!("\nNXFS information: ");
+    let nyx_path = utils::env::get_nyx_env_var();
+    let nxfs_path = nyx_path.clone() + "/.nxfs/";
+    print!("\tNxfs directory size: {}", helper::folder_size(&nxfs_path));
+    let nxfs_projects_path = nyx_path.clone() + "/.nxfs/projects/";
+    print!("\tProjects directory size: {}", helper::folder_size(&nxfs_projects_path));
+    let nxfs_temp_path = nyx_path + "/.nxfs/tmp/";
+    print!("\tTemp directory size: {}", helper::folder_size(&nxfs_temp_path));
+    println!("\tNumber of projects: {}", nxfs::nxs::get_all_project().len()); 
 }
