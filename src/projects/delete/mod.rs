@@ -5,6 +5,7 @@ use crate::projects::{
 };
 use inquire::{InquireError, Select, Text};
 use lrncore::usage_exit::command_usage;
+use std::process::exit;
 use std::{env, process::Command};
 
 use crate::utils;
@@ -18,7 +19,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn select_remove_project() {
@@ -52,8 +53,8 @@ pub fn select_remove_project() {
 
 fn which_remove_project(choice: &str) {
     match choice {
-        choice if choice == "Remove project from projects list" => remove_project_from_list(),
-        choice if choice == "Delete completely the project" => remove_project_from_storage(),
+        "Remove project from projects list" => remove_project_from_list(),
+        "Delete completely the project" => remove_project_from_storage(),
         _ => println!("please make a choice"),
     }
 }
@@ -121,11 +122,16 @@ fn remove_project_from_storage() {
         },
     };
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
-    Command::new("rm")
+    let mut rm = Command::new("rm")
         .arg("-rf")
         .arg(nxp.content.location)
         .spawn()
         .expect("Failed to delete the directory of the project");
+    let rm_wait = rm.wait().expect("Failed to wait rm command");
+    if !rm_wait.success() {
+        lrncore::logs::time_error_log("Failed to execute rm command");
+        exit(1);
+    }
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0u8; 4],
