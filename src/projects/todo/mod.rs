@@ -227,7 +227,7 @@ fn prune_todo() {
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
 
-    let confirm = utils::confirm_prompt(
+    let confirm = utils::prompt::confirm_prompt(
         "Are you sure to clear the list ?",
         "It will remove completely the todo file from your system.",
     );

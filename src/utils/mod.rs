@@ -13,12 +13,13 @@ use std::{
 
 use inquire::{
     ui::{Attributes, Color, RenderConfig, StyleSheet, Styled},
-    Confirm, InquireError, Select, Text,
+    InquireError, Select, Text,
 };
 use throbber::Throbber;
 pub mod editor;
 pub mod env;
 pub mod fsys;
+pub mod prompt;
 
 pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();
@@ -98,12 +99,4 @@ pub fn nyx_ascii_art() -> String {
 pub fn custom_throbber(message: String) -> Throbber {
     let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
     return custom_throbber;
-}
-
-pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
-    let ans = Confirm::new(message)
-        .with_default(false)
-        .with_help_message(help_message)
-        .prompt();
-    ans.unwrap()
 }

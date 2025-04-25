@@ -104,6 +104,10 @@ pub struct ProjectEntry {
 pub fn create_data() {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     if Path::new(".nxfs").exists() {
+        let confirm = utils::prompt::confirm_prompt("Are you sure you want to Reinitialize NYX ?", "It will remove all projects saved in nxfs storage");
+        if !confirm {
+            return;
+        }
         lrncore::logs::info_log("Reinitialized data folder");
         let remove_dir = fs::remove_dir_all(".nxfs");
         if let Err(e) = remove_dir {
