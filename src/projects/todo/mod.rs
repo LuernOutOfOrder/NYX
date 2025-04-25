@@ -208,7 +208,7 @@ fn display_todo_list() {
 }
 
 fn prune_todo() {
-       let mut projects = nxs::get_all_project();
+    let mut projects = nxs::get_all_project();
     let project_name = utils::prompt_message(
         "Enter project name:".to_string(),
         "Error with the user input".to_string(),
@@ -227,7 +227,10 @@ fn prune_todo() {
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
 
-    let confirm = utils::prompt::confirm_prompt("Are you sure you want to prune the todo list ?", "You cannot undo the changes");
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to prune the todo list ?",
+        "You cannot undo the changes",
+    );
     if !confirm {
         return;
     }

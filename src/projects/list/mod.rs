@@ -22,7 +22,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn list_projects() {
@@ -90,7 +90,7 @@ pub fn add_project_to_list(tech: &str) {
         "Failed to get the user input".to_string(),
     );
 
-    if repository_user_input == "".to_string() {
+    if repository_user_input.is_empty() {
         repository_user_input = "No repository specified".to_string()
     }
 
@@ -101,7 +101,7 @@ pub fn add_project_to_list(tech: &str) {
         "Error getting the user input".to_string(),
     );
 
-    if github_project == "".to_string() {
+    if github_project.is_empty() {
         github_project = "No github project specified".to_string()
     }
 
@@ -111,9 +111,9 @@ pub fn add_project_to_list(tech: &str) {
         "Enter the version of the project: ".to_string(),
         "Error getting the user input".to_string(),
     );
-
-    if version == "".to_string() {
+    if version.is_empty() {
         version = "0.1.0".to_string();
+    println!("debug oskour");
     }
 
     let new_app: nxp::NXPContent = nxp::NXPContent {
@@ -121,8 +121,8 @@ pub fn add_project_to_list(tech: &str) {
         tech: (tech.to_string()),
         location: (current_dir),
         repository: repository_user_input,
-        github_project: github_project,
-        version: version,
+        github_project,
+        version,
     };
     nxp::create_new_nxp(new_app);
 }
@@ -147,7 +147,7 @@ fn create_repo_add_to_list(tech: &str) {
         "Error getting the user input".to_string(),
     );
 
-    if github_project == "".to_string() {
+    if github_project.is_empty() {
         github_project = "No github project specified".to_string()
     }
 
@@ -158,7 +158,7 @@ fn create_repo_add_to_list(tech: &str) {
         "Error getting the user input".to_string(),
     );
 
-    if version == "".to_string() {
+    if version.is_empty() {
         version = "0.1.0".to_string();
     }
 
@@ -166,9 +166,9 @@ fn create_repo_add_to_list(tech: &str) {
         name: (app_name.to_string()),
         tech: (tech.to_string()),
         location: (current_dir),
-        repository: repository,
-        github_project: github_project,
-        version: version,
+        repository,
+        github_project,
+        version,
     };
     nxp::create_new_nxp(new_app);
 }
