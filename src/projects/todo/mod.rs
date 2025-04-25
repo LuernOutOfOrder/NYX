@@ -63,7 +63,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn choose_todo() {
@@ -141,11 +141,11 @@ pub fn choose_todo() {
 
 fn which_todo(choice: &str) {
     match choice {
-        choice if choice == "Add to to-do" => update_todo_list(),
-        choice if choice == "Show to-do list" => display_todo_list(),
-        choice if choice == "Clear the to-do list" => prune_todo(),
-        choice if choice == "Remove one to-do" => remove_todo(),
-        choice if choice == "Update one to-do status" => update_todo_status(),
+        "Add to to-do" => update_todo_list(),
+        "Show to-do list" => display_todo_list(),
+        "Clear the to-do list" => prune_todo(),
+        "Remove one to-do" => remove_todo(),
+        "Update one to-do status" => update_todo_status(),
         _ => println!("please make a choice"),
     }
 }
@@ -208,7 +208,7 @@ fn display_todo_list() {
 }
 
 fn prune_todo() {
-    let mut projects = nxs::get_all_project();
+       let mut projects = nxs::get_all_project();
     let project_name = utils::prompt_message(
         "Enter project name:".to_string(),
         "Error with the user input".to_string(),
@@ -227,13 +227,11 @@ fn prune_todo() {
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
 
-    let confirm = utils::prompt::confirm_prompt(
-        "Are you sure to clear the list ?",
-        "It will remove completely the todo file from your system.",
-    );
+    let confirm = utils::prompt::confirm_prompt("Are you sure you want to prune the todo list ?", "You cannot undo the changes");
     if !confirm {
-        exit(0);
+        return;
     }
+
     let file_path = format!(".nxfs/projects/{}/todo", project_hash_str);
     match fs::remove_file(file_path) {
         Ok(_) => {
