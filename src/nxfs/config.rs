@@ -54,6 +54,16 @@ pub struct ConfigBehavior {
     pub default_editor: String,
     pub auto_update: bool,
     pub ask_confirmation: bool,
+    pub log_level: LogLevel
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub enum LogLevel {
+    Error = 1,
+    Warn = 2,
+    Info = 3,
+    Debug = 4,
+    Trace = 5,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -86,6 +96,7 @@ profile_url = ''
 default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
+log_level = 3
 
 [ui]
 
