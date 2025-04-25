@@ -163,6 +163,7 @@ fn init_config() {
 }
 
 pub fn parse_config_file() -> Result<Config, toml_error> {
+    change_work_dir(&utils::env::get_nyx_env_var());
     let config_path = ".nxfs/config.toml".to_string();
     let file =
         std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
