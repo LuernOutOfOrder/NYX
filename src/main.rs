@@ -47,7 +47,7 @@ Commands:
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
-    hello           Display helpfull information about today
+    hello           Display helpful information about today
     update          Update the current version of NYX
     config          Manage nyx configuration
     help            Show this help message
