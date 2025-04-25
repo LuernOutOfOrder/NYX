@@ -94,6 +94,10 @@ fn remove_project_from_storage() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
+    let confirm = utils::prompt::confirm_prompt_safe_mode("Are you sure you want to completely delete this project ?", "It will be completely deleted from disk");
+    if !confirm {
+        return;
+    }
     let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
