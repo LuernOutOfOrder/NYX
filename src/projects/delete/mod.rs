@@ -64,6 +64,10 @@ fn remove_project_from_list() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
+    let confirm = utils::prompt::confirm_prompt("Are you sure you want to remove this project from NYX ?", "You will lose all data store in NYX storage");
+    if !confirm {
+        return;
+    }
     // if an index match the given data, remove it from the vector
     let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
