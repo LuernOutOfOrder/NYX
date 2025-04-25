@@ -95,7 +95,7 @@ fn remove_project_from_storage() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
-    let confirm = utils::prompt::confirm_prompt_safe_mode("Are you sure you want to completely delete this project ?", "It will be completely deleted from disk");
+    let confirm = utils::prompt::confirm_prompt_safe_mode("Are you sure you want to completely delete this project?", "It will be completely deleted from disk");
     if !confirm {
         return;
     }
