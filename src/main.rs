@@ -11,11 +11,12 @@ use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
 pub mod nxfs;
 use std::env;
+mod hello;
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.2.0";
+const VERSION: &str = "2.3.0";
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
@@ -25,6 +26,7 @@ enum Commands {
     Cleanup,
     Git,
     Doctor,
+    Hello,
     Update,
     Config,
     Help,
@@ -45,6 +47,7 @@ Commands:
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
+    hello           Display helpful information about today
     update          Update the current version of NYX
     config          Manage nyx configuration
     help            Show this help message
@@ -81,6 +84,7 @@ fn main() {
         Some("cleanup") => Commands::Cleanup,
         Some("git") => Commands::Git,
         Some("doctor") => Commands::Doctor,
+        Some("hello") => Commands::Hello,
         Some("config") => Commands::Config,
         Some("update") => Commands::Update,
         Some("help") => Commands::Help,
@@ -99,6 +103,7 @@ fn main() {
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
         Commands::Doctor => doctor::doctor_health(),
+        Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
         Commands::Update => update::update_bin(),
         Commands::Help => command_usage(nyx_usage()),
