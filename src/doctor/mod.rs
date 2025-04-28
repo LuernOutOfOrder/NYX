@@ -6,6 +6,8 @@ use helper::{installed, not_installed, warning};
 
 use crate::logs;
 use crate::nxfs;
+use crate::nxfs::config::LogLevel;
+use crate::utils::log;
 use crate::vec_of_strings;
 use lrncore::usage_exit::command_usage;
 
@@ -34,7 +36,7 @@ pub fn doctor_health() {
             _ => {}
         }
     }
-    logs::info_log("Development environment health status:".to_string());
+    println!("Development environment health status:");
     logs::nyx_log("[System Requirements]");
     check_tech();
     logs::nyx_log("[Environments variables]");
@@ -44,7 +46,7 @@ pub fn doctor_health() {
     logs::nyx_log("[Optional Tools]");
     check_docker();
     check_gh();
-    logs::info_log("Health check done".to_string());
+    log::log_from_log_level(LogLevel::Info, "Health check done");
 }
 
 fn check_docker() {

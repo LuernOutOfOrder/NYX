@@ -1,4 +1,5 @@
-use crate::utils;
+use crate::nxfs::config::LogLevel;
+use crate::utils::{self, log};
 use std::process::Command;
 use std::{fs, process::exit};
 pub mod list;
@@ -72,7 +73,7 @@ pub fn project_command() {
     match args[2].as_str() {
         "new" => {
             if args.len() <= 3 {
-                lrncore::logs::error_log("Enter a new project name");
+                log::log_from_log_level(LogLevel::Error, "Enter a new project name");
                 exit(1);
             }
             let project_name = &args[3];
@@ -94,7 +95,6 @@ pub fn project_command() {
         "update" => update_project_properties(),
         "todo" => choose_todo(),
         _ => {
-            lrncore::logs::warning_log("Unknown command");
             command_usage(&project_help());
         }
     }

@@ -20,6 +20,7 @@ pub mod editor;
 pub mod env;
 pub mod fsys;
 pub mod prompt;
+pub mod log;
 
 pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();

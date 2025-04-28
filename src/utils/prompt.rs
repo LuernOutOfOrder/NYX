@@ -1,6 +1,8 @@
 use inquire::Confirm;
 
-use crate::nxfs;
+use crate::nxfs::{self, config::LogLevel};
+
+use super::log;
 
 /// confirmation prompt for the user if ask_confirmation is enabled in config file
 pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
@@ -24,6 +26,6 @@ pub fn confirm_prompt_safe_mode(message: &str, help_message: &str) -> bool {
             .prompt()
             .unwrap();
     }
-    lrncore::logs::warning_log("Safe mode is disabled");
+    log::log_from_log_level(LogLevel::Warn, "Safe mode is disabled");
     true
 }

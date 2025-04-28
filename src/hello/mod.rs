@@ -5,8 +5,10 @@ use chrono::{Datelike, Month};
 use lrncore::usage_exit::command_usage;
 use systemstat::{saturating_sub_bytes, Platform, System};
 
-use crate::{nxfs, utils};
-
+use crate::{
+    nxfs::{self},
+    utils,
+};
 pub fn hello_help() -> String {
     let usage = r"
 Usage: nyx hello [options]
@@ -33,7 +35,6 @@ pub fn hello_command() {
             command_usage(&hello_help());
         }
         _ => {
-            lrncore::logs::warning_log("Unknown command");
             command_usage(&hello_help());
         }
     }
@@ -101,8 +102,17 @@ fn hello() {
     let nxfs_path = nyx_path.clone() + "/.nxfs/";
     print!("\tNxfs directory size: {}", helper::folder_size(&nxfs_path));
     let nxfs_projects_path = nyx_path.clone() + "/.nxfs/projects/";
-    print!("\tProjects directory size: {}", helper::folder_size(&nxfs_projects_path));
+    print!(
+        "\tProjects directory size: {}",
+        helper::folder_size(&nxfs_projects_path)
+    );
     let nxfs_temp_path = nyx_path + "/.nxfs/tmp/";
-    print!("\tTemp directory size: {}", helper::folder_size(&nxfs_temp_path));
-    println!("\tNumber of projects: {}", nxfs::nxs::get_all_project().len()); 
+    print!(
+        "\tTemp directory size: {}",
+        helper::folder_size(&nxfs_temp_path)
+    );
+    println!(
+        "\tNumber of projects: {}",
+        nxfs::nxs::get_all_project().len()
+    );
 }

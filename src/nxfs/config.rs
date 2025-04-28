@@ -1,6 +1,7 @@
 use std::{fs::File, io::Write, process::exit};
 
 use crate::utils;
+use crate::utils::log::log_from_log_level;
 use lrncore::path::change_work_dir;
 use lrncore::usage_exit::command_usage;
 use serde::{Deserialize, Serialize};
@@ -54,6 +55,16 @@ pub struct ConfigBehavior {
     pub default_editor: String,
     pub auto_update: bool,
     pub ask_confirmation: bool,
+    pub log_level: LogLevel,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
+pub enum LogLevel {
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -86,6 +97,7 @@ profile_url = ''
 default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
+log_level = 'Info'
 
 [ui]
 
@@ -110,7 +122,6 @@ pub fn config_command() {
         "init" => init_config(),
 
         _ => {
-            lrncore::logs::warning_log("Unknown command");
             command_usage(&config_help());
         }
     }
@@ -121,7 +132,10 @@ fn init_config() {
     let mut config_file = match File::create_new(config_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to initialize config file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to initialize config file: {}", e),
+            );
             return;
         }
     };
@@ -129,7 +143,10 @@ fn init_config() {
     let mut config: Config = match toml::from_str(&template) {
         Ok(c) => c,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to deserialize config template: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to deserialize config template: {}", e),
+            );
             return;
         }
     };
@@ -155,11 +172,14 @@ fn init_config() {
     match config_file.write_all(buf) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write the config file: {}", e),
+            );
             exit(1);
         }
     };
-    lrncore::logs::info_log("Successfully initialized nyx config file!");
+    log_from_log_level(LogLevel::Info, "Successfully initialized nyx config file!");
 }
 
 pub fn parse_config_file() -> Result<Config, toml_error> {
@@ -170,7 +190,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to parse the config file: {}", e));
             return Err(e);
         }
     };
