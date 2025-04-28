@@ -36,7 +36,6 @@ pub fn hello_command() {
             command_usage(&hello_help());
         }
         _ => {
-            log::log_from_log_level(LogLevel::Warn, "Unknown command");
             command_usage(&hello_help());
         }
     }
