@@ -6,10 +6,9 @@ use lrncore::usage_exit::command_usage;
 use systemstat::{saturating_sub_bytes, Platform, System};
 
 use crate::{
-    nxfs::{self, config::LogLevel},
+    nxfs::{self},
     utils,
 };
-use utils::log;
 pub fn hello_help() -> String {
     let usage = r"
 Usage: nyx hello [options]
