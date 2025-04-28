@@ -1,7 +1,9 @@
 use crate::gh;
 use crate::nxfs;
+use crate::nxfs::config::LogLevel;
 use crate::nxfs::nxs;
 use crate::utils;
+use crate::utils::log;
 use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
 use lrncore::usage_exit::command_usage;
@@ -138,7 +140,7 @@ fn create_repo_add_to_list(tech: &str) {
     let config = nxfs::config::parse_config_file().expect("Failed to parse the nyx config file");
     let user_github_url = config.git.profile_url;
     if user_github_url.is_empty() {
-        lrncore::logs::time_error_log("No github url was specified. Please enter one in config file.");
+        log::log_from_log_level(LogLevel::Error, "No github url was specified. Please enter one in config file.");
         exit(1);
     }
     let repository: String = user_github_url + app_name;

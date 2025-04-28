@@ -36,7 +36,6 @@ pub fn git_command() {
         "all-commit" => show_all_commit(),
         "last-commit" => show_last_commit_with_stat(),
         _ => {
-            lrncore::logs::warning_log("Unknown command");
             command_usage(&git_help());
         }
     }

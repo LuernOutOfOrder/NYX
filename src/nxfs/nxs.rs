@@ -6,9 +6,9 @@ It includes functionalities for reading, writing, and manipulating the binary da
 */
 
 use crate::utils;
+use crate::utils::log::log_from_log_level;
 
 use bincode;
-use lrncore::logs::time_info_log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -18,6 +18,7 @@ use std::path::Path;
 use std::process::exit;
 use std::process::Command;
 
+use super::config::LogLevel;
 use super::nxp::parse_nxp_file;
 use super::nxp::NXPContentShort;
 use super::nxp::NXP;
@@ -104,14 +105,20 @@ pub struct ProjectEntry {
 pub fn create_data() {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     if Path::new(".nxfs").exists() {
-        let confirm = utils::prompt::confirm_prompt("Are you sure you want to Reinitialize NYX ?", "It will remove all projects saved in nxfs storage");
+        let confirm = utils::prompt::confirm_prompt(
+            "Are you sure you want to Reinitialize NYX ?",
+            "It will remove all projects saved in nxfs storage",
+        );
         if !confirm {
             return;
         }
-        lrncore::logs::info_log("Reinitialized data folder");
+        log_from_log_level(LogLevel::Info, "Reinitialized data folder");
         let remove_dir = fs::remove_dir_all(".nxfs");
         if let Err(e) = remove_dir {
-            lrncore::logs::error_log(&format!("Failed to remove existing .nxfs directory: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to remove existing .nxfs directory: {}", e),
+            );
         }
     }
     let mut mkdir = Command::new("mkdir")
@@ -124,7 +131,7 @@ pub fn create_data() {
         .expect("Failed to create all directories");
     let wait_mkdir = mkdir.wait().expect("Failed to wait mkdir command");
     if !wait_mkdir.success() {
-        lrncore::logs::error_log("Failed to execute mkdir command");
+        log_from_log_level(LogLevel::Error, "Failed to execute mkdir command");
         exit(1)
     }
     create_nxs_file()
@@ -166,17 +173,23 @@ fn create_nxs_file() {
     let mut nxs_file: File = match File::create(".nxfs/nxs") {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to create nxs file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to create nxs file: {}", e),
+            );
             return;
         }
     };
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in nxs file: {}", e),
+            );
         }
     };
-    lrncore::logs::info_log("Initialized NXS file");
+    log_from_log_level(LogLevel::Info, "Initialized NXS file");
 }
 
 //TODO
@@ -187,7 +200,7 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     let file = match File::open(".nxfs/nxs") {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
             return;
         }
     };
@@ -249,17 +262,20 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
     {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
             return;
         }
     };
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in nxs file: {}", e),
+            );
         }
     };
-    time_info_log("NXS file updated");
+    log_from_log_level(LogLevel::Info, "NXS file updated");
 }
 
 pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
@@ -275,17 +291,20 @@ pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
     {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
             return;
         }
     };
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxs file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in nxs file: {}", e),
+            );
         }
     };
-    time_info_log("NXS file updated");
+    log_from_log_level(LogLevel::Info, "NXS file updated");
 }
 
 fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
@@ -309,7 +328,7 @@ pub fn cat_nxs() {
         projects: ProjectList { entries: vec![] },
     };
     parse_nxs_file(&mut nxs);
-    lrncore::logs::info_log("Listing all projects entries");
+    log_from_log_level(LogLevel::Info, "Listing all projects entries");
     println!(
         "
 NXS:

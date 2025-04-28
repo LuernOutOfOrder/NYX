@@ -1,9 +1,11 @@
+use crate::nxfs::config::LogLevel;
 use crate::projects::exit;
+use crate::utils::log;
 use crate::{nxfs, utils};
 use lrncore::path::change_work_dir;
-use std::process::Command;
 use lrncore::usage_exit::command_usage;
 use std::env;
+use std::process::Command;
 
 use super::nxs;
 
@@ -53,7 +55,7 @@ pub fn open_editor(project: &str) {
         let app = projects.remove(pos);
         location = app.location;
     } else {
-        lrncore::logs::error_log("Project not found");
+        log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
     let config = nxfs::config::parse_config_file().expect("Failed to parse nyx config file");

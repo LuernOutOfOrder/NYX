@@ -1,3 +1,4 @@
+use crate::nxfs::config::LogLevel;
 use crate::projects::nxp;
 use crate::projects::{
     nxp::{NXPContent, NXPHeader, NXP},
@@ -8,7 +9,7 @@ use lrncore::usage_exit::command_usage;
 use std::process::exit;
 use std::{env, process::Command};
 
-use crate::utils;
+use crate::utils::{self, log};
 
 pub fn project_delete_help() -> String {
     let usage = r"
@@ -65,7 +66,10 @@ fn remove_project_from_list() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
-    let confirm = utils::prompt::confirm_prompt("Are you sure you want to remove this project from NYX ?", "You will lose all data store in NYX storage");
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to remove this project from NYX ?",
+        "You will lose all data store in NYX storage",
+    );
     if !confirm {
         return;
     }
@@ -86,7 +90,7 @@ fn remove_project_from_list() {
     };
     nxs::update_project_entries(&mut nxs, projects);
     nxp::delete_nxp(&hash);
-    lrncore::logs::info_log("Successfully remove project from list");
+    log::log_from_log_level(LogLevel::Info, "Successfully remove project from list");
 }
 
 fn remove_project_from_storage() {
@@ -95,7 +99,10 @@ fn remove_project_from_storage() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
-    let confirm = utils::prompt::confirm_prompt_safe_mode("Are you sure you want to completely delete this project?", "It will be completely deleted from disk");
+    let confirm = utils::prompt::confirm_prompt_safe_mode(
+        "Are you sure you want to completely delete this project?",
+        "It will be completely deleted from disk",
+    );
     if !confirm {
         return;
     }
@@ -129,7 +136,7 @@ fn remove_project_from_storage() {
         .expect("Failed to delete the directory of the project");
     let rm_wait = rm.wait().expect("Failed to wait rm command");
     if !rm_wait.success() {
-        lrncore::logs::time_error_log("Failed to execute rm command");
+        log::log_from_log_level(LogLevel::Error, "Failed to execute rm command");
         exit(1);
     }
     let mut nxs: NXS = NXS {
@@ -143,5 +150,5 @@ fn remove_project_from_storage() {
     };
     nxs::update_project_entries(&mut nxs, projects);
     nxp::delete_nxp(&hash);
-    lrncore::logs::info_log("Successfully delete project from storage");
+    log::log_from_log_level(LogLevel::Info, "Successfully delete project from storage");
 }
