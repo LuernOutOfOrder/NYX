@@ -26,6 +26,6 @@ pub fn confirm_prompt_safe_mode(message: &str, help_message: &str) -> bool {
             .prompt()
             .unwrap();
     }
-    log::log_from_log_level(LogLevel::Warn, "Safe mod is disabled");
+    log::log_from_log_level(LogLevel::Warn, "Safe mode is disabled");
     true
 }
