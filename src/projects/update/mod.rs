@@ -71,7 +71,7 @@ pub fn update_project_properties() {
         project_size: 0,
     };
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
-        println!("Project found");
+        log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
         current_project.project_hash = app.project_hash.clone();
         current_project.project_name = app.project_name.clone();

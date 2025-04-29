@@ -5,6 +5,7 @@ use std::{fs, process::exit};
 pub mod list;
 mod templates;
 pub mod update;
+use copy::copy_command;
 use delete::select_remove_project;
 use list::{add_existing_project_to_list, list_projects};
 use serde::{Deserialize, Serialize};
@@ -18,6 +19,7 @@ use lrncore::usage_exit::command_usage;
 use nxfs::{nxp, nxs};
 pub mod open;
 pub mod todo;
+mod copy;
 use open::open_editor;
 
 pub fn project_help() -> String {
@@ -32,6 +34,7 @@ Subcommands:
     delete      Remove a project from the list
     update      Update project properties
     todo        Manage project todos
+    copy        Copy a field of a specified project in clipboard
 
 Options:
     -h, --help      Show this help message
@@ -94,6 +97,7 @@ pub fn project_command() {
         "delete" => select_remove_project(),
         "update" => update_project_properties(),
         "todo" => choose_todo(),
+        "copy" => copy_command(),
         _ => {
             command_usage(&project_help());
         }
