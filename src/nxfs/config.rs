@@ -209,10 +209,10 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
 fn update_config() {
     change_work_dir(&utils::env::get_nyx_env_var());
     let config_path = ".nxfs/config.toml";
-    if !fs::exists(config_path).expect("Failed to check if the configuration path exist") {
+    if !fs::exists(config_path).expect("Failed to check if the configuration path exists") {
         log_from_log_level(
             LogLevel::Error,
-            "Config file path doesn't exit. Check if the configuration file exist",
+            "Config file path doesn't exist. Check if the configuration file exists",
         );
         exit(1);
     }
@@ -223,10 +223,10 @@ fn update_config() {
 fn cat_config() {
     change_work_dir(&utils::env::get_nyx_env_var());
     let config_path = ".nxfs/config.toml";
-    if !fs::exists(config_path).expect("Failed to check if the configuration path exist") {
+    if !fs::exists(config_path).expect("Failed to check if the configuration path exists") {
         log_from_log_level(
             LogLevel::Error,
-            "Config file path doesn't exit. Check if the configuration file exist",
+            "Config file path doesn't exist. Check if the configuration file exists",
         );
         exit(1);
     }
