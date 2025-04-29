@@ -115,7 +115,6 @@ pub fn add_project_to_list(tech: &str) {
     );
     if version.is_empty() {
         version = "0.1.0".to_string();
-    println!("debug oskour");
     }
 
     let new_app: nxp::NXPContent = nxp::NXPContent {
