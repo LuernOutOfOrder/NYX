@@ -47,7 +47,7 @@ pub fn copy_command() {
             "path" => copy_field(get_project.location),
             "repo" => copy_field(get_project.repository),
             _ => {
-                println!("Unknown command");
+                log_from_log_level(LogLevel::Error, "Unknown copy command");
                 command_usage(&copy_help());
             }
         }
