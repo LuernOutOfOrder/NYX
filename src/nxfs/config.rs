@@ -214,6 +214,7 @@ fn update_config() {
             LogLevel::Error,
             "Config file path doesn't exit. Check if the configuration file exist",
         );
+        exit(1);
     }
     open_new_editor(config_path);
     log_from_log_level(LogLevel::Info, "Config file updated");
@@ -227,12 +228,12 @@ fn cat_config() {
             LogLevel::Error,
             "Config file path doesn't exit. Check if the configuration file exist",
         );
+        exit(1);
     }
     let cat = Command::new("cat")
         .arg(config_path)
         .stdout(Stdio::inherit())
         .output()
         .expect("Failed to execute cat command");
-
     println!("{}", String::from_utf8_lossy(&cat.stdout));
 }
