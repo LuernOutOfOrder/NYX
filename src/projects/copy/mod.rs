@@ -1,8 +1,18 @@
-use std::{env, process::exit};
+use std::{
+    env,
+    process::{exit, Command, Stdio},
+};
 
 use lrncore::path::change_work_dir;
 
-use crate::{nxfs::{config::LogLevel, nxp::{self, NXPContent, NXPHeader, NXP}, nxs::{self, ProjectEntry}}, utils::{self, env::get_nyx_env_var, log::log_from_log_level}};
+use crate::{
+    nxfs::{
+        config::LogLevel,
+        nxp::{self, NXPContent, NXPHeader, NXP},
+        nxs::{self, ProjectEntry},
+    },
+    utils::{self, env::get_nyx_env_var, log::log_from_log_level},
+};
 
 pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
@@ -23,7 +33,7 @@ fn copy_path() {
         "Enter project name:".to_string(),
         "Error with the project name referred".to_string(),
     );
-    let project_hash: [u8;11];
+    let project_hash: [u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
@@ -52,5 +62,13 @@ fn copy_path() {
     let hash = String::from_utf8_lossy(&project_hash);
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
-    println!("debug: {:?}", project_content.location);
+    let pbcopy = Command::new("pbcopy")
+        .stdin(Stdio::piped())
+        .spawn()
+        .expect("Failed to execute pbcopy command");
+    let echo = Command::new("echo")
+        .arg(project_content.location)
+        .stdout(pbcopy.stdin.unwrap())
+        .output()
+        .expect("Failed to execute echo command");
 }
