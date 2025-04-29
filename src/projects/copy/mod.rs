@@ -65,10 +65,11 @@ fn copy_path() {
     let pbcopy = Command::new("pbcopy")
         .stdin(Stdio::piped())
         .spawn()
-        .expect("Failed to execute pbcopy command");
-    let echo = Command::new("echo")
+        .expect("Failed to spawn pbcopy command");
+    Command::new("echo")
         .arg(project_content.location)
         .stdout(pbcopy.stdin.unwrap())
         .output()
         .expect("Failed to execute echo command");
+    log_from_log_level(LogLevel::Info, "Project path copied in clipboard");
 }
