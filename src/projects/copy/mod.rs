@@ -3,30 +3,64 @@ use std::{
     process::{exit, Command, Stdio},
 };
 
-use lrncore::path::change_work_dir;
+use lrncore::{path::change_work_dir, usage_exit::command_usage};
 
 use crate::{
     nxfs::{
         config::LogLevel,
         nxp::{self, NXPContent, NXPHeader, NXP},
-        nxs::{self, ProjectEntry},
+        nxs::{self},
     },
     utils::{self, env::get_nyx_env_var, log::log_from_log_level},
 };
 
+pub fn copy_help() -> String {
+    let usage = r"
+Usage: copy [subcommand] [arguments] [options]
+
+Subcommands:
+    path        Copy the path of specified project
+    repo        Copy the repository url of specified project
+
+Options:
+    -h, --help      Show this help message
+    ";
+
+    usage.to_string()
+}
+
 pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
+    if args.last().unwrap() == "-h" || args.last().unwrap() == "--help" {
+        command_usage(&copy_help());
+    }
     if let Some(arg) = args.iter().last() {
+        let get_project = get_project_content();
         match arg.as_str().trim() {
-            "path" => copy_path(),
-            "" => todo!(),
-            _ => {}
+            "path" => copy_field(get_project.location),
+            "repo" => copy_field(get_project.repository),
+            _ => {
+                copy_field(get_project.location);
+            }
         }
     }
 }
 
-fn copy_path() {
+fn copy_field(param: String) {
+    let pbcopy = Command::new("pbcopy")
+        .stdin(Stdio::piped())
+        .spawn()
+        .expect("Failed to spawn pbcopy command");
+    Command::new("echo")
+        .arg(param)
+        .stdout(pbcopy.stdin.unwrap())
+        .output()
+        .expect("Failed to execute echo command");
+    log_from_log_level(LogLevel::Info, "Project field copied in clipboard");
+}
+
+fn get_project_content() -> NXPContent {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
@@ -62,14 +96,5 @@ fn copy_path() {
     let hash = String::from_utf8_lossy(&project_hash);
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
-    let pbcopy = Command::new("pbcopy")
-        .stdin(Stdio::piped())
-        .spawn()
-        .expect("Failed to spawn pbcopy command");
-    Command::new("echo")
-        .arg(project_content.location)
-        .stdout(pbcopy.stdin.unwrap())
-        .output()
-        .expect("Failed to execute echo command");
-    log_from_log_level(LogLevel::Info, "Project path copied in clipboard");
+    project_content
 }
