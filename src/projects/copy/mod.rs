@@ -32,17 +32,23 @@ Options:
 pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
-    if args.len() > 1 && (args[1] == "-h" || args[1] == "--help") {
+    if args.len() <= 3 {
         command_usage(&copy_help());
         return;
     }
-    if let Some(arg) = args.get(1) {
+    if args.len() > 1 && (args[3] == "-h" || args[3] == "--help") {
+        command_usage(&copy_help());
+        return;
+    }
+
+    if let Some(arg) = args.get(3) {
         let get_project = get_project_content();
         match arg.as_str().trim() {
             "path" => copy_field(get_project.location),
             "repo" => copy_field(get_project.repository),
             _ => {
-                copy_field(get_project.location);
+                println!("Unknown command");
+                command_usage(&copy_help());
             }
         }
     }
