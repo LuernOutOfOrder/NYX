@@ -1,11 +1,12 @@
 use std::{fs::File, io::Write, process::exit};
 
 use crate::utils;
+use crate::utils::editor::open_new_editor;
 use crate::utils::log::log_from_log_level;
 use lrncore::path::change_work_dir;
 use lrncore::usage_exit::command_usage;
 use serde::{Deserialize, Serialize};
-use std::env;
+use std::{env, fs};
 use std::fmt::Debug;
 use toml::de::Error as toml_error;
 
@@ -15,6 +16,8 @@ Usage: nyx config [subcommand] [arguments] [options]
 
 Subcommands:
     init         Initialize the config file
+    update       Update the config file
+    cat          Cat the config file content
 
 
 Options:
@@ -120,6 +123,7 @@ pub fn config_command() {
     }
     match args[2].as_str() {
         "init" => init_config(),
+        "update" => update_config(),
 
         _ => {
             command_usage(&config_help());
@@ -195,4 +199,14 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
         }
     };
     Ok(config)
+}
+
+fn update_config() {
+    change_work_dir(&utils::env::get_nyx_env_var());
+    let config_path = ".nxfs/config.toml";
+    if !fs::exists(config_path).expect("Failed to check if the configuration path exist") {
+        log_from_log_level(LogLevel::Error, "Config file path doesn't exit. Check if the configuration file exist");
+    }
+    open_new_editor(config_path);
+    log_from_log_level(LogLevel::Info, "Config file updated");
 }
