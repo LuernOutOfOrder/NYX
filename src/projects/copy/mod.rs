@@ -32,10 +32,11 @@ Options:
 pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
-    if args.last().unwrap() == "-h" || args.last().unwrap() == "--help" {
+    if args.len() > 1 && (args[1] == "-h" || args[1] == "--help") {
         command_usage(&copy_help());
+        return;
     }
-    if let Some(arg) = args.iter().last() {
+    if let Some(arg) = args.get(1) {
         let get_project = get_project_content();
         match arg.as_str().trim() {
             "path" => copy_field(get_project.location),
