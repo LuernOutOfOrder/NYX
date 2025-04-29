@@ -91,3 +91,21 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         bincode::serialize(&update_content).expect("Failed to serialize updated content struct");
     buffer
 }
+
+pub fn open_new_editor(path: &str) {
+    change_work_dir(&get_nyx_env_var());
+    let editor: String = match nxfs::config::parse_config_file() {
+        Ok(c) => c.behavior.default_editor,
+        Err(e) => {
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to parse config file: {}", e),
+            );
+            "vim".to_owned()
+        }
+    };
+    Command::new(editor)
+        .arg(path)
+        .status()
+        .expect("Something went wrong");
+}
