@@ -1,3 +1,4 @@
+use crate::nxfs::config::LogLevel;
 use crate::projects::fs::File;
 use crate::todo::Todo;
 use crate::todo::{TodoContent, TodoFile, TodoHeader};
@@ -5,6 +6,7 @@ use crate::todo::{FORMAT_VERSION, MAGIC_NUMBER};
 
 use crate::todo::exit;
 use crate::todo::BufReader;
+use crate::utils::log;
 use std::io::Read;
 use std::io::Write;
 
@@ -54,24 +56,30 @@ pub fn create_todo_file(hash: &str) {
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to create todo file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to create todo file: {}", e),
+            );
             return;
         }
     };
     match todo_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in todo file: {}", e),
+            );
         }
     }
-    lrncore::logs::info_log("Create new todo file");
+    log::log_from_log_level(LogLevel::Info, "Create new todo file");
 }
 
 pub fn parse_todo_file(hash: &str) -> TodoFile {
     let file = match File::open(format!(".nxfs/projects/{}/todo", hash)) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open todo file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to open todo file: {}", e));
             exit(1);
         }
     };
@@ -84,7 +92,7 @@ pub fn parse_todo_file(hash: &str) -> TodoFile {
         match byte_or_error {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
-                lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
+                log::log_from_log_level(LogLevel::Error, &format!("Failed to read byte: {}", e));
                 exit(1)
             }
         }
@@ -116,18 +124,24 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to update todo file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to update todo file: {}", e),
+            );
             return;
         }
     };
     match todo_file.write_all(&buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in todo file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in todo file: {}", e),
+            );
             return;
         }
     }
-    lrncore::logs::time_info_log("Successfully update todo file");
+    log::log_from_log_level(LogLevel::Info, "Successfully update todo file");
 }
 
 pub fn todos_status_list() -> Vec<String> {

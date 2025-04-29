@@ -1,11 +1,14 @@
+use std::process::{Command, Stdio};
 use std::{fs::File, io::Write, process::exit};
 
 use crate::utils;
+use crate::utils::editor::open_new_editor;
+use crate::utils::log::log_from_log_level;
 use lrncore::path::change_work_dir;
 use lrncore::usage_exit::command_usage;
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::fmt::Debug;
+use std::{env, fs};
 use toml::de::Error as toml_error;
 
 fn config_help() -> String {
@@ -14,6 +17,8 @@ Usage: nyx config [subcommand] [arguments] [options]
 
 Subcommands:
     init         Initialize the config file
+    update       Update the config file
+    cat          Cat the config file content
 
 
 Options:
@@ -54,6 +59,16 @@ pub struct ConfigBehavior {
     pub default_editor: String,
     pub auto_update: bool,
     pub ask_confirmation: bool,
+    pub log_level: LogLevel,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
+pub enum LogLevel {
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -86,6 +101,7 @@ profile_url = ''
 default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
+log_level = 'Info'
 
 [ui]
 
@@ -108,9 +124,10 @@ pub fn config_command() {
     }
     match args[2].as_str() {
         "init" => init_config(),
+        "update" => update_config(),
+        "cat" => cat_config(),
 
         _ => {
-            lrncore::logs::warning_log("Unknown command");
             command_usage(&config_help());
         }
     }
@@ -121,7 +138,10 @@ fn init_config() {
     let mut config_file = match File::create_new(config_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to initialize config file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to initialize config file: {}", e),
+            );
             return;
         }
     };
@@ -129,7 +149,10 @@ fn init_config() {
     let mut config: Config = match toml::from_str(&template) {
         Ok(c) => c,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to deserialize config template: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to deserialize config template: {}", e),
+            );
             return;
         }
     };
@@ -155,23 +178,62 @@ fn init_config() {
     match config_file.write_all(buf) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write the config file: {}", e),
+            );
             exit(1);
         }
     };
-    lrncore::logs::info_log("Successfully initialized nyx config file!");
+    log_from_log_level(LogLevel::Info, "Successfully initialized nyx config file!");
 }
 
 pub fn parse_config_file() -> Result<Config, toml_error> {
+    change_work_dir(&utils::env::get_nyx_env_var());
     let config_path = ".nxfs/config.toml".to_string();
     let file =
         std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write the config file: {}", e));
+            log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to parse the config file: {}", e),
+            );
             return Err(e);
         }
     };
     Ok(config)
+}
+
+fn update_config() {
+    change_work_dir(&utils::env::get_nyx_env_var());
+    let config_path = ".nxfs/config.toml";
+    if !fs::exists(config_path).expect("Failed to check if the configuration path exists") {
+        log_from_log_level(
+            LogLevel::Error,
+            "Config file path doesn't exist. Check if the configuration file exists",
+        );
+        exit(1);
+    }
+    open_new_editor(config_path);
+    log_from_log_level(LogLevel::Info, "Config file updated");
+}
+
+fn cat_config() {
+    change_work_dir(&utils::env::get_nyx_env_var());
+    let config_path = ".nxfs/config.toml";
+    if !fs::exists(config_path).expect("Failed to check if the configuration path exists") {
+        log_from_log_level(
+            LogLevel::Error,
+            "Config file path doesn't exist. Check if the configuration file exists",
+        );
+        exit(1);
+    }
+    let cat = Command::new("cat")
+        .arg(config_path)
+        .stdout(Stdio::inherit())
+        .output()
+        .expect("Failed to execute cat command");
+    println!("{}", String::from_utf8_lossy(&cat.stdout));
 }

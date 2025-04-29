@@ -1,6 +1,6 @@
 [package]
 name = "nyx"
-version = "2.2.0"
+version = "2.6.0"
 edition = "2021"
 authors = ["Elouan DA COSTA PEIXOTO <elouandacostapeixoto@gmail.com>"]
 description = "A CLI tool for managing your projects."
@@ -17,3 +17,5 @@ lrncore = { git = "https://github.com/Lrn-projects/LrnCore.git", version = "0.2.
 bincode = "1.0.0"
 sha1 = "0.10.6"
 toml = "0.8.20"
+chrono = "0.4.40"
+systemstat = "0.2.4"

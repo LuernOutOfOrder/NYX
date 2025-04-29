@@ -1,3 +1,4 @@
+use crate::nxfs::config::LogLevel;
 use crate::projects::nxp;
 use crate::projects::{
     nxp::{NXPContent, NXPHeader, NXP},
@@ -5,9 +6,10 @@ use crate::projects::{
 };
 use inquire::{InquireError, Select, Text};
 use lrncore::usage_exit::command_usage;
+use std::process::exit;
 use std::{env, process::Command};
 
-use crate::utils;
+use crate::utils::{self, log};
 
 pub fn project_delete_help() -> String {
     let usage = r"
@@ -18,7 +20,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn select_remove_project() {
@@ -52,8 +54,8 @@ pub fn select_remove_project() {
 
 fn which_remove_project(choice: &str) {
     match choice {
-        choice if choice == "Remove project from projects list" => remove_project_from_list(),
-        choice if choice == "Delete completely the project" => remove_project_from_storage(),
+        "Remove project from projects list" => remove_project_from_list(),
+        "Delete completely the project" => remove_project_from_storage(),
         _ => println!("please make a choice"),
     }
 }
@@ -64,6 +66,13 @@ fn remove_project_from_list() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to remove this project from NYX ?",
+        "You will lose all data store in NYX storage",
+    );
+    if !confirm {
+        return;
+    }
     // if an index match the given data, remove it from the vector
     let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
@@ -81,7 +90,7 @@ fn remove_project_from_list() {
     };
     nxs::update_project_entries(&mut nxs, projects);
     nxp::delete_nxp(&hash);
-    lrncore::logs::info_log("Successfully remove project from list");
+    log::log_from_log_level(LogLevel::Info, "Successfully remove project from list");
 }
 
 fn remove_project_from_storage() {
@@ -90,6 +99,13 @@ fn remove_project_from_storage() {
     let app_name = Text::new("Enter the name of the project:")
         .prompt()
         .expect("Failed to read project id");
+    let confirm = utils::prompt::confirm_prompt_safe_mode(
+        "Are you sure you want to completely delete this project?",
+        "It will be completely deleted from disk",
+    );
+    if !confirm {
+        return;
+    }
     let mut hash: String = String::new();
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         let app = projects.remove(pos);
@@ -113,11 +129,16 @@ fn remove_project_from_storage() {
         },
     };
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
-    Command::new("rm")
+    let mut rm = Command::new("rm")
         .arg("-rf")
         .arg(nxp.content.location)
         .spawn()
         .expect("Failed to delete the directory of the project");
+    let rm_wait = rm.wait().expect("Failed to wait rm command");
+    if !rm_wait.success() {
+        log::log_from_log_level(LogLevel::Error, "Failed to execute rm command");
+        exit(1);
+    }
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0u8; 4],
@@ -129,5 +150,5 @@ fn remove_project_from_storage() {
     };
     nxs::update_project_entries(&mut nxs, projects);
     nxp::delete_nxp(&hash);
-    lrncore::logs::info_log("Successfully delete project from storage");
+    log::log_from_log_level(LogLevel::Info, "Successfully delete project from storage");
 }

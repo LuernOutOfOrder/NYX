@@ -13,7 +13,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn choose_cleanup() {
@@ -47,13 +47,20 @@ pub fn choose_cleanup() {
 
 fn which_remove_files(choice: &str) {
     match choice {
-        choice if choice == "Remove all docker unused files" => prune_docker_unused(),
-        choice if choice == "Remove all projects build caches and files" => prune_project_unused(),
+        "Remove all docker unused files" => prune_docker_unused(),
+        "Remove all projects build caches and files" => prune_project_unused(),
         _ => println!("please make a choice"),
     }
 }
 
 fn prune_docker_unused() {
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to prune all unused docker related files",
+        "You cannot undo the changes",
+    );
+    if !confirm {
+        return;
+    }
     let mut prune_throbber = utils::custom_throbber("Prune all unused docker files".to_string());
     prune_throbber.start();
     // docker builder
@@ -109,6 +116,14 @@ fn prune_docker_unused() {
 // node_modules, bin folder content of the
 // project managed by nyx
 fn prune_project_unused() {
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to prune all project dependency/build related files",
+        "You cannot undo the changes",
+    );
+    if !confirm {
+        return;
+    }
+
     let projects = nxs::get_all_project_entries();
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
     for i in &projects {

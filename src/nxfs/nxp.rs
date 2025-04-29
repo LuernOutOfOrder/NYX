@@ -6,6 +6,7 @@ It includes functionalities for reading, writing, and manipulating the binary da
 */
 
 use crate::utils;
+use crate::utils::log;
 use serde::Deserialize;
 use serde::Serialize;
 use sha1::{Digest, Sha1};
@@ -16,6 +17,7 @@ use std::io::Read;
 use std::io::Write;
 use tabled::Tabled;
 
+use super::config::LogLevel;
 use super::nxs;
 
 /*
@@ -101,17 +103,23 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to create nxp file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to create nxp file: {}", e),
+            );
             return;
         }
     };
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in nxp file: {}", e),
+            );
         }
     };
-    lrncore::logs::info_log("Initialized NXP file");
+    log::log_from_log_level(LogLevel::Info, "Initialized NXP file");
     let mut nxp: NXP = NXP {
         header: NXPHeader {
             magic_number: MAGIC_NUMBER,
@@ -148,7 +156,7 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     let file = match File::open(path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to open nxp file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to open nxp file: {}", e));
             return;
         }
     };
@@ -161,7 +169,7 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
         match byte_or_error {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
-                lrncore::logs::error_log(&format!("Failed to read byte: {}", e));
+                log::log_from_log_level(LogLevel::Error, &format!("Failed to read bytes: {}", e));
                 return;
             }
         }
@@ -239,27 +247,33 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to create nxp file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to create nxp file: {}", e),
+            );
             return;
         }
     };
     match nxs_file.write_all(&file_buff) {
         Ok(_) => (),
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to write buffer in nxp file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to write buffer in nxp file: {}", e),
+            );
         }
     };
-    lrncore::logs::time_info_log("Update NXP file");
+    log::log_from_log_level(LogLevel::Info, "Update NXP file");
 }
 
 pub fn delete_nxp(hash: &str) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     match fs::remove_dir_all(format!(".nxfs/projects/{}/", hash)) {
         Ok(_) => {
-            lrncore::logs::time_info_log("Successfully remove project file");
+            log::log_from_log_level(LogLevel::Info, "Successfully remove project file");
         }
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to delete file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to delete file: {}", e));
         }
     }
 }

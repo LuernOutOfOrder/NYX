@@ -14,8 +14,10 @@ use helpers::{
 };
 use lrncore::usage_exit::command_usage;
 
+use crate::nxfs::config::LogLevel;
 use crate::projects::nxs;
-use crate::{logs, utils};
+use crate::utils::log;
+use crate::utils;
 use std::fs::{self};
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -63,7 +65,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn choose_todo() {
@@ -141,11 +143,11 @@ pub fn choose_todo() {
 
 fn which_todo(choice: &str) {
     match choice {
-        choice if choice == "Add to to-do" => update_todo_list(),
-        choice if choice == "Show to-do list" => display_todo_list(),
-        choice if choice == "Clear the to-do list" => prune_todo(),
-        choice if choice == "Remove one to-do" => remove_todo(),
-        choice if choice == "Update one to-do status" => update_todo_status(),
+        "Add to to-do" => update_todo_list(),
+        "Show to-do list" => display_todo_list(),
+        "Clear the to-do list" => prune_todo(),
+        "Remove one to-do" => remove_todo(),
+        "Update one to-do status" => update_todo_status(),
         _ => println!("please make a choice"),
     }
 }
@@ -166,7 +168,7 @@ fn update_todo_list() {
         let app = projects.remove(pos);
         project_hash = app.project_hash
     } else {
-        lrncore::logs::error_log("Project not found");
+        log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
 
@@ -194,7 +196,7 @@ fn display_todo_list() {
         let app = projects.remove(pos);
         project_hash = app.project_hash
     } else {
-        lrncore::logs::error_log("Project not found");
+        log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
@@ -222,28 +224,32 @@ fn prune_todo() {
         let app = projects.remove(pos);
         project_hash = app.project_hash
     } else {
-        lrncore::logs::error_log("Project not found");
+        log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
 
-    let confirm = utils::confirm_prompt(
-        "Are you sure to clear the list ?",
-        "It will remove completely the todo file from your system.",
+    let confirm = utils::prompt::confirm_prompt(
+        "Are you sure you want to prune the todo list ?",
+        "You cannot undo the changes",
     );
     if !confirm {
-        exit(0);
+        return;
     }
+
     let file_path = format!(".nxfs/projects/{}/todo", project_hash_str);
     match fs::remove_file(file_path) {
         Ok(_) => {
-            lrncore::logs::time_info_log("Successfully remove todo file");
+            log::log_from_log_level(LogLevel::Info, "Successfully remove todo file");
         }
         Err(e) => {
-            lrncore::logs::error_log(&format!("Failed to remove todo file: {}", e));
+            log::log_from_log_level(
+                LogLevel::Error,
+                &format!("Failed to remove todo file: {}", e),
+            );
         }
     };
-    logs::info_log("To-do list cleared successfully".to_string());
+    log::log_from_log_level(LogLevel::Info, "To-do list cleared successfully");
 }
 
 fn remove_todo() {
@@ -264,7 +270,7 @@ fn remove_todo() {
         let app = projects.remove(pos);
         project_hash = app.project_hash;
     } else {
-        lrncore::logs::error_log("Project not found");
+        log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
 
@@ -276,7 +282,7 @@ fn remove_todo() {
         todo_vec.remove(todo);
     };
     update_todo_file(&project_hash_str, todo_vec, todo);
-    logs::info_log("Successfully remove the to-do".to_string());
+    log::log_from_log_level(LogLevel::Info, "Successfully remove the to-do");
 }
 
 fn update_todo_status() {
@@ -319,5 +325,5 @@ fn update_todo_status() {
     updated_todo.status = new_status.expect("Failed to get the updated status");
     todo_vec.push(updated_todo);
     update_todo_file(&project_hash_str, todo_vec, todo);
-    logs::info_log("Successfully update to-do status".to_string());
+    log::log_from_log_level(LogLevel::Info, "Successfully update the to-do");
 }

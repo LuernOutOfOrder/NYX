@@ -22,9 +22,11 @@ use std::env;
 use std::process::exit;
 
 use super::nxs;
+use crate::nxfs::config::LogLevel;
 use crate::projects::nxp;
 use crate::projects::nxs::{NXSHeader, ProjectEntry, ProjectList, NXS};
 use crate::utils::editor::update_editor;
+use crate::utils::log::log_from_log_level;
 use crate::{
     projects::nxp::{NXPContent, NXPHeader, NXP},
     utils,
@@ -69,13 +71,13 @@ pub fn update_project_properties() {
         project_size: 0,
     };
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
-        println!("Project found");
+        log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
         current_project.project_hash = app.project_hash.clone();
         current_project.project_name = app.project_name.clone();
         current_project.project_size = app.project_size.clone();
     } else {
-        lrncore::logs::error_log("Project not found");
+        log_from_log_level(LogLevel::Error, "Project not found");
         exit(1);
     }
     let mut nxp: NXP = NXP {
