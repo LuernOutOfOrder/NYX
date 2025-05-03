@@ -106,10 +106,15 @@ fn hello() {
         "\tProjects directory size: {}",
         helper::folder_size(&nxfs_projects_path)
     );
-    let nxfs_temp_path = nyx_path + "/.nxfs/tmp/";
+    let nxfs_temp_path = nyx_path.clone() + "/.nxfs/tmp/";
     print!(
         "\tTemp directory size: {}",
         helper::folder_size(&nxfs_temp_path)
+    );
+    let nxfs_log_path = nyx_path + "/.nxfs/logs/";
+    print!(
+        "\tLogs directory size: {}",
+        helper::folder_size(&nxfs_log_path)
     );
     println!(
         "\tNumber of projects: {}",
