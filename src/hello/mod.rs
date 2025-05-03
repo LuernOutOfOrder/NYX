@@ -40,6 +40,7 @@ pub fn hello_command() {
     }
 }
 
+/// Hello function printing all system information useful for user
 fn hello() {
     let user_name: String = nxfs::config::parse_config_file()
         .expect("Failed to get config file")
