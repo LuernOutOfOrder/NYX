@@ -1,7 +1,6 @@
 use std::process::Command;
 
 use crate::env;
-use crate::logs;
 use crate::utils;
 
 use lrncore::usage_exit::command_usage;
@@ -96,13 +95,13 @@ pub fn git_init() {
 }
 
 fn git_summarize() {
-    logs::nyx_log("Last commits with stat: \n");
+    println!("Last commits with stat: \n");
     show_last_commit_with_stat();
-    logs::nyx_log("All commits by all users: ");
+    println!("All commits by all users: ");
     show_all_commit();
-    logs::nyx_log("All branches: ");
+    println!("All branches: ");
     show_all_branch();
-    logs::nyx_log("Stash: ");
+    println!("Stash: ");
     show_stash();
 }
 

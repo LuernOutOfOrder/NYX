@@ -36,14 +36,14 @@ pub fn doctor_health() {
             _ => {}
         }
     }
-    println!("Development environment health status:");
-    logs::nyx_log("[System Requirements]");
+    logs::nyx_log("Development environment health status:");
+    println!("[System Requirements]");
     check_tech();
-    logs::nyx_log("[Environments variables]");
+    println!("[Environments variables]");
     check_var();
-    logs::nyx_log("[NYX Environment]");
+    println!("[NYX Environment]");
     check_config_file();
-    logs::nyx_log("[Optional Tools]");
+    println!("[Optional Tools]");
     check_docker();
     check_gh();
     log::log_from_log_level(LogLevel::Info, "Health check done");
