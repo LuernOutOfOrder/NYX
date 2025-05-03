@@ -2,7 +2,7 @@ use crate::utils;
 
 use colored::Colorize;
 use lrncore::path::change_work_dir;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use throbber::Throbber;
 
 pub fn update_bin() {
@@ -28,6 +28,8 @@ pub fn update_bin() {
     let mut build_target = Command::new("cargo")
         .arg("build")
         .arg("--release")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .spawn()
         .expect("Failed to build the target binary");
     let wait_build_target = build_target
@@ -52,6 +54,8 @@ pub fn update_bin() {
             .arg("install")
             .arg("--path")
             .arg(".")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .spawn()
             .expect("Failed to update to the latest version");
         let wait_cargo_install = cargo_install
