@@ -169,7 +169,7 @@ fn update_todo_list() {
         project_hash = app.project_hash
     } else {
         log::log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
 
     let project_hash_str = String::from_utf8_lossy(&project_hash);
@@ -197,7 +197,7 @@ fn display_todo_list() {
         project_hash = app.project_hash
     } else {
         log::log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
     let todo: TodoFile = parse_todo_file(&project_hash_str);
@@ -225,7 +225,7 @@ fn prune_todo() {
         project_hash = app.project_hash
     } else {
         log::log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
     let project_hash_str = String::from_utf8_lossy(&project_hash);
 
@@ -271,7 +271,7 @@ fn remove_todo() {
         project_hash = app.project_hash;
     } else {
         log::log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
 
     let project_hash_str = String::from_utf8_lossy(&project_hash);
