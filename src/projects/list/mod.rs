@@ -140,7 +140,7 @@ fn create_repo_add_to_list(tech: &str) {
     let user_github_url = config.git.profile_url;
     if user_github_url.is_empty() {
         log::log_from_log_level(LogLevel::Error, "No github url was specified. Please enter one in config file.");
-        exit(1);
+        exit(4);
     }
     let repository: String = user_github_url + app_name;
     github_project = utils::prompt_message(

@@ -56,7 +56,7 @@ pub fn open_editor(project: &str) {
         location = app.location;
     } else {
         log::log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
     let config = nxfs::config::parse_config_file().expect("Failed to parse nyx config file");
     let editor_var = config.behavior.default_editor;
