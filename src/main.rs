@@ -12,6 +12,7 @@ use lrncore::usage_exit::command_usage;
 pub mod nxfs;
 use std::env;
 mod hello;
+mod health;
 
 // Current version of NYX
 // if modified and then running update command it will replace
@@ -26,6 +27,7 @@ enum Commands {
     Cleanup,
     Git,
     Doctor,
+    Health,
     Hello,
     Update,
     Config,
@@ -47,6 +49,7 @@ Commands:
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
+    health          Display current user configure environment health
     hello           Display helpful information about today
     update          Update the current version of NYX
     config          Manage nyx configuration
@@ -84,6 +87,7 @@ fn main() {
         Some("cleanup") => Commands::Cleanup,
         Some("git") => Commands::Git,
         Some("doctor") => Commands::Doctor,
+        Some("health") => Commands::Health,
         Some("hello") => Commands::Hello,
         Some("config") => Commands::Config,
         Some("update") => Commands::Update,
@@ -103,6 +107,7 @@ fn main() {
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
         Commands::Doctor => doctor::doctor_health(),
+        Commands::Health => health::health_command(),
         Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
         Commands::Update => update::update_bin(),

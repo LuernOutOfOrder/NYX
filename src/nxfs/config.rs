@@ -47,6 +47,8 @@ pub struct ConfigHeader {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ConfigUser {
     pub name: String,
+    pub health_list: Vec<String>,
+    pub update_list: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -93,6 +95,8 @@ version = '0.1.0'
 
 [user]
 name = ''
+health_list = []
+update_list = []
 
 [git]
 profile_url = ''
