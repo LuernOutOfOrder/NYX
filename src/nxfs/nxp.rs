@@ -60,23 +60,23 @@ pub struct NXPContentShort {
     pub version: String,
 }
 
-// create a new NXP file to store project data
+// Create a new NXP file to store project data
 pub fn create_new_nxp(content: NXPContent) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     // hash
     let mut new_hash = Sha1::new();
-    new_hash.update(content.name.to_owned());
+    new_hash.update(&content.name);
     let hash_result = new_hash.finalize();
     let folder_hash = format!("{:#x}", hash_result);
     let (file_hash, _) = folder_hash.split_at(11);
     // content
     let content: NXPContent = NXPContent {
-        name: format!("{}", content.name),
-        tech: format!("{}", content.tech),
-        location: format!("{}", content.location),
-        repository: format!("{}", content.repository),
-        github_project: format!("{}", content.github_project),
-        version: format!("{}", "0.1.0"),
+        name: content.name.to_string(),
+        tech: content.tech.to_string(),
+        location: content.location.to_string(),
+        repository: content.repository.to_string(),
+        github_project: content.github_project.to_string(),
+        version: content.version.to_string(),
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -146,11 +146,11 @@ pub fn create_new_nxp(content: NXPContent) {
 /// Arguments:
 ///
 /// * `path`: The `path` parameter in the `parse_nxp_file` function represents the file path to the NXP
-/// file that you want to parse and extract information from. This function reads the contents of the
-/// specified NXP file, extracts the header and project content, and then populates the provided `N
+///   file that you want to parse and extract information from. This function reads the contents of the
+///   specified NXP file, extracts the header and project content, and then populates the provided `N
 /// * `nxp_ref`: The `nxp_ref` parameter in the `parse_nxp_file` function is a mutable reference to an
-/// instance of the `NXP` struct. This parameter allows the function to update the content of the `NXP`
-/// struct that is passed in by the caller. By using a mutable reference
+///   instance of the `NXP` struct. This parameter allows the function to update the content of the `NXP`
+///   struct that is passed in by the caller. By using a mutable reference
 pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let file = match File::open(path) {
@@ -186,7 +186,7 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     let project_content: NXPContent =
         bincode::deserialize(project_content_bytes).expect("Failed to deserialize project content");
     let nxp: NXP = NXP {
-        header: header,
+        header,
         content: project_content,
     };
     nxp_ref.header = nxp.header;

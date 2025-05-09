@@ -77,7 +77,7 @@ pub fn project_command() {
         "new" => {
             if args.len() <= 3 {
                 log::log_from_log_level(LogLevel::Error, "Enter a new project name");
-                exit(1);
+                exit(4);
             }
             let project_name = &args[3];
             new_project(project_name.to_string());

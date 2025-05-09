@@ -80,7 +80,7 @@ pub fn parse_todo_file(hash: &str) -> TodoFile {
         Ok(f) => f,
         Err(e) => {
             log::log_from_log_level(LogLevel::Error, &format!("Failed to open todo file: {}", e));
-            exit(1);
+            exit(51);
         }
     };
     // initialize TodoHeader size from structure and buffer
@@ -93,7 +93,7 @@ pub fn parse_todo_file(hash: &str) -> TodoFile {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
                 log::log_from_log_level(LogLevel::Error, &format!("Failed to read byte: {}", e));
-                exit(1)
+                exit(50)
             }
         }
     }

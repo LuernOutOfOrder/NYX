@@ -81,7 +81,7 @@ fn get_project_content() -> NXPContent {
         project_hash = app.project_hash;
     } else {
         log_from_log_level(LogLevel::Error, "Project not found");
-        exit(1);
+        exit(10);
     }
     let mut nxp: NXP = NXP {
         header: NXPHeader {

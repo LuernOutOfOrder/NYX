@@ -182,7 +182,7 @@ fn init_config() {
                 LogLevel::Error,
                 &format!("Failed to write the config file: {}", e),
             );
-            exit(1);
+            exit(50);
         }
     };
     log_from_log_level(LogLevel::Info, "Successfully initialized nyx config file!");
@@ -214,7 +214,7 @@ fn update_config() {
             LogLevel::Error,
             "Config file path doesn't exist. Check if the configuration file exists",
         );
-        exit(1);
+        exit(50);
     }
     open_new_editor(config_path);
     log_from_log_level(LogLevel::Info, "Config file updated");
@@ -228,7 +228,7 @@ fn cat_config() {
             LogLevel::Error,
             "Config file path doesn't exist. Check if the configuration file exists",
         );
-        exit(1);
+        exit(50);
     }
     let cat = Command::new("cat")
         .arg(config_path)

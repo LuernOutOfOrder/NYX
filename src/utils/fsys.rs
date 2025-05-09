@@ -26,14 +26,14 @@ pub fn create_dir(path: &str) {
 pub fn rm_command(path: String) {
     if path.is_empty() {
         log::log_from_log_level(LogLevel::Error, "Path is empty");
-        exit(1)
+        exit(4)
     }
 
     let forbidden_names = ["/", ".", ".."];
     let forbidden_patterns = ['*', '?', '&', ';', '|', '`'];
     if forbidden_names.contains(&path.as_str()) {
         log::log_from_log_level(LogLevel::Error, "Input contains forbidden names.");
-        exit(1)
+        exit(2)
     };
 
     if path.chars().any(|c| forbidden_patterns.contains(&c)) {
@@ -41,7 +41,7 @@ pub fn rm_command(path: String) {
             LogLevel::Error,
             "Input contains forbidden patterns (*, ?, &, ;, |, `).",
         );
-        exit(1)
+        exit(2)
     }
 
     let mut rm = Command::new("rm")
@@ -59,12 +59,12 @@ pub fn rm_command(path: String) {
                 "Error in the remove command. Check if you have the right to remove directories.",
             );
             println!("{}", line.unwrap());
-            exit(1);
+            exit(2);
         }
     }
     let wait_rm = rm.wait().expect("Failed to wait rm command");
     if !wait_rm.success() {
         log::log_from_log_level(LogLevel::Error, "Failed to execute rm command");
-        exit(1);
+        exit(6);
     }
 }
