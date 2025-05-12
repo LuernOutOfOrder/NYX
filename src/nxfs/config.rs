@@ -51,7 +51,7 @@ pub struct ConfigUser {
     pub update_list: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub enum UserHealthEntryCategory {
     System,
     Network,
@@ -213,7 +213,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            println!("Error parsing the configuration file: {:?}", e); 
+            println!("Failed to parse the configuration file: {:?}", e); 
             return Err(e);
         }
     };
