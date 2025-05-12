@@ -39,16 +39,16 @@ fn user_env_health() {
     let config = nxfs::config::parse_config_file().expect("Failed to get the config file");
     logs::nyx_log("User environment health status:");
     for each in config.user.health_list {
-        match Command::new(&each)
+        match Command::new(&each.command)
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .spawn()
         {
             Ok(_) => {
-                logs::installed(&each);
+                logs::installed(&each.command);
             }
             Err(_) => {
-                logs::not_installed(&each);
+                logs::not_installed(&each.command);
             }
         }
     }

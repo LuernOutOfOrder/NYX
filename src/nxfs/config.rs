@@ -47,8 +47,21 @@ pub struct ConfigHeader {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ConfigUser {
     pub name: String,
-    pub health_list: Vec<String>,
+    pub health_list: Vec<UserHealthEntry>,
     pub update_list: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub enum UserHealthEntryCategory {
+    System,
+    Network,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UserHealthEntry {
+    pub category: UserHealthEntryCategory,
+    pub command: String,
+    pub sub_command: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -200,10 +213,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to parse the config file: {}", e),
-            );
+            println!("Error parsing the configuration file: {:?}", e); 
             return Err(e);
         }
     };
