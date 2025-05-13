@@ -1,6 +1,7 @@
 use std::{
     env,
-    process::{exit, Command, Stdio}, thread,
+    process::{exit, Command, Stdio},
+    thread::{self, JoinHandle},
 };
 
 use lrncore::usage_exit::command_usage;
@@ -42,10 +43,21 @@ pub fn update_command() {
 fn update_all_commands() {
     let config = parse_config_file().expect("Failed to parse config file");
     log_from_log_level(LogLevel::Info, "Starting updating all specified command.");
+    // Contains all spawned threads
+    let mut handlers: Vec<JoinHandle<()>> = Vec::new();
+    // Spawn a thread per command to update
     for each in config.user.update_list {
-        thread::Builder::new().name(each.command.to_string()).spawn(move || {
-            execute_update_command(&each.command, &each.sub_command);
-        }).expect("Failed to create thread").join().expect("Failed to execute thread command")
+        let thread = thread::Builder::new()
+            .name(each.command.to_string())
+            .spawn(move || {
+                execute_update_command(&each.command, &each.sub_command);
+            })
+            .expect("Failed to create thread");
+        handlers.push(thread);
+    }
+    // Join all threads
+    for handle in handlers {
+        handle.join().expect("Failed to join the thread");
     }
     log_from_log_level(
         LogLevel::Info,
@@ -63,6 +75,6 @@ fn execute_update_command(cmd: &str, subcmd: &str) {
     if !wait_command.success() {
         log_from_log_level(LogLevel::Error, "Failed to execute the command");
     } else {
-        log_from_log_level(LogLevel::Info, "Successfully updated the specified command");
+        log_from_log_level(LogLevel::Info, &format!("Successfully updated {}", cmd));
     }
 }
