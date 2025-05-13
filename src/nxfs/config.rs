@@ -27,6 +27,7 @@ Options:
         ";
     usage.to_string()
 }
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
     pub config: ConfigHeader,
@@ -48,7 +49,13 @@ pub struct ConfigHeader {
 pub struct ConfigUser {
     pub name: String,
     pub health_list: Vec<UserHealthEntry>,
-    pub update_list: Vec<String>,
+    pub update_list: Vec<UserUpdateEntry>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct UserUpdateEntry {
+    pub command: String,
+    pub sub_command: String
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]

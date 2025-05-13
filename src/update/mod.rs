@@ -1,74 +1,68 @@
-use crate::utils;
+use std::{
+    env,
+    process::{exit, Command, Stdio}, thread,
+};
 
-use colored::Colorize;
-use lrncore::path::change_work_dir;
-use std::process::{Command, Stdio};
-use throbber::Throbber;
+use lrncore::usage_exit::command_usage;
 
-/// Check if there's a new version of nyx and if so update the current one
-pub fn update_bin() {
-    change_work_dir(&utils::env::get_nyx_env_var());
-    let nyx_art = utils::nyx_ascii_art();
-    // throbber
-    let mut building_throbber = Throbber::new()
-        .message("Building latest NYX binary...".to_string())
-        .frames(&throbber::ROTATE_F);
-    let mut update_throbber = Throbber::new()
-        .message("Updating NYX...".to_string())
-        .frames(&throbber::ROTATE_F);
-    println!("{}", nyx_art.truecolor(138, 43, 226));
-    building_throbber.start();
+use crate::{
+    nxfs::config::{parse_config_file, LogLevel},
+    utils::log::log_from_log_level,
+};
 
-    // nyx version
-    let nyx_current_version = Command::new("nyx")
-        .arg("version")
-        .output()
-        .expect("Failed to get the current version of NYX");
-    let nyx_target_build_location = utils::env::get_nyx_env_var() + "/target/release";
-    lrncore::path::change_work_dir(&nyx_target_build_location);
-    let mut build_target = Command::new("cargo")
-        .arg("build")
-        .arg("--release")
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn()
-        .expect("Failed to build the target binary");
-    let wait_build_target = build_target
-        .wait()
-        .expect("Failed to wait the cargo build command");
-    if !wait_build_target.success() {
-        building_throbber.fail("Error building latest binary".to_string());
-        panic!();
+fn update_help() -> String {
+    let usage = r"
+Usage: nyx update [subcommand] [arguments] [options]
+
+Subcommands:
+    update       Update the command specified in configuration file
+
+Options:
+    -h, --help      Show this help message
+
+        ";
+    usage.to_string()
+}
+
+pub fn update_command() {
+    let args: Vec<String> = env::args().collect();
+    if args.len() <= 2 {
+        update_all_commands();
+        exit(0);
     }
-    building_throbber.success("Successfully build latest binary".to_string());
-    building_throbber.end();
-    let nyx_latest_version = Command::new("./nyx")
-        .arg("version")
-        .output()
-        .expect("Failed to get the current version of NYX");
-    if String::from_utf8(nyx_latest_version.stdout) != String::from_utf8(nyx_current_version.stdout)
-    {
-        println!("A new version of NYX has been found");
-        update_throbber.start();
-        lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
-        let mut cargo_install = Command::new("cargo")
-            .arg("install")
-            .arg("--path")
-            .arg(".")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
-            .expect("Failed to update to the latest version");
-        let wait_cargo_install = cargo_install
-            .wait()
-            .expect("Failed to wait the cargo install command");
-        if !wait_cargo_install.success() {
-            update_throbber.fail("Failed to update NYX to the latest version".to_string());
-            panic!("Failed to update NYX");
+    match args[2].as_str() {
+        "" => (),
+
+        _ => {
+            command_usage(&update_help());
         }
-        update_throbber.success("Successfully update NYX".to_string());
-        update_throbber.end();
+    }
+}
+
+fn update_all_commands() {
+    let config = parse_config_file().expect("Failed to parse config file");
+    log_from_log_level(LogLevel::Info, "Starting updating all specified command.");
+    for each in config.user.update_list {
+        thread::Builder::new().name(each.command.to_string()).spawn(move || {
+            execute_update_command(&each.command, &each.sub_command);
+        }).expect("Failed to create thread").join().expect("Failed to execute thread command")
+    }
+    log_from_log_level(
+        LogLevel::Info,
+        "Successfully updated all specified command!",
+    );
+}
+
+fn execute_update_command(cmd: &str, subcmd: &str) {
+    let mut command = Command::new(cmd)
+        .arg(subcmd)
+        .stdout(Stdio::null())
+        .spawn()
+        .expect(&format!("Failed to execute the command: {}", cmd));
+    let wait_command = command.wait().expect("Failed to wait the command");
+    if !wait_command.success() {
+        log_from_log_level(LogLevel::Error, "Failed to execute the command");
     } else {
-        println!("You already have the latest version of NYX!");
+        log_from_log_level(LogLevel::Info, "Successfully updated the specified command");
     }
 }

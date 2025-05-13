@@ -6,6 +6,7 @@ pub mod logs;
 pub mod macros;
 mod projects;
 mod update;
+mod upgrade;
 mod utils;
 use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
@@ -31,6 +32,7 @@ enum Commands {
     Hello,
     Update,
     Config,
+    Upgrade,
     Help,
     Version,
 }
@@ -51,7 +53,7 @@ Commands:
     doctor          Display current NYX system health
     health          Display current user configure environment health
     hello           Display helpful information about today
-    update          Update the current version of NYX
+    upgrade         Update the current version of NYX
     config          Manage nyx configuration
     help            Show this help message
 
@@ -89,8 +91,9 @@ fn main() {
         Some("doctor") => Commands::Doctor,
         Some("health") => Commands::Health,
         Some("hello") => Commands::Hello,
-        Some("config") => Commands::Config,
         Some("update") => Commands::Update,
+        Some("config") => Commands::Config,
+        Some("upgrade") => Commands::Upgrade,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
         _ => {
@@ -110,7 +113,8 @@ fn main() {
         Commands::Health => health::health_command(),
         Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
-        Commands::Update => update::update_bin(),
+        Commands::Update => update::update_command(),
+        Commands::Upgrade => upgrade::upgrade_bin(),
         Commands::Help => command_usage(nyx_usage()),
         Commands::Version => command_usage(&nyx_version()),
     }
