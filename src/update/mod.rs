@@ -7,7 +7,8 @@ use std::{
 use lrncore::usage_exit::command_usage;
 
 use crate::{
-    nxfs::config::{parse_config_file, LogLevel},
+    logs::nyx_log,
+    nxfs::{blacklist, config::{parse_config_file, LogLevel}},
     utils::log::log_from_log_level,
 };
 
@@ -42,6 +43,14 @@ pub fn update_command() {
 
 fn update_all_commands() {
     let config = parse_config_file().expect("Failed to parse config file");
+    let safe_mode = config.security.secure_mode;
+    if safe_mode {
+        nyx_log("Secure mode enabled. You cannot execute this operation.");
+        exit(11);
+    } else {
+        log_from_log_level(LogLevel::Warn, "Secure mode disabled.");
+        log_from_log_level(LogLevel::Warn, "Caution: You are about to execute a command from your configuration file. Make sure the command is safe and does not include potentially harmful operations.");
+    }
     log_from_log_level(LogLevel::Info, "Starting updating all specified command.");
     // Contains all spawned threads
     let mut handlers: Vec<JoinHandle<()>> = Vec::new();
@@ -66,6 +75,12 @@ fn update_all_commands() {
 }
 
 fn execute_update_command(cmd: &str, subcmd: &str) {
+    let blacklist = blacklist::read_whitelist();
+    for each in blacklist {
+        if cmd == each {
+            log_from_log_level(LogLevel::Error, &format!("Command in the blacklist. You cannot execute this command: {:?}", cmd));
+        }
+    }
     let mut command = Command::new(cmd)
         .arg(subcmd)
         .stdout(Stdio::null())

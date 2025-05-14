@@ -7,7 +7,7 @@ use lrncore::usage_exit::command_usage;
 
 use crate::{
     logs,
-    nxfs::{self, config::UserHealthEntryCategory},
+    nxfs::{self, config::{LogLevel, UserHealthEntryCategory}}, utils::log::log_from_log_level,
 };
 
 pub fn health_help() -> String {
@@ -42,6 +42,7 @@ pub fn health_command() {
 }
 
 fn user_env_health() {
+    log_from_log_level(LogLevel::Warn, "Caution: You are about to execute a command from your configuration file. Make sure the command is safe and does not include potentially harmful operations.");
     let config = nxfs::config::parse_config_file().expect("Failed to get the config file");
     logs::nyx_log("User environment health status:");
     println!("[System]");
