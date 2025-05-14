@@ -3,7 +3,6 @@ Module to manage the blacklist file use to avoid specific command that can poten
 */
 use std::{fs::File, io::Read};
 
-
 use lrncore::path::change_work_dir;
 
 use crate::utils;
