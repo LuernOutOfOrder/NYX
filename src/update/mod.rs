@@ -4,14 +4,11 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use lrncore::{logs, usage_exit::command_usage};
+use lrncore::usage_exit::command_usage;
 
 use crate::{
     logs::nyx_log,
-    nxfs::{
-        blacklist,
-        config::{parse_config_file, LogLevel},
-    },
+    nxfs::config::{parse_config_file, LogLevel},
     utils::log::log_from_log_level,
 };
 
@@ -78,16 +75,6 @@ fn update_all_commands() {
 }
 
 fn execute_update_command(cmd: &str, subcmd: &str) {
-    let blacklist = blacklist::read_whitelist();
-    for each in blacklist {
-        if cmd == each {
-            logs::time_error_log(&format!(
-                "Command in the blacklist. You cannot execute this command: {:?}",
-                cmd
-            ));
-            return;
-        }
-    }
     let mut command = Command::new(cmd)
         .arg(subcmd)
         .stdout(Stdio::null())
