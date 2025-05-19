@@ -1,8 +1,5 @@
 use std::env;
 use std::process::Command;
-mod helper;
-
-use helper::{installed, not_installed, warning};
 
 use crate::logs;
 use crate::nxfs;
@@ -10,6 +7,8 @@ use crate::nxfs::config::LogLevel;
 use crate::utils::log;
 use crate::vec_of_strings;
 use lrncore::usage_exit::command_usage;
+
+use logs::{installed, not_installed, warning};
 
 pub fn doctor_help() -> String {
     let usage = r"

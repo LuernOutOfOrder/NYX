@@ -17,6 +17,7 @@ pub fn confirm_prompt(message: &str, help_message: &str) -> bool {
     true
 }
 
+// if secure mode is enabled, ask user confirmation. Else return always true
 pub fn confirm_prompt_safe_mode(message: &str, help_message: &str) -> bool {
     let config = nxfs::config::parse_config_file().expect("Failed to parse NYX config file");
     if config.security.secure_mode {

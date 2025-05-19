@@ -9,6 +9,7 @@ use crate::{
     nxfs::{self},
     utils,
 };
+
 pub fn hello_help() -> String {
     let usage = r"
 Usage: nyx hello [options]
