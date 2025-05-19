@@ -18,7 +18,7 @@ mod health;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.8.0";
+const VERSION: &str = "2.9.0";
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
