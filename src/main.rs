@@ -52,7 +52,7 @@ Commands:
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
     health          Display current user configure environment health
-    update          Execute all specified user configuration command to update multiple tools at once
+    update          Execute all specified user configuration commands to update multiple tools at once
     hello           Display helpful information about today
     upgrade         Update the current version of NYX
     config          Manage nyx configuration
