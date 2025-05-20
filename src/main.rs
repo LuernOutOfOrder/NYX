@@ -18,7 +18,7 @@ mod health;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.9.0";
+const VERSION: &str = "2.9.1";
 #[derive(Debug, Clone)]
 enum Commands {
     Init,
@@ -52,6 +52,7 @@ Commands:
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
     health          Display current user configure environment health
+    update          Execute all specified user configuration commands to update multiple tools at once
     hello           Display helpful information about today
     upgrade         Update the current version of NYX
     config          Manage nyx configuration
