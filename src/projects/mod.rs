@@ -17,9 +17,9 @@ pub mod delete;
 use crate::nxfs;
 use lrncore::usage_exit::command_usage;
 use nxfs::{nxp, nxs};
+mod copy;
 pub mod open;
 pub mod todo;
-mod copy;
 use open::open_editor;
 
 pub fn project_help() -> String {

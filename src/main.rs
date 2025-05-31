@@ -1,7 +1,7 @@
 mod cleanup;
+mod doctor;
 pub mod gh;
 mod git;
-mod doctor;
 pub mod logs;
 pub mod macros;
 mod projects;
@@ -12,8 +12,8 @@ use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
 pub mod nxfs;
 use std::env;
-mod hello;
 mod health;
+mod hello;
 
 // Current version of NYX
 // if modified and then running update command it will replace

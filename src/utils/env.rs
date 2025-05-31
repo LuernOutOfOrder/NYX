@@ -12,4 +12,3 @@ pub fn get_nyx_env_var() -> String {
         Err(e) => panic!("${} is not set ({})", env_var, e),
     }
 }
-

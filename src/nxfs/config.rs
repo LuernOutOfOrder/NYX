@@ -55,7 +55,7 @@ pub struct ConfigUser {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UserUpdateEntry {
     pub command: String,
-    pub sub_command: String
+    pub sub_command: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
@@ -222,7 +222,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            println!("Failed to parse the configuration file: {:?}", e); 
+            println!("Failed to parse the configuration file: {:?}", e);
             return Err(e);
         }
     };
