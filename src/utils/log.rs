@@ -19,7 +19,7 @@ pub fn log_from_log_level(log_level: LogLevel, log_msg: &str) {
             timestamp.format("%d-%m-%Y %H:%M:%S").to_string(),
             log_msg
         );
-        let log_path = config.unwrap().internal_path.logs;
+        let log_path = unwrapped_config.internal_path.logs;
         // log file path by day
         let daily_log_path = format!("{}{}", log_path, timestamp.format("%d-%m-%Y").to_string());
         let mut file = OpenOptions::new()
