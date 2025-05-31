@@ -1,7 +1,7 @@
-use std::process::exit;
-use chrono::Local;
+use chrono::{Datelike, Local, Month, Utc};
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::process::exit;
 
 use lrncore::logs;
 
@@ -13,17 +13,23 @@ pub fn log_from_log_level(log_level: LogLevel, log_msg: &str) {
     let save_file = config.clone().unwrap().behavior.save_logs;
 
     if save_file {
-        let timestamp = Local::now();
-        let log = format!("{} {}", timestamp, log_msg); 
-        println!("debug: {:?}", log);
-        let file_path = config.unwrap().internal_path.logs;
+        let timestamp = Utc::now();
+        let log = format!(
+            "{} {}",
+            timestamp.format("%d-%m-%Y %H:%M:%S").to_string(),
+            log_msg
+        );
+        let log_path = config.unwrap().internal_path.logs;
+        // log file path by day
+        let daily_log_path = format!("{}{}", log_path, timestamp.format("%d-%m-%Y").to_string());
         let mut file = OpenOptions::new()
+            .create(true)
             .write(true)
             .append(true)
-            .open(file_path)
+            .open(daily_log_path)
             .unwrap();
 
-        if let Err(e) = writeln!(file, "A new line!") {
+        if let Err(e) = writeln!(file, "{}", log) {
             eprintln!("Couldn't write to file: {}", e);
         }
     }
