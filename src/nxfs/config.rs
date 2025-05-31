@@ -127,7 +127,7 @@ default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
 log_level = 'Info'
-save_logs = true
+save_logs = false
 
 [ui]
 
