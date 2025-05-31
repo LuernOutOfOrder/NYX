@@ -9,8 +9,9 @@ use crate::nxfs::{self, config::LogLevel};
 
 pub fn log_from_log_level(log_level: LogLevel, log_msg: &str) {
     let config = nxfs::config::parse_config_file();
-    let config_log_level = config.clone().unwrap().behavior.log_level;
-    let save_file = config.clone().unwrap().behavior.save_logs;
+    let unwrapped_config = config.clone().unwrap();
+    let config_log_level = unwrapped_config.behavior.log_level;
+    let save_file = unwrapped_config.behavior.save_logs;
 
     if save_file {
         let timestamp = Utc::now();
