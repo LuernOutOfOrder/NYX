@@ -1,7 +1,7 @@
 mod cleanup;
+mod doctor;
 pub mod gh;
 mod git;
-mod doctor;
 pub mod logs;
 pub mod macros;
 mod projects;
@@ -12,14 +12,13 @@ use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
 pub mod nxfs;
 use std::env;
-mod hello;
 mod health;
+mod hello;
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.9.1";
-#[derive(Debug, Clone)]
+const VERSION: &str = "2.10.0";
 enum Commands {
     Init,
     CatNxs,

@@ -7,7 +7,11 @@ use lrncore::usage_exit::command_usage;
 
 use crate::{
     logs,
-    nxfs::{self, config::{LogLevel, UserHealthEntryCategory}}, utils::log::log_from_log_level,
+    nxfs::{
+        self,
+        config::{LogLevel, UserHealthEntryCategory},
+    },
+    utils::log::log_from_log_level,
 };
 
 pub fn health_help() -> String {

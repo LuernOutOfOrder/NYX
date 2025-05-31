@@ -16,8 +16,8 @@ use lrncore::usage_exit::command_usage;
 
 use crate::nxfs::config::LogLevel;
 use crate::projects::nxs;
-use crate::utils::log;
 use crate::utils;
+use crate::utils::log;
 use std::fs::{self};
 
 #[derive(Debug, Deserialize, Serialize)]

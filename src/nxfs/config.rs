@@ -28,7 +28,7 @@ Options:
     usage.to_string()
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
     pub config: ConfigHeader,
     pub user: ConfigUser,
@@ -39,52 +39,53 @@ pub struct Config {
     pub security: ConfigSecure,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigHeader {
     pub format: String,
     pub version: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigUser {
     pub name: String,
     pub health_list: Vec<UserHealthEntry>,
     pub update_list: Vec<UserUpdateEntry>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UserUpdateEntry {
     pub command: String,
-    pub sub_command: String
+    pub sub_command: String,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
 pub enum UserHealthEntryCategory {
     System,
     Network,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct UserHealthEntry {
     pub category: UserHealthEntryCategory,
     pub command: String,
     pub sub_command: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigGit {
     pub profile_url: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigBehavior {
     pub default_editor: String,
     pub auto_update: bool,
     pub ask_confirmation: bool,
     pub log_level: LogLevel,
+    pub save_logs: bool,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd, Clone)]
 pub enum LogLevel {
     Error,
     Warn,
@@ -93,17 +94,17 @@ pub enum LogLevel {
     Trace,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigUi {}
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigInternPath {
     pub data: String,
     pub logs: String,
     pub cache: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigSecure {
     pub secure_mode: bool,
 }
@@ -111,7 +112,7 @@ pub struct ConfigSecure {
 fn config_template() -> String {
     let template = r"[config]
 format = 'nxs_config'
-version = '0.1.0'
+version = '0.4.0'
 
 [user]
 name = ''
@@ -126,6 +127,7 @@ default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
 log_level = 'Info'
+save_logs = false
 
 [ui]
 
@@ -220,7 +222,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            println!("Failed to parse the configuration file: {:?}", e); 
+            println!("Failed to parse the configuration file: {:?}", e);
             return Err(e);
         }
     };
