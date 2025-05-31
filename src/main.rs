@@ -18,7 +18,7 @@ mod hello;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.9.1";
+const VERSION: &str = "2.10.0";
 enum Commands {
     Init,
     CatNxs,
