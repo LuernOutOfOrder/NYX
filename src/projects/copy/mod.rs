@@ -55,10 +55,14 @@ pub fn copy_command() {
 }
 
 fn copy_field(param: String) {
-    let pbcopy = Command::new("pbcopy")
+    let mut pbcopy = Command::new("pbcopy")
         .stdin(Stdio::piped())
         .spawn()
         .expect("Failed to spawn pbcopy command");
+    let wait_pbcopy = pbcopy.wait().expect("Failed to wait pbcopy command");
+    if !wait_pbcopy.success() {
+        log_from_log_level(LogLevel::Error, "Failed to execute pbcopy command");
+    }
     Command::new("echo")
         .arg(param)
         .stdout(pbcopy.stdin.unwrap())
