@@ -59,15 +59,18 @@ fn copy_field(param: String) {
         .stdin(Stdio::piped())
         .spawn()
         .expect("Failed to spawn pbcopy command");
+    if let Some(mut stdin) = pbcopy.stdin.take() {
+        use std::io::Write;
+        stdin
+            .write_all(param.as_bytes())
+            .expect("Failed to write to pbcopy stdin");
+    } else {
+        log_from_log_level(LogLevel::Error, "Failed to open pbcopy stdin");
+    }
     let wait_pbcopy = pbcopy.wait().expect("Failed to wait pbcopy command");
     if !wait_pbcopy.success() {
         log_from_log_level(LogLevel::Error, "Failed to execute pbcopy command");
     }
-    Command::new("echo")
-        .arg(param)
-        .stdout(pbcopy.stdin.unwrap())
-        .output()
-        .expect("Failed to execute echo command");
     log_from_log_level(LogLevel::Info, "Project field copied in clipboard");
 }
 
