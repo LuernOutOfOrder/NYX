@@ -67,7 +67,7 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut new_hash = Sha1::new();
     new_hash.update(&content.name);
     let hash_result = new_hash.finalize();
-    let folder_hash = format!("{:#x}", hash_result);
+    let folder_hash = format!("{hash_result:#x}");
     let (file_hash, _) = folder_hash.split_at(11);
     // content
     let content: NXPContent = NXPContent {
@@ -97,15 +97,15 @@ pub fn create_new_nxp(content: NXPContent) {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".nxfs/projects/{}/content", file_hash);
-    let folder_path = format!(".nxfs/projects/{}", file_hash);
+    let file_path = format!(".nxfs/projects/{file_hash}/content");
+    let folder_path = format!(".nxfs/projects/{file_hash}");
     utils::fsys::create_dir(&folder_path);
     let mut nxs_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to create nxp file: {}", e),
+                &format!("Failed to create nxp file: {e}"),
             );
             return;
         }
@@ -115,7 +115,7 @@ pub fn create_new_nxp(content: NXPContent) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in nxp file: {}", e),
+                &format!("Failed to write buffer in nxp file: {e}"),
             );
         }
     };
@@ -156,26 +156,26 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     let file = match File::open(path) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(LogLevel::Error, &format!("Failed to open nxp file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to open nxp file: {e}"));
             return;
         }
     };
-    // initialize NXPHeader size from structure and buffer
+    // Initialize NXPHeader size from structure and buffer
     let header_size = std::mem::size_of::<NXPHeader>();
     let buffer = BufReader::new(file);
-    // vector containing the whole NXP file
+    // Vector containing the whole NXP file
     let mut bytes_vec: Vec<u8> = Vec::new();
     for byte_or_error in buffer.bytes() {
         match byte_or_error {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
-                log::log_from_log_level(LogLevel::Error, &format!("Failed to read bytes: {}", e));
+                log::log_from_log_level(LogLevel::Error, &format!("Failed to read bytes: {e}"));
                 return;
             }
         }
     }
 
-    // extract a slice of bytes from the `bytes_vec` vector to represent the NXPHeader section of the NXS file.
+    // Extract a slice of bytes from the `bytes_vec` vector to represent the NXPHeader section of the NXS file.
     // &bytes_vec[0 to NXPHeader_size]
     let header_bytes = &bytes_vec[..header_size];
     // convert into the NXPHeader struct
@@ -238,7 +238,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
             version: String::new(),
         },
     };
-    let file_path = format!(".nxfs/projects/{}/content", hash);
+    let file_path = format!(".nxfs/projects/{hash}/content");
     parse_nxp_file(&file_path, &mut nxp);
     let header_buff = bincode::serialize(&nxp.header).expect("Failed to serialize header buffer");
     let mut file_buff: Vec<u8> = Vec::new();
@@ -249,7 +249,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to create nxp file: {}", e),
+                &format!("Failed to create nxp file: {e}"),
             );
             return;
         }
@@ -259,7 +259,7 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in nxp file: {}", e),
+                &format!("Failed to write buffer in nxp file: {e}"),
             );
         }
     };
@@ -268,12 +268,12 @@ pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {
 
 pub fn delete_nxp(hash: &str) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
-    match fs::remove_dir_all(format!(".nxfs/projects/{}/", hash)) {
+    match fs::remove_dir_all(format!(".nxfs/projects/{hash}/")) {
         Ok(_) => {
             log::log_from_log_level(LogLevel::Info, "Successfully remove project file");
         }
         Err(e) => {
-            log::log_from_log_level(LogLevel::Error, &format!("Failed to delete file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to delete file: {e}"));
         }
     }
 }

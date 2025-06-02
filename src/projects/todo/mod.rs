@@ -173,7 +173,7 @@ fn update_todo_list() {
     }
 
     let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo_file = format!(".nxfs/projects/{}/todo", project_hash_str);
+    let todo_file = format!(".nxfs/projects/{project_hash_str}/todo");
     if !Path::new(&todo_file).exists() {
         create_todo_file(&project_hash_str);
     }
@@ -206,7 +206,7 @@ fn display_todo_list() {
     let builder = Table::builder(&todo_vec).index().name(None);
     let mut table = builder.build();
     table.with(Style::modern());
-    println!("{}", table);
+    println!("{table}");
 }
 
 fn prune_todo() {
@@ -237,7 +237,7 @@ fn prune_todo() {
         return;
     }
 
-    let file_path = format!(".nxfs/projects/{}/todo", project_hash_str);
+    let file_path = format!(".nxfs/projects/{project_hash_str}/todo");
     match fs::remove_file(file_path) {
         Ok(_) => {
             log::log_from_log_level(LogLevel::Info, "Successfully remove todo file");
@@ -245,7 +245,7 @@ fn prune_todo() {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to remove todo file: {}", e),
+                &format!("Failed to remove todo file: {e}"),
             );
         }
     };

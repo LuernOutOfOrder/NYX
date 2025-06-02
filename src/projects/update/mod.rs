@@ -42,7 +42,7 @@ Options:
     -h, --help      Show this help message
 ";
 
-    return usage.to_string();
+    usage.to_string()
 }
 
 pub fn update_project_properties() {
@@ -73,9 +73,9 @@ pub fn update_project_properties() {
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
-        current_project.project_hash = app.project_hash.clone();
+        current_project.project_hash = app.project_hash;
         current_project.project_name = app.project_name.clone();
-        current_project.project_size = app.project_size.clone();
+        current_project.project_size = app.project_size;
     } else {
         log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);

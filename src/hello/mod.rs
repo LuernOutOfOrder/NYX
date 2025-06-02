@@ -69,14 +69,14 @@ fn hello() {
     let sys = System::new();
     match sys.load_average() {
         Ok(loadavg) => println!("\tSystem load average: {}", loadavg.one),
-        Err(x) => println!("\tSystem load average: error: {}", x),
+        Err(x) => println!("\tSystem load average: error: {x}"),
     }
     match sys.mount_at("/") {
         Ok(mount) => {
             print!("\tUsage of /:\t");
             println!("{} of {}", mount.avail, mount.total);
         }
-        Err(x) => println!("\tMount at /: error: {}", x),
+        Err(x) => println!("\tMount at /: error: {x}"),
     }
     match sys.memory() {
         Ok(mem) => println!(
@@ -84,7 +84,7 @@ fn hello() {
             saturating_sub_bytes(mem.total, mem.free),
             mem.total
         ),
-        Err(x) => println!("\tMemory: error: {}", x),
+        Err(x) => println!("\tMemory: error: {x}"),
     }
     match sys.swap() {
         Ok(swap) => println!(
@@ -92,11 +92,11 @@ fn hello() {
             saturating_sub_bytes(swap.total, swap.free),
             swap.total
         ),
-        Err(x) => println!("\tSwap: error: {}", x),
+        Err(x) => println!("\tSwap: error: {x}"),
     }
     match sys.cpu_temp() {
-        Ok(cpu_temp) => println!("\tCPU temp: {}", cpu_temp),
-        Err(x) => println!("\tCPU temp: {}", x),
+        Ok(cpu_temp) => println!("\tCPU temp: {cpu_temp}"),
+        Err(x) => println!("\tCPU temp: {x}"),
     }
 
     println!("\nNXFS information: ");

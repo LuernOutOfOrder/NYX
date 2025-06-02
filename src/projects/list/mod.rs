@@ -52,7 +52,7 @@ pub fn list_projects() {
     }
     let mut table = builder.build();
     table.with(Style::modern());
-    println!("{}", table);
+    println!("{table}");
 }
 
 pub fn add_existing_project_to_list() {

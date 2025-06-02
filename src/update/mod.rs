@@ -79,11 +79,11 @@ fn execute_update_command(cmd: &str, subcmd: &str) {
         .arg(subcmd)
         .stdout(Stdio::null())
         .spawn()
-        .expect(&format!("Failed to execute the command: {}", cmd));
+        .unwrap_or_else(|_| panic!("Failed to execute the command: {cmd}"));
     let wait_command = command.wait().expect("Failed to wait the command");
     if !wait_command.success() {
         log_from_log_level(LogLevel::Error, "Failed to execute the command");
     } else {
-        log_from_log_level(LogLevel::Info, &format!("Successfully updated {}", cmd));
+        log_from_log_level(LogLevel::Info, &format!("Successfully updated {cmd}"));
     }
 }
