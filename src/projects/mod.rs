@@ -125,7 +125,7 @@ fn new_project(name: String) {
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),
-        Err(e) => println!("Failed to create directory: {}", e),
+        Err(e) => println!("Failed to create directory: {e}"),
     }
     lrncore::path::change_work_dir(&name);
     match option_select {

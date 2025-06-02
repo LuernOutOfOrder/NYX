@@ -17,21 +17,20 @@ pub fn log_from_log_level(log_level: LogLevel, log_msg: &str) {
         let timestamp = Utc::now();
         let log = format!(
             "{} {}",
-            timestamp.format("%d-%m-%Y %H:%M:%S").to_string(),
+            timestamp.format("%d-%m-%Y %H:%M:%S"),
             log_msg
         );
         let log_path = unwrapped_config.internal_path.logs;
         // log file path by day
-        let daily_log_path = format!("{}{}", log_path, timestamp.format("%d-%m-%Y").to_string());
+        let daily_log_path = format!("{}{}", log_path, timestamp.format("%d-%m-%Y"));
         let mut file = OpenOptions::new()
             .create(true)
-            .write(true)
             .append(true)
             .open(daily_log_path)
             .unwrap();
 
-        if let Err(e) = writeln!(file, "{}", log) {
-            eprintln!("Couldn't write to file: {}", e);
+        if let Err(e) = writeln!(file, "{log}") {
+            eprintln!("Couldn't write to file: {e}");
         }
     }
 

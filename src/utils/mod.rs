@@ -98,6 +98,5 @@ pub fn nyx_ascii_art() -> String {
 }
 
 pub fn custom_throbber(message: String) -> Throbber {
-    let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
-    return custom_throbber;
+    Throbber::new().message(message).frames(&throbber::ROTATE_F)
 }

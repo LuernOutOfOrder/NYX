@@ -166,7 +166,7 @@ fn init_config() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to initialize config file: {}", e),
+                &format!("Failed to initialize config file: {e}"),
             );
             return;
         }
@@ -177,7 +177,7 @@ fn init_config() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to deserialize config template: {}", e),
+                &format!("Failed to deserialize config template: {e}"),
             );
             return;
         }
@@ -206,7 +206,7 @@ fn init_config() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write the config file: {}", e),
+                &format!("Failed to write the config file: {e}"),
             );
             exit(50);
         }
@@ -222,7 +222,7 @@ pub fn parse_config_file() -> Result<Config, toml_error> {
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            println!("Failed to parse the configuration file: {:?}", e);
+            println!("Failed to parse the configuration file: {e:?}");
             return Err(e);
         }
     };
