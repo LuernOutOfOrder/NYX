@@ -134,7 +134,7 @@ fn create_repo_add_to_list(tech: &str) {
     let choice = vec_of_strings!["public", "private", "internal"];
     let repository_visibility: String =
         utils::get_select_option("Select the repository visibility:".to_string(), choice).unwrap();
-    gh::create_new_repo(app_name.to_string(), repository_visibility);
+    gh::create_new_repo(app_name, &repository_visibility);
     let mut github_project: String;
     let config = nxfs::config::parse_config_file().expect("Failed to parse the nyx config file");
     let user_github_url = config.git.profile_url;
