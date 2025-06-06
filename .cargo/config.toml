@@ -7,3 +7,7 @@ rr = "run --release"
 w = "clippy -- -D warnings"
 recursive_example = "rr --example recursions"
 space_example = ["run", "--release", "--", "\"command list\""]
+
+[future-incompat-report]
+frequency = 'always' # when to display a notification about a future incompat report
+
