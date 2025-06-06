@@ -183,12 +183,12 @@ fn init_config() {
         }
     };
     let ask_username = utils::prompt_message(
-        "Enter a username:".to_string(),
-        "Failed to get user input".to_string(),
+        "Enter a username:",
+        "Failed to get user input",
     );
     let ask_github_profile = utils::prompt_message(
-        "Enter your github profile url:".to_string(),
-        "Failed to get user input".to_string(),
+        "Enter your github profile url:",
+        "Failed to get user input",
     );
     let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
     let log_dir = data_dir.clone() + "logs/";

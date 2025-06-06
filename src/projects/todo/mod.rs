@@ -154,12 +154,12 @@ fn which_todo(choice: &str) {
 
 fn update_todo_list() {
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
     let new_todo = utils::prompt_message(
-        "Enter new todo:".to_string(),
-        "Error getting user input".to_string(),
+        "Enter new todo:",
+        "Error getting user input",
     );
     let mut projects = nxs::get_all_project();
     #[allow(unused_assignments)]
@@ -187,8 +187,8 @@ fn display_todo_list() {
     // get todos from project name
     let mut projects = nxs::get_all_project();
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
@@ -212,8 +212,8 @@ fn display_todo_list() {
 fn prune_todo() {
     let mut projects = nxs::get_all_project();
     let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the user input".to_string(),
+        "Enter project name:",
+        "Error with the user input",
     );
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
@@ -255,12 +255,12 @@ fn prune_todo() {
 fn remove_todo() {
     let mut projects = nxs::get_all_project();
     let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error getting user input".to_string(),
+        "Enter project name:",
+        "Error getting user input",
     );
     let ask_id = utils::prompt_message(
-        "Enter todo id you want to delete:".to_string(),
-        "Failed to get the user input".to_string(),
+        "Enter todo id you want to delete:",
+        "Failed to get the user input",
     );
     let project_hash: [u8; 11];
     if let Some(pos) = projects
@@ -287,12 +287,12 @@ fn remove_todo() {
 
 fn update_todo_status() {
     let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error getting user input".to_string(),
+        "Enter project name:",
+        "Error getting user input",
     );
     let ask_todo_id = utils::prompt_message(
-        "Enter todo id:".to_string(),
-        "Error getting user input".to_string(),
+        "Enter todo id:",
+        "Error getting user input",
     );
     let new_status =
         utils::get_select_option("Select new status:".to_string(), todos_status_list());

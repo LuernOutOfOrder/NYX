@@ -41,8 +41,8 @@ pub fn open_editor(project: &str) {
     let mut user_input_project = project.to_string();
     if project.is_empty() {
         let app_name = utils::prompt_message(
-            "Enter project name:".to_string(),
-            "Failed to get user input".to_string(),
+            "Enter project name:",
+            "Failed to get user input",
         );
         user_input_project = app_name;
     }

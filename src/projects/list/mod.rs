@@ -88,8 +88,8 @@ pub fn add_project_to_list(tech: &str) {
     let app_name = current_dir.split("/").last().unwrap().to_lowercase();
     let mut repository_user_input: String;
     repository_user_input = utils::prompt_message(
-        "Enter the url of the github's repository of the project: ".to_string(),
-        "Failed to get the user input".to_string(),
+        "Enter the url of the github's repository of the project: ",
+        "Failed to get the user input",
     );
 
     if repository_user_input.is_empty() {
@@ -99,8 +99,8 @@ pub fn add_project_to_list(tech: &str) {
     let mut github_project: String;
 
     github_project = utils::prompt_message(
-        "Enter the url of the github project: ".to_string(),
-        "Error getting the user input".to_string(),
+        "Enter the url of the github project: ",
+        "Error getting the user input",
     );
 
     if github_project.is_empty() {
@@ -110,8 +110,8 @@ pub fn add_project_to_list(tech: &str) {
     let mut version: String;
 
     version = utils::prompt_message(
-        "Enter the version of the project: ".to_string(),
-        "Error getting the user input".to_string(),
+        "Enter the version of the project: ",
+        "Error getting the user input",
     );
     if version.is_empty() {
         version = "0.1.0".to_string();
@@ -147,8 +147,8 @@ fn create_repo_add_to_list(tech: &str) {
     }
     let repository: String = user_github_url + app_name;
     github_project = utils::prompt_message(
-        "Enter the url of the github project: ".to_string(),
-        "Error getting the user input".to_string(),
+        "Enter the url of the github project: ",
+        "Error getting the user input",
     );
 
     if github_project.is_empty() {
@@ -158,8 +158,8 @@ fn create_repo_add_to_list(tech: &str) {
     let mut version: String;
 
     version = utils::prompt_message(
-        "Enter the version of the project: ".to_string(),
-        "Error getting the user input".to_string(),
+        "Enter the version of the project: ",
+        "Error getting the user input",
     );
 
     if version.is_empty() {

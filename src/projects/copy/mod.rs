@@ -78,8 +78,8 @@ fn get_project_content() -> NXPContent {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
     let project_hash: [u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {

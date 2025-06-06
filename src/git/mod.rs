@@ -42,8 +42,8 @@ pub fn git_command() {
 
 fn nyx_git_stash() {
     let message = utils::prompt_message(
-        "Enter stash message: ".to_string(),
-        "Failed to read stash message".to_string(),
+        "Enter stash message: ",
+        "Failed to read stash message",
     );
     let mut stash = Command::new("git")
         .arg("stash")
@@ -60,8 +60,8 @@ fn nyx_git_stash() {
 
 fn nyx_git_tag() {
     let name = utils::prompt_message(
-        "Enter new tag name:".to_string(),
-        "Failed to read tag name".to_string(),
+        "Enter new tag name:",
+        "Failed to read tag name",
     );
     let mut new_tag = Command::new("git")
         .arg("tag")
