@@ -114,7 +114,7 @@ fn show_all_commit() {
         .arg("--no-merges")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&shortlog.stdout));
+    println!("{}", str::from_utf8(&shortlog.stdout).unwrap());
 }
 
 fn show_last_commit_with_stat() {
@@ -124,7 +124,7 @@ fn show_last_commit_with_stat() {
         .arg("--stat")
         .output()
         .expect("Failed to call the git log command");
-    println!("{}", String::from_utf8_lossy(&commits.stdout));
+    println!("{}", str::from_utf8(&commits.stdout).unwrap());
 }
 
 fn show_all_branch() {
@@ -132,7 +132,7 @@ fn show_all_branch() {
         .arg("branch")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&branches.stdout));
+    println!("{}", str::from_utf8(&branches.stdout).unwrap());
 }
 
 fn show_stash() {
@@ -141,5 +141,5 @@ fn show_stash() {
         .arg("list")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&list.stdout));
+    println!("{}", str::from_utf8(&list.stdout).unwrap());
 }
