@@ -80,7 +80,7 @@ fn check_gh() {
 fn check_tech() {
     let tech_vec = vec_of_strings!("Git", "cargo");
     for tech in tech_vec {
-        match Command::new(tech.clone())
+        match Command::new(&tech)
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .spawn()
@@ -99,7 +99,7 @@ fn check_var() {
     let env_var_vec = vec_of_strings!("NYX", "RUSTUP_HOME");
     for var in env_var_vec {
         let env_command = Command::new("printenv")
-            .arg(var.clone())
+            .arg(&var)
             .stderr(std::process::Stdio::null())
             .output()
             .expect("Failed to call the printenv command");

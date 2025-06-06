@@ -112,9 +112,9 @@ fn prune_docker_unused() {
     prune_throbber.end();
 }
 
-// this function remove all build cache,
-// node_modules, bin folder content of the
-// project managed by nyx
+/// This function remove all build cache,
+/// node_modules, bin folder content of the
+/// project managed by nyx
 fn prune_project_unused() {
     let confirm = utils::prompt::confirm_prompt(
         "Are you sure you want to prune all project dependency/build related files",
@@ -128,20 +128,20 @@ fn prune_project_unused() {
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
     for i in &projects {
         // Node.js
-        let node_module_path = i.location.to_string() + "/node_modules";
-        let nodejs_dist_path = i.location.to_string() + "/dist";
+        let node_module_path = i.location.to_owned() + "/node_modules";
+        let nodejs_dist_path = i.location.to_owned() + "/dist";
         lrncore::path::change_work_dir(&i.location);
         if lrncore::path::path_exists(&node_module_path) {
             utils::fsys::rm_command(node_module_path);
             utils::fsys::rm_command(nodejs_dist_path);
         }
         // Golang
-        let bin_folder = i.location.to_string() + "/bin/";
+        let bin_folder = i.location.to_owned() + "/bin/";
         if lrncore::path::path_exists(&bin_folder) {
             utils::fsys::rm_command(bin_folder);
         }
         // Rust
-        let target_folder = i.location.to_string() + "/target";
+        let target_folder = i.location.to_owned() + "/target";
         if lrncore::path::path_exists(&target_folder) {
             utils::fsys::rm_command(target_folder);
         }
