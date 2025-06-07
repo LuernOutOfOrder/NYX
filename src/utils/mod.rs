@@ -78,7 +78,7 @@ pub fn get_select_option(
 
 pub fn prompt_message(message: &str, error_message: &str) -> String {
     inquire::set_global_render_config(get_render_config());
-    let message = Text::new(&message).prompt().expect(&error_message);
+    let message = Text::new(message).prompt().expect(error_message);
     message.to_lowercase()
 }
 
