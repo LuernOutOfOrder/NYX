@@ -100,15 +100,15 @@ fn hello() {
     }
 
     println!("\nNXFS information: ");
-    let nyx_path = utils::env::get_nyx_env_var();
-    let nxfs_path = nyx_path.clone() + "/.nxfs/";
+    let nyx_path: String = utils::env::get_nyx_env_var();
+    let nxfs_path = nyx_path.to_owned() + "/.nxfs/";
     print!("\tNxfs directory size: {}", helper::folder_size(&nxfs_path));
-    let nxfs_projects_path = nyx_path.clone() + "/.nxfs/projects/";
+    let nxfs_projects_path = nyx_path.to_owned() + "/.nxfs/projects/";
     print!(
         "\tProjects directory size: {}",
         helper::folder_size(&nxfs_projects_path)
     );
-    let nxfs_temp_path = nyx_path.clone() + "/.nxfs/tmp/";
+    let nxfs_temp_path = nyx_path.to_owned() + "/.nxfs/tmp/";
     print!(
         "\tTemp directory size: {}",
         helper::folder_size(&nxfs_temp_path)
