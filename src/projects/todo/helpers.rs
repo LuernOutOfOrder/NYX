@@ -10,22 +10,18 @@ use crate::utils::log;
 use std::io::Read;
 use std::io::Write;
 
-use lrncore::vec_of_strings;
-
-pub fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
-    let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
-    let id: u8 = if !deserial_todo_vec.is_empty() {
-        deserial_todo_vec.last().unwrap().id + 1
+pub fn add_new_todo(todo_vec: &mut Vec<Todo>, new_todo: &str) {
+    let id: u8 = if !todo_vec.is_empty() {
+        todo_vec.last().unwrap().id + 1
     } else {
         1
     };
     let new_todo_inst: Todo = Todo {
         id,
-        status: "".to_string(),
-        note: new_todo.to_string(),
+        status: "".to_owned(),
+        note: new_todo.to_owned(),
     };
     todo_vec.push(new_todo_inst);
-    todo_vec
 }
 
 pub fn create_todo_file(hash: &str) {
@@ -55,10 +51,7 @@ pub fn create_todo_file(hash: &str) {
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to create todo file: {e}"),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to create todo file: {e}"));
             return;
         }
     };
@@ -123,10 +116,7 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to update todo file: {e}"),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to update todo file: {e}"));
             return;
         }
     };
@@ -143,7 +133,7 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
     log::log_from_log_level(LogLevel::Info, "Successfully update todo file");
 }
 
-pub fn todos_status_list() -> Vec<String> {
-    let vec = vec_of_strings!("pending", "done", "wip");
+pub fn todos_status_list() -> Vec<&'static str> {
+    let vec = vec!["pending", "done", "wip"];
     vec
 }

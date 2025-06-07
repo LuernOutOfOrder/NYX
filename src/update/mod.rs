@@ -12,8 +12,8 @@ use crate::{
     utils::log::log_from_log_level,
 };
 
-fn update_help() -> String {
-    let usage = r"
+fn update_help() -> &'static str {
+    (r"
 Usage: nyx update [subcommand] [arguments] [options]
 
 Subcommands:
@@ -22,8 +22,7 @@ Subcommands:
 Options:
     -h, --help      Show this help message
 
-        ";
-    usage.to_string()
+        ") as _
 }
 
 pub fn update_command() {
@@ -36,7 +35,7 @@ pub fn update_command() {
         "" => (),
 
         _ => {
-            command_usage(&update_help());
+            command_usage(update_help());
         }
     }
 }
@@ -57,7 +56,7 @@ fn update_all_commands() {
     // Spawn a thread per command to update
     for each in config.user.update_list {
         let thread = thread::Builder::new()
-            .name(each.command.to_string())
+            .name(each.command.to_owned())
             .spawn(move || {
                 execute_update_command(&each.command, &each.sub_command);
             })

@@ -18,7 +18,7 @@ mod hello;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.10.1";
+const VERSION: &str = "2.10.2";
 enum Commands {
     Init,
     CatNxs,
@@ -105,7 +105,7 @@ fn main() {
     match command {
         Commands::Init => nxfs::nxs::create_data(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
-        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash),
+        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash.as_deref()),
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
@@ -121,6 +121,5 @@ fn main() {
 }
 
 pub fn nyx_version() -> String {
-    let usage = format!("nyx {VERSION}");
-    usage
+    format!("nyx {VERSION}")
 }

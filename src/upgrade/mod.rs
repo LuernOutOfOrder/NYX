@@ -11,10 +11,10 @@ pub fn upgrade_bin() {
     let nyx_art = utils::nyx_ascii_art();
     // throbber
     let mut building_throbber = Throbber::new()
-        .message("Building latest NYX binary...".to_string())
+        .message("Building latest NYX binary...".to_owned())
         .frames(&throbber::ROTATE_F);
     let mut update_throbber = Throbber::new()
-        .message("Updating NYX...".to_string())
+        .message("Updating NYX...".to_owned())
         .frames(&throbber::ROTATE_F);
     println!("{}", nyx_art.truecolor(138, 43, 226));
     building_throbber.start();
@@ -37,16 +37,16 @@ pub fn upgrade_bin() {
         .wait()
         .expect("Failed to wait the cargo build command");
     if !wait_build_target.success() {
-        building_throbber.fail("Error building latest binary".to_string());
+        building_throbber.fail("Error building latest binary".to_owned());
         panic!();
     }
-    building_throbber.success("Successfully build latest binary".to_string());
+    building_throbber.success("Successfully build latest binary".to_owned());
     building_throbber.end();
     let nyx_latest_version = Command::new("./nyx")
         .arg("version")
         .output()
         .expect("Failed to get the current version of NYX");
-    if String::from_utf8(nyx_latest_version.stdout) != String::from_utf8(nyx_current_version.stdout)
+    if str::from_utf8(&nyx_latest_version.stdout).unwrap() != str::from_utf8(&nyx_current_version.stdout).unwrap()
     {
         println!("A new version of NYX has been found");
         update_throbber.start();
@@ -63,10 +63,10 @@ pub fn upgrade_bin() {
             .wait()
             .expect("Failed to wait the cargo install command");
         if !wait_cargo_install.success() {
-            update_throbber.fail("Failed to upgrade NYX to the latest version".to_string());
+            update_throbber.fail("Failed to upgrade NYX to the latest version".to_owned());
             panic!("Failed to upgrade NYX");
         }
-        update_throbber.success("Successfully upgrade NYX".to_string());
+        update_throbber.success("Successfully upgrade NYX".to_owned());
         update_throbber.end();
     } else {
         println!("You already have the latest version of NYX!");

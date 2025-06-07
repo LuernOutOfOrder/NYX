@@ -22,8 +22,8 @@ pub mod open;
 pub mod todo;
 use open::open_editor;
 
-pub fn project_help() -> String {
-    let usage = r"
+pub fn project_help() -> &'static str{
+    (r"
 Usage: nyx project [subcommand] [arguments] [options]
 
 Subcommands:
@@ -38,9 +38,7 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-    ";
-
-    usage.to_string()
+    ") as _
 }
 
 #[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
@@ -56,6 +54,7 @@ pub struct Project {
 }
 
 #[derive(Tabled)]
+#[allow(dead_code)]
 pub struct ProjectShort {
     pub id: String,
     pub name: String,
@@ -71,7 +70,7 @@ pub struct Data {
 pub fn project_command() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        command_usage(&project_help());
+        command_usage(project_help());
     }
     match args[2].as_str() {
         "new" => {
@@ -80,12 +79,12 @@ pub fn project_command() {
                 exit(4);
             }
             let project_name = &args[3];
-            new_project(project_name.to_string());
+            new_project(project_name);
         }
         "open" => {
             let project_name: String;
             if args.len() <= 3 {
-                project_name = "".to_string();
+                project_name = "".to_owned();
                 open_editor(&project_name);
             } else {
                 project_name = args[3].clone();
@@ -99,21 +98,21 @@ pub fn project_command() {
         "todo" => choose_todo(),
         "copy" => copy_command(),
         _ => {
-            command_usage(&project_help());
+            command_usage(project_help());
         }
     }
 }
 
 // new project
-fn new_project(name: String) {
+fn new_project(name: &str) {
     let args: Vec<String> = env::args().collect();
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&project_help());
+                command_usage(project_help());
             }
             "--help" => {
-                command_usage(&project_help());
+                command_usage(project_help());
             }
             _ => {}
         }
@@ -121,20 +120,20 @@ fn new_project(name: String) {
 
     inquire::set_global_render_config(utils::get_render_config());
     let option_select =
-        utils::get_select_project_option("Which tech do you want to use ?".to_string());
+        utils::get_select_project_option("Which tech do you want to use ?");
 
-    match fs::create_dir(name.clone()) {
+    match fs::create_dir(name) {
         Ok(_) => println!("Directory created successfully"),
         Err(e) => println!("Failed to create directory: {e}"),
     }
-    lrncore::path::change_work_dir(&name);
+    lrncore::path::change_work_dir(name);
     match option_select {
-        Ok(choice) => new_project_by_choice(&choice, &name),
+        Ok(choice) => new_project_by_choice(&choice, name),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-fn new_project_by_choice(tech: &String, name: &str) {
+fn new_project_by_choice(tech: &str, name: &str) {
     match tech {
         tech if tech == "Node.js" => new_nodejs_project(tech),
         tech if tech == "Python" => new_python_project(tech),

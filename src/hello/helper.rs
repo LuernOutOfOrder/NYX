@@ -6,5 +6,5 @@ pub fn folder_size(path: &str) -> String {
         .arg(path)
         .output()
         .expect("Failed to execute du command");
-    format!("{}", String::from_utf8_lossy(&du.stdout))
+    str::from_utf8(&du.stdout).unwrap().to_string()
 }

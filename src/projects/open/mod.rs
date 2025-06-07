@@ -9,8 +9,8 @@ use std::process::Command;
 
 use super::nxs;
 
-pub fn open_help() -> String {
-    let usage = r"
+pub fn open_help() -> &'static str{
+    (r"
 Usage: nyx project open [args]
 
 Arguments:
@@ -19,9 +19,7 @@ Arguments:
 Options:
 
     -h, --help      Show this help message
-    ";
-
-    usage.to_string()
+    ") as _
 }
 
 pub fn open_editor(project: &str) {
@@ -30,10 +28,10 @@ pub fn open_editor(project: &str) {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&open_help());
+                command_usage(open_help());
             }
             "--help" => {
-                command_usage(&open_help());
+                command_usage(open_help());
             }
             _ => {}
         }
@@ -41,8 +39,8 @@ pub fn open_editor(project: &str) {
     let mut user_input_project = project.to_string();
     if project.is_empty() {
         let app_name = utils::prompt_message(
-            "Enter project name:".to_string(),
-            "Failed to get user input".to_string(),
+            "Enter project name:",
+            "Failed to get user input",
         );
         user_input_project = app_name;
     }

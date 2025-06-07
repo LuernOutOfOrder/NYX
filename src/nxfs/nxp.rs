@@ -71,12 +71,12 @@ pub fn create_new_nxp(content: NXPContent) {
     let (file_hash, _) = folder_hash.split_at(11);
     // content
     let content: NXPContent = NXPContent {
-        name: content.name.to_string(),
-        tech: content.tech.to_string(),
-        location: content.location.to_string(),
-        repository: content.repository.to_string(),
-        github_project: content.github_project.to_string(),
-        version: content.version.to_string(),
+        name: content.name,
+        tech: content.tech,
+        location: content.location,
+        repository: content.repository,
+        github_project: content.github_project,
+        version: content.version,
     };
     let content_buff = bincode::serialize(&content).expect("Failed to serialize content buffer");
     // header
@@ -193,7 +193,7 @@ pub fn parse_nxp_file(path: &str, nxp_ref: &mut NXP) {
     nxp_ref.content = nxp.content;
 }
 
-pub fn cat_nxp(hash: Option<String>) {
+pub fn cat_nxp(hash: Option<&str>) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxp: NXP = NXP {
         header: NXPHeader {
@@ -216,7 +216,7 @@ pub fn cat_nxp(hash: Option<String>) {
         &format!(".nxfs/projects/{}/content", hash.unwrap()),
         &mut nxp,
     );
-    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", String::from_utf8_lossy(&nxp.header.project_id), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
+    println!("id: {:?}\n name: {:?}\n tech: {:?}\n location: {:?}\n repository: {:?}\n github project: {:?}\n version: {:?}", str::from_utf8(&nxp.header.project_id).unwrap(), nxp.content.name, nxp.content.tech, nxp.content.location, nxp.content.repository, nxp.content.github_project, nxp.content.version);
 }
 
 pub fn update_nxp(hash: &str, update_nxp: Vec<u8>) {

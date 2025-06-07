@@ -51,8 +51,8 @@ pub struct Todo {
     pub id: u8,
 }
 
-pub fn todo_help() -> String {
-    let usage = r"
+pub fn todo_help() -> &'static str {
+    (r"
 Usage: nyx project-todo
 
 Options:
@@ -63,9 +63,7 @@ Options:
     -r, --remove    Remove one todo by id
     -u, --update    Update one todo
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn choose_todo() {
@@ -115,10 +113,10 @@ pub fn choose_todo() {
             }
 
             "-h" => {
-                command_usage(&todo_help());
+                command_usage(todo_help());
             }
             "--help" => {
-                command_usage(&todo_help());
+                command_usage(todo_help());
             }
             _ => {}
         }
@@ -154,13 +152,10 @@ fn which_todo(choice: &str) {
 
 fn update_todo_list() {
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
-    let new_todo = utils::prompt_message(
-        "Enter new todo:".to_string(),
-        "Error getting user input".to_string(),
-    );
+    let new_todo = utils::prompt_message("Enter new todo:", "Error getting user input");
     let mut projects = nxs::get_all_project();
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
@@ -172,23 +167,23 @@ fn update_todo_list() {
         exit(10);
     }
 
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
     let todo_file = format!(".nxfs/projects/{project_hash_str}/todo");
     if !Path::new(&todo_file).exists() {
-        create_todo_file(&project_hash_str);
+        create_todo_file(project_hash_str);
     }
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let todo_vec: Vec<Todo> = todo.content.todos.clone();
-    let todo_vec_update = add_new_todo(todo_vec, &new_todo);
-    update_todo_file(&project_hash_str, todo_vec_update, todo);
+    let todo: TodoFile = parse_todo_file(project_hash_str);
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    add_new_todo(&mut todo_vec, &new_todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
 }
 
 fn display_todo_list() {
     // get todos from project name
     let mut projects = nxs::get_all_project();
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
@@ -199,9 +194,9 @@ fn display_todo_list() {
         log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
+    let todo_vec: Vec<Todo> = todo.content.todos;
     // display todos
     let builder = Table::builder(&todo_vec).index().name(None);
     let mut table = builder.build();
@@ -211,10 +206,7 @@ fn display_todo_list() {
 
 fn prune_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the user input".to_string(),
-    );
+    let project_name = utils::prompt_message("Enter project name:", "Error with the user input");
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects
@@ -227,7 +219,7 @@ fn prune_todo() {
         log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
 
     let confirm = utils::prompt::confirm_prompt(
         "Are you sure you want to prune the todo list ?",
@@ -243,10 +235,7 @@ fn prune_todo() {
             log::log_from_log_level(LogLevel::Info, "Successfully remove todo file");
         }
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to remove todo file: {e}"),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to remove todo file: {e}"));
         }
     };
     log::log_from_log_level(LogLevel::Info, "To-do list cleared successfully");
@@ -254,13 +243,10 @@ fn prune_todo() {
 
 fn remove_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error getting user input".to_string(),
-    );
+    let project_name = utils::prompt_message("Enter project name:", "Error getting user input");
     let ask_id = utils::prompt_message(
-        "Enter todo id you want to delete:".to_string(),
-        "Failed to get the user input".to_string(),
+        "Enter todo id you want to delete:",
+        "Failed to get the user input",
     );
     let project_hash: [u8; 11];
     if let Some(pos) = projects
@@ -274,28 +260,21 @@ fn remove_todo() {
         exit(10);
     }
 
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_id_stdi = ask_id.parse::<u8>().expect("Failed to parse todo id to u8");
     if let Some(todo) = todo_vec.iter().position(|todo| todo.id == todo_id_stdi) {
         todo_vec.remove(todo);
     };
-    update_todo_file(&project_hash_str, todo_vec, todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
     log::log_from_log_level(LogLevel::Info, "Successfully remove the to-do");
 }
 
 fn update_todo_status() {
-    let project_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error getting user input".to_string(),
-    );
-    let ask_todo_id = utils::prompt_message(
-        "Enter todo id:".to_string(),
-        "Error getting user input".to_string(),
-    );
-    let new_status =
-        utils::get_select_option("Select new status:".to_string(), todos_status_list());
+    let project_name = utils::prompt_message("Enter project name:", "Error getting user input");
+    let ask_todo_id = utils::prompt_message("Enter todo id:", "Error getting user input");
+    let new_status = utils::get_select_option("Select new status:", todos_status_list());
     let mut projects = nxs::get_all_project();
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects
@@ -305,9 +284,9 @@ fn update_todo_status() {
         let app = projects.remove(pos);
         project_hash = app.project_hash;
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
+    let mut todo_vec: Vec<Todo> = todo.content.todos;
     let todo_id_stdi = ask_todo_id
         .parse::<u8>()
         .expect("Failed to parse todo id to u8");
@@ -321,9 +300,9 @@ fn update_todo_status() {
         updated_todo.id = find_todo.id;
         updated_todo.note = find_todo.note;
     };
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     updated_todo.status = new_status.expect("Failed to get the updated status");
     todo_vec.push(updated_todo);
-    update_todo_file(&project_hash_str, todo_vec, todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
     log::log_from_log_level(LogLevel::Info, "Successfully update the to-do");
 }

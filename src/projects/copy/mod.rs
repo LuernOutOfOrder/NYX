@@ -14,8 +14,8 @@ use crate::{
     utils::{self, env::get_nyx_env_var, log::log_from_log_level},
 };
 
-pub fn copy_help() -> String {
-    let usage = r"
+pub fn copy_help() -> &'static str {
+    (r"
 Usage: copy [subcommand] [arguments] [options]
 
 Subcommands:
@@ -24,37 +24,36 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-    ";
-
-    usage.to_string()
+    ") as _
 }
 
 pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if args.len() <= 3 {
-        command_usage(&copy_help());
+        command_usage(copy_help());
         return;
     }
     if args.len() > 1 && (args[3] == "-h" || args[3] == "--help") {
-        command_usage(&copy_help());
+        let usage = &copy_help();
+        command_usage(usage);
         return;
     }
 
     if let Some(arg) = args.get(3) {
         let get_project = get_project_content();
         match arg.as_str().trim() {
-            "path" => copy_field(get_project.location),
-            "repo" => copy_field(get_project.repository),
+            "path" => copy_field(&get_project.location),
+            "repo" => copy_field(&get_project.repository),
             _ => {
                 log_from_log_level(LogLevel::Error, "Unknown copy command");
-                command_usage(&copy_help());
+                command_usage(copy_help());
             }
         }
     }
 }
 
-fn copy_field(param: String) {
+fn copy_field(param: &str) {
     let mut pbcopy = Command::new("pbcopy")
         .stdin(Stdio::piped())
         .spawn()
@@ -78,8 +77,8 @@ fn get_project_content() -> NXPContent {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
     let project_hash: [u8; 11];
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
@@ -107,7 +106,7 @@ fn get_project_content() -> NXPContent {
             version: String::new(),
         },
     };
-    let hash = String::from_utf8_lossy(&project_hash);
+    let hash = str::from_utf8(&project_hash).unwrap();
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     project_content

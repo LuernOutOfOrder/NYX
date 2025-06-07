@@ -10,16 +10,14 @@ use lrncore::usage_exit::command_usage;
 
 use logs::{installed, not_installed, warning};
 
-pub fn doctor_help() -> String {
-    let usage = r"
+pub fn doctor_help() -> &'static str{
+    (r"
 Usage: nyx doctor [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn doctor_health() {
@@ -27,10 +25,10 @@ pub fn doctor_health() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&doctor_help());
+                command_usage(doctor_help());
             }
             "--help" => {
-                command_usage(&doctor_help());
+                command_usage(doctor_help());
             }
             _ => {}
         }
@@ -80,7 +78,7 @@ fn check_gh() {
 fn check_tech() {
     let tech_vec = vec_of_strings!("Git", "cargo");
     for tech in tech_vec {
-        match Command::new(tech.clone())
+        match Command::new(&tech)
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .spawn()
@@ -99,7 +97,7 @@ fn check_var() {
     let env_var_vec = vec_of_strings!("NYX", "RUSTUP_HOME");
     for var in env_var_vec {
         let env_command = Command::new("printenv")
-            .arg(var.clone())
+            .arg(&var)
             .stderr(std::process::Stdio::null())
             .output()
             .expect("Failed to call the printenv command");
