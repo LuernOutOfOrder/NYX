@@ -57,7 +57,7 @@ fn update_all_commands() {
     // Spawn a thread per command to update
     for each in config.user.update_list {
         let thread = thread::Builder::new()
-            .name(each.command.to_string())
+            .name(each.command.to_owned())
             .spawn(move || {
                 execute_update_command(&each.command, &each.sub_command);
             })

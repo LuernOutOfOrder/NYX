@@ -56,6 +56,7 @@ pub struct Project {
 }
 
 #[derive(Tabled)]
+#[allow(dead_code)]
 pub struct ProjectShort {
     pub id: String,
     pub name: String,
@@ -80,12 +81,12 @@ pub fn project_command() {
                 exit(4);
             }
             let project_name = &args[3];
-            new_project(project_name.to_string());
+            new_project(project_name.to_owned());
         }
         "open" => {
             let project_name: String;
             if args.len() <= 3 {
-                project_name = "".to_string();
+                project_name = "".to_owned();
                 open_editor(&project_name);
             } else {
                 project_name = args[3].clone();
@@ -121,7 +122,7 @@ fn new_project(name: String) {
 
     inquire::set_global_render_config(utils::get_render_config());
     let option_select =
-        utils::get_select_project_option("Which tech do you want to use ?".to_string());
+        utils::get_select_project_option("Which tech do you want to use ?".to_owned());
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),
@@ -134,7 +135,7 @@ fn new_project(name: String) {
     }
 }
 
-fn new_project_by_choice(tech: &String, name: &str) {
+fn new_project_by_choice(tech: &str, name: &str) {
     match tech {
         tech if tech == "Node.js" => new_nodejs_project(tech),
         tech if tech == "Python" => new_python_project(tech),

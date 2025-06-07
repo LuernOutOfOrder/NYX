@@ -4,7 +4,6 @@ use crate::nxfs::config::LogLevel;
 use crate::nxfs::nxs;
 use crate::utils;
 use crate::utils::log;
-use crate::vec_of_strings;
 use inquire::{error::InquireError, Select};
 use lrncore::usage_exit::command_usage;
 use std::env;
