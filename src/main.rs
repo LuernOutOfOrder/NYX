@@ -105,7 +105,9 @@ fn main() {
     match command {
         Commands::Init => nxfs::nxs::create_data(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
-        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash),
+        Commands::CatNxp { hash } => {
+            nxfs::nxp::cat_nxp(hash.as_deref())
+        },
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),

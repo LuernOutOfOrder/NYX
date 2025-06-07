@@ -341,7 +341,7 @@ NXS:
         println!(
             "name: {:?}\n hash: {:?}\n size: {:?}\n",
             each.project_name,
-            String::from_utf8_lossy(&each.project_hash),
+            str::from_utf8(&each.project_hash).unwrap(),
             each.project_size
         );
     }
@@ -381,7 +381,7 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
         parse_nxp_file(
             &format!(
                 ".nxfs/projects/{}/content",
-                String::from_utf8_lossy(&each.project_hash)
+                str::from_utf8(&each.project_hash).unwrap()
             ),
             &mut nxp,
         );
@@ -424,7 +424,7 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
         parse_nxp_file(
             &format!(
                 ".nxfs/projects/{}/content",
-                String::from_utf8_lossy(&each.project_hash)
+                str::from_utf8(&each.project_hash).unwrap()
             ),
             &mut nxp,
         );

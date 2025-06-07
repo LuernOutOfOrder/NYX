@@ -191,8 +191,8 @@ fn init_config() {
         "Failed to get user input",
     );
     let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
-    let log_dir = data_dir.clone() + "logs/";
-    let cache_dir = data_dir.clone() + "cache/";
+    let log_dir = data_dir.to_owned() + "logs/";
+    let cache_dir = data_dir.to_owned() + "cache/";
     config.user.name = ask_username;
     config.git.profile_url = ask_github_profile;
     config.internal_path.data = data_dir;
@@ -216,9 +216,9 @@ fn init_config() {
 
 pub fn parse_config_file() -> Result<Config, toml_error> {
     change_work_dir(&utils::env::get_nyx_env_var());
-    let config_path = ".nxfs/config.toml".to_string();
+    let config_path = ".nxfs/config.toml";
     let file =
-        std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
+        std::fs::read_to_string(config_path).expect("Failed to read the config file to string");
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
@@ -258,5 +258,5 @@ fn cat_config() {
         .stdout(Stdio::inherit())
         .output()
         .expect("Failed to execute cat command");
-    println!("{}", String::from_utf8_lossy(&cat.stdout));
+    println!("{}", str::from_utf8(&cat.stdout).unwrap());
 }
