@@ -19,10 +19,10 @@ pub fn choose_cleanup() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&cleanup_help());
+                command_usage(cleanup_help());
             }
             "--help" => {
-                command_usage(&cleanup_help());
+                command_usage(cleanup_help());
             }
             _ => {}
         }
@@ -73,7 +73,7 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker builder command");
     if !wait_docker_builder.success() {
-        prune_throbber.fail("Error prune the docker builder cache".to_string());
+        prune_throbber.fail("Error prune the docker builder cache".to_owned());
         panic!();
     }
     // docker volumes
@@ -88,7 +88,7 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker volume prune command");
     if !wait_docker_volumes.success() {
-        prune_throbber.fail("Error prune the unused docker volume".to_string());
+        prune_throbber.fail("Error prune the unused docker volume".to_owned());
         panic!();
     }
     // docker images
@@ -103,10 +103,10 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker image prune command");
     if !wait_docker_images.success() {
-        prune_throbber.fail("Error prune the unused docker image".to_string());
+        prune_throbber.fail("Error prune the unused docker image".to_owned());
         panic!();
     }
-    prune_throbber.success("Successfully prune all unused docker files".to_string());
+    prune_throbber.success("Successfully prune all unused docker files".to_owned());
     prune_throbber.end();
 }
 

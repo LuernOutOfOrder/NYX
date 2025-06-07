@@ -39,10 +39,10 @@ pub fn list_projects() {
                 builder = Table::builder(&projects_short).index().name(None);
             }
             "-h" => {
-                command_usage(&project_list_help());
+                command_usage(project_list_help());
             }
             "--help" => {
-                command_usage(&project_list_help());
+                command_usage(project_list_help());
             }
             _ => {}
         }

@@ -35,7 +35,7 @@ pub fn update_command() {
         "" => (),
 
         _ => {
-            command_usage(&update_help());
+            command_usage(update_help());
         }
     }
 }

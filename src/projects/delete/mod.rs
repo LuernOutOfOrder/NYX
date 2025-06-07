@@ -74,7 +74,7 @@ fn remove_project_from_list() {
     // if an index match the given data, remove it from the vector
     let hash: String = if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
         let app: nxs::ProjectEntry = projects.remove(pos);
-        String::from_utf8_lossy(&app.project_hash).to_string()
+        String::from_utf8_lossy(&app.project_hash).into_owned()
     } else {
         String::new()
     };
@@ -108,7 +108,7 @@ fn remove_project_from_storage() {
     // if an index match the given data, remove it from the vector
     let hash: String = if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
         let app: nxs::ProjectEntry = projects.remove(pos);
-        String::from_utf8_lossy(&app.project_hash).to_string()
+        String::from_utf8_lossy(&app.project_hash).into_owned()
     } else {
         String::new()
     };

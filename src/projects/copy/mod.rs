@@ -31,11 +31,12 @@ pub fn copy_command() {
     change_work_dir(&get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if args.len() <= 3 {
-        command_usage(&copy_help());
+        command_usage(copy_help());
         return;
     }
     if args.len() > 1 && (args[3] == "-h" || args[3] == "--help") {
-        command_usage(&copy_help());
+        let usage = &copy_help();
+        command_usage(usage);
         return;
     }
 
@@ -46,7 +47,7 @@ pub fn copy_command() {
             "repo" => copy_field(&get_project.repository),
             _ => {
                 log_from_log_level(LogLevel::Error, "Unknown copy command");
-                command_usage(&copy_help());
+                command_usage(copy_help());
             }
         }
     }

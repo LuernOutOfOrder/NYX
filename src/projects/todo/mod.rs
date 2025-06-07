@@ -167,15 +167,15 @@ fn update_todo_list() {
         exit(10);
     }
 
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
     let todo_file = format!(".nxfs/projects/{project_hash_str}/todo");
     if !Path::new(&todo_file).exists() {
-        create_todo_file(&project_hash_str);
+        create_todo_file(project_hash_str);
     }
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
     add_new_todo(&mut todo_vec, &new_todo);
-    update_todo_file(&project_hash_str, todo_vec, todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
 }
 
 fn display_todo_list() {
@@ -194,9 +194,9 @@ fn display_todo_list() {
         log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
+    let todo_vec: Vec<Todo> = todo.content.todos;
     // display todos
     let builder = Table::builder(&todo_vec).index().name(None);
     let mut table = builder.build();
@@ -219,7 +219,7 @@ fn prune_todo() {
         log::log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
 
     let confirm = utils::prompt::confirm_prompt(
         "Are you sure you want to prune the todo list ?",
@@ -260,14 +260,14 @@ fn remove_todo() {
         exit(10);
     }
 
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_id_stdi = ask_id.parse::<u8>().expect("Failed to parse todo id to u8");
     if let Some(todo) = todo_vec.iter().position(|todo| todo.id == todo_id_stdi) {
         todo_vec.remove(todo);
     };
-    update_todo_file(&project_hash_str, todo_vec, todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
     log::log_from_log_level(LogLevel::Info, "Successfully remove the to-do");
 }
 
@@ -286,7 +286,7 @@ fn update_todo_status() {
     }
     let project_hash_str = str::from_utf8(&project_hash).unwrap();
     let todo: TodoFile = parse_todo_file(project_hash_str);
-    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    let mut todo_vec: Vec<Todo> = todo.content.todos;
     let todo_id_stdi = ask_todo_id
         .parse::<u8>()
         .expect("Failed to parse todo id to u8");

@@ -158,7 +158,7 @@ pub fn config_command() {
 }
 
 fn init_config() {
-    let config_path = ".nxfs/config.toml".to_string();
+    let config_path = ".nxfs/config.toml";
     let mut config_file = match File::create_new(config_path) {
         Ok(f) => f,
         Err(e) => {

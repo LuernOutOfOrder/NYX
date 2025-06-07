@@ -28,10 +28,10 @@ pub fn open_editor(project: &str) {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&open_help());
+                command_usage(open_help());
             }
             "--help" => {
-                command_usage(&open_help());
+                command_usage(open_help());
             }
             _ => {}
         }

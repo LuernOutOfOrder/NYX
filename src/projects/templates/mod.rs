@@ -350,7 +350,7 @@ Cargo.lock
 #.idea/
 "#;
 
-pub fn new_gitignore(tech: &str) -> String {
+pub fn new_gitignore(tech: &str) -> &'static str{
     let file_template: &str = match tech {
         "Node.js" => NODEJS_GITIGNORE_TEMPLATE,
         "Python" => PYTHON_GITIGNORE_TEMPLATE,
@@ -358,7 +358,7 @@ pub fn new_gitignore(tech: &str) -> String {
         "Rust" => RUST_GITIGNORE_TEMPLATE,
         _ => "",
     };
-    let template = (&file_template).to_string();
+    let template = &file_template;
     let mut file = match fs::File::create(".gitignore") {
         Ok(file) => file,
         Err(e) => panic!("Failed to create file: {e}"),

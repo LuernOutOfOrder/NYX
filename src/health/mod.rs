@@ -32,13 +32,13 @@ pub fn health_command() {
     }
     match args[2].as_str() {
         "-h" => {
-            command_usage(&health_help());
+            command_usage(health_help());
         }
         "--help" => {
-            command_usage(&health_help());
+            command_usage(health_help());
         }
         _ => {
-            command_usage(&health_help());
+            command_usage(health_help());
         }
     }
 }

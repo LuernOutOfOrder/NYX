@@ -82,8 +82,8 @@ pub fn prompt_message(message: &str, error_message: &str) -> String {
     message.to_lowercase()
 }
 
-pub fn nyx_ascii_art() -> String {
-    let ascii_art = r"         
+pub fn nyx_ascii_art() -> &'static str{
+    (r"         
  _                         
 ( (    /||\     /||\     /|
 |  \  ( |( \   / )( \   / )
@@ -93,9 +93,7 @@ pub fn nyx_ascii_art() -> String {
 | )  \  |   | |   ( /   \ )
 |/    )_)   \_/   |/     \|
 
-";
-
-    ascii_art.to_string()
+") as _
 }
 
 pub fn custom_throbber(message: &str) -> Throbber {

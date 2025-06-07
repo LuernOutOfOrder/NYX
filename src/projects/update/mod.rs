@@ -48,10 +48,10 @@ pub fn update_project_properties() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&project_update_help());
+                command_usage(project_update_help());
             }
             "--help" => {
-                command_usage(&project_update_help());
+                command_usage(project_update_help());
             }
             _ => {}
         }
