@@ -74,7 +74,7 @@ pub fn update_project_properties() {
         log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
         current_project.project_hash = app.project_hash;
-        current_project.project_name = app.project_name.clone();
+        current_project.project_name = app.project_name;
         current_project.project_size = app.project_size;
     } else {
         log_from_log_level(LogLevel::Error, "Project not found");
@@ -97,7 +97,7 @@ pub fn update_project_properties() {
             version: String::new(),
         },
     };
-    let hash = String::from_utf8_lossy(&current_project.project_hash);
+    let hash = str::from_utf8(&current_project.project_hash).unwrap();
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = update_editor(project_content);
@@ -123,5 +123,5 @@ pub fn update_project_properties() {
         };
         nxs::update_project_entries(&mut update_nxs, projects);
     }
-    nxp::update_nxp(&hash, buffer);
+    nxp::update_nxp(hash, buffer);
 }

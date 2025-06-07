@@ -44,8 +44,8 @@ pub fn copy_command() {
     if let Some(arg) = args.get(3) {
         let get_project = get_project_content();
         match arg.as_str().trim() {
-            "path" => copy_field(get_project.location),
-            "repo" => copy_field(get_project.repository),
+            "path" => copy_field(&get_project.location),
+            "repo" => copy_field(&get_project.repository),
             _ => {
                 log_from_log_level(LogLevel::Error, "Unknown copy command");
                 command_usage(&copy_help());
@@ -54,7 +54,7 @@ pub fn copy_command() {
     }
 }
 
-fn copy_field(param: String) {
+fn copy_field(param: &str) {
     let mut pbcopy = Command::new("pbcopy")
         .stdin(Stdio::piped())
         .spawn()
@@ -107,7 +107,7 @@ fn get_project_content() -> NXPContent {
             version: String::new(),
         },
     };
-    let hash = String::from_utf8_lossy(&project_hash);
+    let hash = str::from_utf8(&project_hash).unwrap();
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     project_content

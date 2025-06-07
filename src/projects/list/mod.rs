@@ -68,9 +68,9 @@ pub fn add_existing_project_to_list() {
 
 pub fn create_repo_or_not(tech: &str) {
     inquire::set_global_render_config(utils::get_render_config());
-    let choice: Vec<String> = vec_of_strings!["Yes".to_string(), "No".to_string()];
+    let choice: Vec<&str> = vec!["Yes", "No"];
     let options = utils::get_select_option(
-        "Do you want to create a new repository ?".to_string(),
+        "Do you want to create a new repository ?",
         choice,
     )
     .unwrap();
@@ -93,7 +93,7 @@ pub fn add_project_to_list(tech: &str) {
     );
 
     if repository_user_input.is_empty() {
-        repository_user_input = "No repository specified".to_string()
+        repository_user_input = "No repository specified".to_owned()
     }
 
     let mut github_project: String;
@@ -104,7 +104,7 @@ pub fn add_project_to_list(tech: &str) {
     );
 
     if github_project.is_empty() {
-        github_project = "No github project specified".to_string()
+        github_project = "No github project specified".to_owned()
     }
 
     let mut version: String;
@@ -114,12 +114,12 @@ pub fn add_project_to_list(tech: &str) {
         "Error getting the user input",
     );
     if version.is_empty() {
-        version = "0.1.0".to_string();
+        version = "0.1.0".to_owned();
     }
 
     let new_app: nxp::NXPContent = nxp::NXPContent {
-        name: (app_name.to_string()),
-        tech: (tech.to_string()),
+        name: (app_name.to_owned()),
+        tech: (tech.to_owned()),
         location: (current_dir),
         repository: repository_user_input,
         github_project,
@@ -131,9 +131,9 @@ pub fn add_project_to_list(tech: &str) {
 fn create_repo_add_to_list(tech: &str) {
     let current_dir = lrncore::path::get_current_path();
     let app_name = current_dir.split("/").last().unwrap();
-    let choice = vec_of_strings!["public", "private", "internal"];
+    let choice = vec!["public", "private", "internal"];
     let repository_visibility: String =
-        utils::get_select_option("Select the repository visibility:".to_string(), choice).unwrap();
+        utils::get_select_option("Select the repository visibility:", choice).unwrap();
     gh::create_new_repo(app_name, &repository_visibility);
     let mut github_project: String;
     let config = nxfs::config::parse_config_file().expect("Failed to parse the nyx config file");
@@ -152,7 +152,7 @@ fn create_repo_add_to_list(tech: &str) {
     );
 
     if github_project.is_empty() {
-        github_project = "No github project specified".to_string()
+        github_project = "No github project specified".to_owned()
     }
 
     let mut version: String;
@@ -163,12 +163,12 @@ fn create_repo_add_to_list(tech: &str) {
     );
 
     if version.is_empty() {
-        version = "0.1.0".to_string();
+        version = "0.1.0".to_owned();
     }
 
     let new_app: NXPContent = NXPContent {
-        name: (app_name.to_string()),
-        tech: (tech.to_string()),
+        name: (app_name.to_owned()),
+        tech: (tech.to_owned()),
         location: (current_dir),
         repository,
         github_project,

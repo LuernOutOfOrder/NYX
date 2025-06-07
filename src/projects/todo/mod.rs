@@ -295,7 +295,7 @@ fn update_todo_status() {
         "Error getting user input",
     );
     let new_status =
-        utils::get_select_option("Select new status:".to_string(), todos_status_list());
+        utils::get_select_option("Select new status:", todos_status_list());
     let mut projects = nxs::get_all_project();
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects
@@ -305,8 +305,8 @@ fn update_todo_status() {
         let app = projects.remove(pos);
         project_hash = app.project_hash;
     }
-    let project_hash_str = String::from_utf8_lossy(&project_hash);
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let project_hash_str = str::from_utf8(&project_hash).unwrap();
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
     let todo_id_stdi = ask_todo_id
         .parse::<u8>()
@@ -321,9 +321,9 @@ fn update_todo_status() {
         updated_todo.id = find_todo.id;
         updated_todo.note = find_todo.note;
     };
-    let todo: TodoFile = parse_todo_file(&project_hash_str);
+    let todo: TodoFile = parse_todo_file(project_hash_str);
     updated_todo.status = new_status.expect("Failed to get the updated status");
     todo_vec.push(updated_todo);
-    update_todo_file(&project_hash_str, todo_vec, todo);
+    update_todo_file(project_hash_str, todo_vec, todo);
     log::log_from_log_level(LogLevel::Info, "Successfully update the to-do");
 }

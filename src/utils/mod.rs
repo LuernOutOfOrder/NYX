@@ -67,10 +67,11 @@ pub fn get_select_project_option(prompt: String) -> std::result::Result<String, 
 }
 
 pub fn get_select_option(
-    prompt: String,
-    option: Vec<String>,
+    prompt: &str,
+    option: Vec<&str>,
 ) -> std::result::Result<String, InquireError> {
-    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
+    let options: Vec<String> = option.into_iter().map(|s| s.to_string()).collect();
+    let ans: std::result::Result<String, InquireError> = Select::new(prompt, options).prompt();
 
     ans
 }
