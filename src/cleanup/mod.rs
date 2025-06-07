@@ -110,7 +110,7 @@ fn prune_docker_unused() {
     prune_throbber.end();
 }
 
-/// This function remove all build cache,
+/// This function removes all build cache,
 /// node_modules, bin folder content of the
 /// project managed by nyx
 fn prune_project_unused() {
