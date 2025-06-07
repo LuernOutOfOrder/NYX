@@ -122,7 +122,7 @@ fn new_project(name: String) {
 
     inquire::set_global_render_config(utils::get_render_config());
     let option_select =
-        utils::get_select_project_option("Which tech do you want to use ?".to_owned());
+        utils::get_select_project_option("Which tech do you want to use ?");
 
     match fs::create_dir(name.clone()) {
         Ok(_) => println!("Directory created successfully"),

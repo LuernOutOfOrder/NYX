@@ -46,22 +46,22 @@ pub fn get_render_config() -> RenderConfig<'static> {
     render_config
 }
 
-pub fn get_tech_option() -> Vec<String> {
-    let options: Vec<String> = vec![
-        "Node.js".to_string(),
-        "Python".to_string(),
-        "Golang".to_string(),
-        "Rust".to_string(),
-        "C++".to_string(),
-        "Other".to_string(),
+pub fn get_tech_option() -> Vec<&'static str> {
+    let options: Vec<&str> = vec![
+        "Node.js",
+        "Python",
+        "Golang",
+        "Rust",
+        "C++",
+        "Other",
     ];
     options
 }
 
-pub fn get_select_project_option(prompt: String) -> std::result::Result<String, InquireError> {
-    let options = get_tech_option();
+pub fn get_select_project_option(prompt: &str) -> std::result::Result<String, InquireError> {
+    let options = get_tech_option().into_iter().map(|s| s.to_owned()).collect();
 
-    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
+    let ans: std::result::Result<String, InquireError> = Select::new(prompt, options).prompt();
 
     ans
 }
@@ -98,6 +98,6 @@ pub fn nyx_ascii_art() -> String {
     ascii_art.to_string()
 }
 
-pub fn custom_throbber(message: String) -> Throbber {
-    Throbber::new().message(message).frames(&throbber::ROTATE_F)
+pub fn custom_throbber(message: &str) -> Throbber {
+    Throbber::new().message(message.to_owned()).frames(&throbber::ROTATE_F)
 }

@@ -61,7 +61,7 @@ fn prune_docker_unused() {
     if !confirm {
         return;
     }
-    let mut prune_throbber = utils::custom_throbber("Prune all unused docker files".to_string());
+    let mut prune_throbber = utils::custom_throbber("Prune all unused docker files");
     prune_throbber.start();
     // docker builder
     let mut docker_builder = Command::new("docker")

@@ -3,8 +3,8 @@ use crate::nxfs;
 use crate::nxfs::config::LogLevel;
 use crate::nxfs::nxs;
 use crate::utils;
+use crate::utils::get_select_project_option;
 use crate::utils::log;
-use inquire::{error::InquireError, Select};
 use lrncore::usage_exit::command_usage;
 use std::env;
 use std::process::exit;
@@ -56,9 +56,7 @@ pub fn list_projects() {
 
 pub fn add_existing_project_to_list() {
     inquire::set_global_render_config(utils::get_render_config());
-    let options = utils::get_tech_option();
-    let ans: std::result::Result<String, InquireError> =
-        Select::new("Which tech your project is using ?", options).prompt();
+    let ans = get_select_project_option("Which tech your project is using ?");
     match ans {
         Ok(choice) => create_repo_or_not(&choice),
         Err(_) => println!("There was an error, please try again"),
