@@ -33,16 +33,14 @@ use crate::{
 };
 use lrncore::usage_exit::command_usage;
 
-pub fn project_update_help() -> String {
-    let usage = r"
+pub fn project_update_help() -> &'static str{
+    (r"
 Usage: nyx project-update
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    return usage.to_string();
+") as _
 }
 
 pub fn update_project_properties() {
@@ -50,10 +48,10 @@ pub fn update_project_properties() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&project_update_help());
+                command_usage(project_update_help());
             }
             "--help" => {
-                command_usage(&project_update_help());
+                command_usage(project_update_help());
             }
             _ => {}
         }
@@ -61,8 +59,8 @@ pub fn update_project_properties() {
     let mut projects = nxs::get_all_project();
     inquire::set_global_render_config(utils::get_render_config());
     let app_name = utils::prompt_message(
-        "Enter project name:".to_string(),
-        "Error with the project name referred".to_string(),
+        "Enter project name:",
+        "Error with the project name referred",
     );
 
     let mut current_project: ProjectEntry = ProjectEntry {
@@ -73,9 +71,9 @@ pub fn update_project_properties() {
     if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
         log_from_log_level(LogLevel::Info, "Project found");
         let app = projects.remove(pos);
-        current_project.project_hash = app.project_hash.clone();
-        current_project.project_name = app.project_name.clone();
-        current_project.project_size = app.project_size.clone();
+        current_project.project_hash = app.project_hash;
+        current_project.project_name = app.project_name;
+        current_project.project_size = app.project_size;
     } else {
         log_from_log_level(LogLevel::Error, "Project not found");
         exit(10);
@@ -97,7 +95,7 @@ pub fn update_project_properties() {
             version: String::new(),
         },
     };
-    let hash = String::from_utf8_lossy(&current_project.project_hash);
+    let hash = str::from_utf8(&current_project.project_hash).unwrap();
     nxp::parse_nxp_file(&format!(".nxfs/projects/{}/content", &hash), &mut nxp);
     let project_content: NXPContent = nxp.content;
     let buffer = update_editor(project_content);
@@ -123,5 +121,5 @@ pub fn update_project_properties() {
         };
         nxs::update_project_entries(&mut update_nxs, projects);
     }
-    nxp::update_nxp(&hash, buffer);
+    nxp::update_nxp(hash, buffer);
 }

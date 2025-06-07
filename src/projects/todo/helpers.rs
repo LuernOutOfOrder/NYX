@@ -10,23 +10,18 @@ use crate::utils::log;
 use std::io::Read;
 use std::io::Write;
 
-use lrncore::vec_of_strings;
-
-pub fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
-    let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
-    let id: u8;
-    if !deserial_todo_vec.is_empty() {
-        id = deserial_todo_vec.last().clone().unwrap().id + 1;
+pub fn add_new_todo(todo_vec: &mut Vec<Todo>, new_todo: &str) {
+    let id: u8 = if !todo_vec.is_empty() {
+        todo_vec.last().unwrap().id + 1
     } else {
-        id = 1;
-    }
+        1
+    };
     let new_todo_inst: Todo = Todo {
-        id: id,
-        status: "".to_string(),
-        note: new_todo.to_string(),
+        id,
+        status: "".to_owned(),
+        note: new_todo.to_owned(),
     };
     todo_vec.push(new_todo_inst);
-    todo_vec
 }
 
 pub fn create_todo_file(hash: &str) {
@@ -52,14 +47,11 @@ pub fn create_todo_file(hash: &str) {
     let mut file_buff: Vec<u8> = Vec::new();
     file_buff.extend_from_slice(&header_buff);
     file_buff.extend_from_slice(&content_buff);
-    let file_path = format!(".nxfs/projects/{}/todo", hash);
+    let file_path = format!(".nxfs/projects/{hash}/todo");
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to create todo file: {}", e),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to create todo file: {e}"));
             return;
         }
     };
@@ -68,7 +60,7 @@ pub fn create_todo_file(hash: &str) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in todo file: {}", e),
+                &format!("Failed to write buffer in todo file: {e}"),
             );
         }
     }
@@ -76,23 +68,23 @@ pub fn create_todo_file(hash: &str) {
 }
 
 pub fn parse_todo_file(hash: &str) -> TodoFile {
-    let file = match File::open(format!(".nxfs/projects/{}/todo", hash)) {
+    let file = match File::open(format!(".nxfs/projects/{hash}/todo")) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(LogLevel::Error, &format!("Failed to open todo file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to open todo file: {e}"));
             exit(51);
         }
     };
-    // initialize TodoHeader size from structure and buffer
+    // Initialize TodoHeader size from structure and buffer
     let header_size = std::mem::size_of::<TodoHeader>();
     let buffer = BufReader::new(file);
-    // vector containing the whole todo file
+    // Vector containing the whole todo file
     let mut bytes_vec: Vec<u8> = Vec::new();
     for byte_or_error in buffer.bytes() {
         match byte_or_error {
             Ok(byte) => bytes_vec.push(byte),
             Err(e) => {
-                log::log_from_log_level(LogLevel::Error, &format!("Failed to read byte: {}", e));
+                log::log_from_log_level(LogLevel::Error, &format!("Failed to read byte: {e}"));
                 exit(50)
             }
         }
@@ -107,14 +99,14 @@ pub fn parse_todo_file(hash: &str) -> TodoFile {
     let todo_content: TodoContent =
         bincode::deserialize(todo_content_bytes).expect("Failed to deserialize todo content");
     let todo: TodoFile = TodoFile {
-        header: header,
+        header,
         content: todo_content,
     };
     todo
 }
 
 pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
-    let file_path = format!(".nxfs/projects/{}/todo", hash);
+    let file_path = format!(".nxfs/projects/{hash}/todo");
     let update_todo: TodoFile = TodoFile {
         header: todo.header,
         content: TodoContent { todos: vec },
@@ -124,10 +116,7 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
     let mut todo_file: File = match File::create(file_path) {
         Ok(f) => f,
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to update todo file: {}", e),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to update todo file: {e}"));
             return;
         }
     };
@@ -136,7 +125,7 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in todo file: {}", e),
+                &format!("Failed to write buffer in todo file: {e}"),
             );
             return;
         }
@@ -144,7 +133,7 @@ pub fn update_todo_file(hash: &str, vec: Vec<Todo>, todo: TodoFile) {
     log::log_from_log_level(LogLevel::Info, "Successfully update todo file");
 }
 
-pub fn todos_status_list() -> Vec<String> {
-    let vec = vec_of_strings!("pending", "done", "wip");
+pub fn todos_status_list() -> Vec<&'static str> {
+    let vec = vec!["pending", "done", "wip"];
     vec
 }

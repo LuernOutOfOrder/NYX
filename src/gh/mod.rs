@@ -1,9 +1,9 @@
 use crate::git;
 use std::process::Command;
 
-pub fn create_new_repo(name: String, visibility: String) {
+pub fn create_new_repo(name: &str, visibility: &str) {
     git::git_init();
-    let repo_visibility = "--".to_string() + &visibility;
+    let repo_visibility = "--".to_owned() + visibility;
     let source = "--source=.";
     let mut gh_repo = Command::new("gh")
         .arg("repo")

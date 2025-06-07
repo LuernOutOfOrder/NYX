@@ -9,16 +9,15 @@ use crate::{
     nxfs::{self},
     utils,
 };
-pub fn hello_help() -> String {
-    let usage = r"
+
+pub fn hello_help() -> &'static str{
+    (r"
 Usage: nyx hello [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn hello_command() {
@@ -29,13 +28,13 @@ pub fn hello_command() {
     }
     match args[2].as_str() {
         "-h" => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
         "--help" => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
         _ => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
     }
 }
@@ -68,14 +67,14 @@ fn hello() {
     let sys = System::new();
     match sys.load_average() {
         Ok(loadavg) => println!("\tSystem load average: {}", loadavg.one),
-        Err(x) => println!("\tSystem load average: error: {}", x),
+        Err(x) => println!("\tSystem load average: error: {x}"),
     }
     match sys.mount_at("/") {
         Ok(mount) => {
             print!("\tUsage of /:\t");
             println!("{} of {}", mount.avail, mount.total);
         }
-        Err(x) => println!("\tMount at /: error: {}", x),
+        Err(x) => println!("\tMount at /: error: {x}"),
     }
     match sys.memory() {
         Ok(mem) => println!(
@@ -83,7 +82,7 @@ fn hello() {
             saturating_sub_bytes(mem.total, mem.free),
             mem.total
         ),
-        Err(x) => println!("\tMemory: error: {}", x),
+        Err(x) => println!("\tMemory: error: {x}"),
     }
     match sys.swap() {
         Ok(swap) => println!(
@@ -91,23 +90,23 @@ fn hello() {
             saturating_sub_bytes(swap.total, swap.free),
             swap.total
         ),
-        Err(x) => println!("\tSwap: error: {}", x),
+        Err(x) => println!("\tSwap: error: {x}"),
     }
     match sys.cpu_temp() {
-        Ok(cpu_temp) => println!("\tCPU temp: {}", cpu_temp),
-        Err(x) => println!("\tCPU temp: {}", x),
+        Ok(cpu_temp) => println!("\tCPU temp: {cpu_temp}"),
+        Err(x) => println!("\tCPU temp: {x}"),
     }
 
     println!("\nNXFS information: ");
-    let nyx_path = utils::env::get_nyx_env_var();
-    let nxfs_path = nyx_path.clone() + "/.nxfs/";
+    let nyx_path: String = utils::env::get_nyx_env_var();
+    let nxfs_path = nyx_path.to_owned() + "/.nxfs/";
     print!("\tNxfs directory size: {}", helper::folder_size(&nxfs_path));
-    let nxfs_projects_path = nyx_path.clone() + "/.nxfs/projects/";
+    let nxfs_projects_path = nyx_path.to_owned() + "/.nxfs/projects/";
     print!(
         "\tProjects directory size: {}",
         helper::folder_size(&nxfs_projects_path)
     );
-    let nxfs_temp_path = nyx_path.clone() + "/.nxfs/tmp/";
+    let nxfs_temp_path = nyx_path.to_owned() + "/.nxfs/tmp/";
     print!(
         "\tTemp directory size: {}",
         helper::folder_size(&nxfs_temp_path)

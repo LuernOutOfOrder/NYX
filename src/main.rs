@@ -1,23 +1,24 @@
 mod cleanup;
+mod doctor;
 pub mod gh;
 mod git;
-mod doctor;
 pub mod logs;
 pub mod macros;
 mod projects;
 mod update;
+mod upgrade;
 mod utils;
 use crate::projects::todo;
 use lrncore::usage_exit::command_usage;
 pub mod nxfs;
 use std::env;
+mod health;
 mod hello;
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.8.0";
-#[derive(Debug, Clone)]
+const VERSION: &str = "2.10.2";
 enum Commands {
     Init,
     CatNxs,
@@ -26,9 +27,11 @@ enum Commands {
     Cleanup,
     Git,
     Doctor,
+    Health,
     Hello,
     Update,
     Config,
+    Upgrade,
     Help,
     Version,
 }
@@ -47,8 +50,10 @@ Commands:
     cleanup         Cleanup all unused files
     git             Git command wrapped in a simplified interface
     doctor          Display current NYX system health
+    health          Display current user configure environment health
+    update          Execute all specified user configuration commands to update multiple tools at once
     hello           Display helpful information about today
-    update          Update the current version of NYX
+    upgrade         Update the current version of NYX
     config          Manage nyx configuration
     help            Show this help message
 
@@ -84,9 +89,11 @@ fn main() {
         Some("cleanup") => Commands::Cleanup,
         Some("git") => Commands::Git,
         Some("doctor") => Commands::Doctor,
+        Some("health") => Commands::Health,
         Some("hello") => Commands::Hello,
-        Some("config") => Commands::Config,
         Some("update") => Commands::Update,
+        Some("config") => Commands::Config,
+        Some("upgrade") => Commands::Upgrade,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
         _ => {
@@ -98,20 +105,21 @@ fn main() {
     match command {
         Commands::Init => nxfs::nxs::create_data(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
-        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash),
+        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash.as_deref()),
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
         Commands::Doctor => doctor::doctor_health(),
+        Commands::Health => health::health_command(),
         Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
-        Commands::Update => update::update_bin(),
+        Commands::Update => update::update_command(),
+        Commands::Upgrade => upgrade::upgrade_bin(),
         Commands::Help => command_usage(nyx_usage()),
         Commands::Version => command_usage(&nyx_version()),
     }
 }
 
 pub fn nyx_version() -> String {
-    let usage = format!("nyx {VERSION}");
-    usage
+    format!("nyx {VERSION}")
 }

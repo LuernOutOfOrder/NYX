@@ -25,7 +25,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to parse config file: {}", e),
+                &format!("Failed to parse config file: {e}"),
             );
             return vec![];
         }
@@ -36,7 +36,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to create temp file: {}", e),
+                &format!("Failed to create temp file: {e}"),
             );
             return vec![];
         }
@@ -46,7 +46,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to parse project content to JSON: {}", e),
+                &format!("Failed to parse project content to JSON: {e}"),
             );
             return vec![];
         }
@@ -56,7 +56,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write current project buffer to temp file: {}", e),
+                &format!("Failed to write current project buffer to temp file: {e}"),
             );
             return vec![];
         }
@@ -73,7 +73,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
     {
         Ok(_) => (),
         Err(e) => {
-            log::log_from_log_level(LogLevel::Error, &format!("Failed to open temp file: {}", e));
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to open temp file: {e}"));
             return vec![];
         }
     }
@@ -82,7 +82,7 @@ pub fn update_editor(content: NXPContent) -> Vec<u8> {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write JSON str to struct: {}", e),
+                &format!("Failed to write JSON str to struct: {e}"),
             );
             return vec![];
         }
@@ -99,7 +99,7 @@ pub fn open_new_editor(path: &str) {
         Err(e) => {
             log::log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to parse config file: {}", e),
+                &format!("Failed to parse config file: {e}"),
             );
             "vim".to_owned()
         }

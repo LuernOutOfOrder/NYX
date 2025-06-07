@@ -1,3 +1,6 @@
+use chrono::Utc;
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::process::exit;
 
 use lrncore::logs;
@@ -6,7 +9,30 @@ use crate::nxfs::{self, config::LogLevel};
 
 pub fn log_from_log_level(log_level: LogLevel, log_msg: &str) {
     let config = nxfs::config::parse_config_file();
-    let config_log_level = config.unwrap().behavior.log_level;
+    let unwrapped_config = config.unwrap();
+    let config_log_level = unwrapped_config.behavior.log_level;
+    let save_file = unwrapped_config.behavior.save_logs;
+
+    if save_file {
+        let timestamp = Utc::now();
+        let log = format!(
+            "{} {}",
+            timestamp.format("%d-%m-%Y %H:%M:%S"),
+            log_msg
+        );
+        let log_path = unwrapped_config.internal_path.logs;
+        // log file path by day
+        let daily_log_path = format!("{}{}", log_path, timestamp.format("%d-%m-%Y"));
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(daily_log_path)
+            .unwrap();
+
+        if let Err(e) = writeln!(file, "{log}") {
+            eprintln!("Couldn't write to file: {e}");
+        }
+    }
 
     if log_level <= config_log_level {
         match log_level {

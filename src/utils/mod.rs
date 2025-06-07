@@ -19,8 +19,8 @@ use throbber::Throbber;
 pub mod editor;
 pub mod env;
 pub mod fsys;
-pub mod prompt;
 pub mod log;
+pub mod prompt;
 
 pub fn get_render_config() -> RenderConfig<'static> {
     let mut render_config = RenderConfig::default();
@@ -46,43 +46,44 @@ pub fn get_render_config() -> RenderConfig<'static> {
     render_config
 }
 
-pub fn get_tech_option() -> Vec<String> {
-    let options: Vec<String> = vec![
-        "Node.js".to_string(),
-        "Python".to_string(),
-        "Golang".to_string(),
-        "Rust".to_string(),
-        "C++".to_string(),
-        "Other".to_string(),
+pub fn get_tech_option() -> Vec<&'static str> {
+    let options: Vec<&str> = vec![
+        "Node.js",
+        "Python",
+        "Golang",
+        "Rust",
+        "C++",
+        "Other",
     ];
     options
 }
 
-pub fn get_select_project_option(prompt: String) -> std::result::Result<String, InquireError> {
-    let options = get_tech_option();
+pub fn get_select_project_option(prompt: &str) -> std::result::Result<String, InquireError> {
+    let options = get_tech_option().into_iter().map(|s| s.to_owned()).collect();
 
-    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, options).prompt();
+    let ans: std::result::Result<String, InquireError> = Select::new(prompt, options).prompt();
 
     ans
 }
 
 pub fn get_select_option(
-    prompt: String,
-    option: Vec<String>,
+    prompt: &str,
+    option: Vec<&str>,
 ) -> std::result::Result<String, InquireError> {
-    let ans: std::result::Result<String, InquireError> = Select::new(&prompt, option).prompt();
+    let options: Vec<String> = option.into_iter().map(|s| s.to_string()).collect();
+    let ans: std::result::Result<String, InquireError> = Select::new(prompt, options).prompt();
 
     ans
 }
 
-pub fn prompt_message(message: String, error_message: String) -> String {
+pub fn prompt_message(message: &str, error_message: &str) -> String {
     inquire::set_global_render_config(get_render_config());
-    let message = Text::new(&message).prompt().expect(&error_message);
+    let message = Text::new(message).prompt().expect(error_message);
     message.to_lowercase()
 }
 
-pub fn nyx_ascii_art() -> String {
-    let ascii_art = r"         
+pub fn nyx_ascii_art() -> &'static str{
+    (r"         
  _                         
 ( (    /||\     /||\     /|
 |  \  ( |( \   / )( \   / )
@@ -92,12 +93,9 @@ pub fn nyx_ascii_art() -> String {
 | )  \  |   | |   ( /   \ )
 |/    )_)   \_/   |/     \|
 
-";
-
-    ascii_art.to_string()
+") as _
 }
 
-pub fn custom_throbber(message: String) -> Throbber {
-    let custom_throbber = Throbber::new().message(message).frames(&throbber::ROTATE_F);
-    return custom_throbber;
+pub fn custom_throbber(message: &str) -> Throbber {
+    Throbber::new().message(message.to_owned()).frames(&throbber::ROTATE_F)
 }

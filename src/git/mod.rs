@@ -5,8 +5,8 @@ use crate::utils;
 
 use lrncore::usage_exit::command_usage;
 
-fn git_help() -> String {
-    let usage = r"
+fn git_help() -> &'static str {
+    (r"
 Usage: nyx git [subcommand] [arguments] [options]
 
 Subcommands:
@@ -18,15 +18,13 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn git_command() {
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        command_usage(&git_help());
+        command_usage(git_help());
     }
     match args[2].as_str() {
         "stash" => nyx_git_stash(),
@@ -35,16 +33,13 @@ pub fn git_command() {
         "all-commit" => show_all_commit(),
         "last-commit" => show_last_commit_with_stat(),
         _ => {
-            command_usage(&git_help());
+            command_usage(git_help());
         }
     }
 }
 
 fn nyx_git_stash() {
-    let message = utils::prompt_message(
-        "Enter stash message: ".to_string(),
-        "Failed to read stash message".to_string(),
-    );
+    let message = utils::prompt_message("Enter stash message: ", "Failed to read stash message");
     let mut stash = Command::new("git")
         .arg("stash")
         .arg("push")
@@ -59,10 +54,7 @@ fn nyx_git_stash() {
 }
 
 fn nyx_git_tag() {
-    let name = utils::prompt_message(
-        "Enter new tag name:".to_string(),
-        "Failed to read tag name".to_string(),
-    );
+    let name = utils::prompt_message("Enter new tag name:", "Failed to read tag name");
     let mut new_tag = Command::new("git")
         .arg("tag")
         .arg(name)
@@ -114,7 +106,7 @@ fn show_all_commit() {
         .arg("--no-merges")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&shortlog.stdout));
+    println!("{}", str::from_utf8(&shortlog.stdout).unwrap());
 }
 
 fn show_last_commit_with_stat() {
@@ -124,7 +116,7 @@ fn show_last_commit_with_stat() {
         .arg("--stat")
         .output()
         .expect("Failed to call the git log command");
-    println!("{}", String::from_utf8_lossy(&commits.stdout));
+    println!("{}", str::from_utf8(&commits.stdout).unwrap());
 }
 
 fn show_all_branch() {
@@ -132,7 +124,7 @@ fn show_all_branch() {
         .arg("branch")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&branches.stdout));
+    println!("{}", str::from_utf8(&branches.stdout).unwrap());
 }
 
 fn show_stash() {
@@ -141,5 +133,5 @@ fn show_stash() {
         .arg("list")
         .output()
         .expect("Failed to call the git shortlog command");
-    println!("{}", String::from_utf8_lossy(&list.stdout));
+    println!("{}", str::from_utf8(&list.stdout).unwrap());
 }

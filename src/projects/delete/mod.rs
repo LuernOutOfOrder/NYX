@@ -11,16 +11,14 @@ use std::{env, process::Command};
 
 use crate::utils::{self, log};
 
-pub fn project_delete_help() -> String {
-    let usage = r"
+pub fn project_delete_help() -> &'static str {
+    (r"
 Usage: nyx project-delete [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn select_remove_project() {
@@ -28,10 +26,10 @@ pub fn select_remove_project() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&project_delete_help());
+                command_usage(project_delete_help());
             }
             "--help" => {
-                command_usage(&project_delete_help());
+                command_usage(project_delete_help());
             }
             _ => {}
         }
@@ -74,11 +72,12 @@ fn remove_project_from_list() {
         return;
     }
     // if an index match the given data, remove it from the vector
-    let mut hash: String = String::new();
-    if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
-        let app = projects.remove(pos);
-        hash = String::from_utf8_lossy(&app.project_hash).to_string();
-    }
+    let hash: String = if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
+        let app: nxs::ProjectEntry = projects.remove(pos);
+        String::from_utf8_lossy(&app.project_hash).into_owned()
+    } else {
+        String::new()
+    };
     let mut nxs: NXS = NXS {
         header: NXSHeader {
             magic_number: [0u8; 4],
@@ -106,11 +105,13 @@ fn remove_project_from_storage() {
     if !confirm {
         return;
     }
-    let mut hash: String = String::new();
-    if let Some(pos) = projects.iter().position(|app| app.project_name == app_name) {
-        let app = projects.remove(pos);
-        hash = String::from_utf8_lossy(&app.project_hash).to_string();
-    }
+    // if an index match the given data, remove it from the vector
+    let hash: String = if let Some(pos) = projects.iter().position(|x| x.project_name == app_name) {
+        let app: nxs::ProjectEntry = projects.remove(pos);
+        String::from_utf8_lossy(&app.project_hash).into_owned()
+    } else {
+        String::new()
+    };
     let mut nxp: NXP = NXP {
         header: NXPHeader {
             magic_number: [0; 4],

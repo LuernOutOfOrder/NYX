@@ -4,16 +4,14 @@ use crate::{nxfs::nxs, utils};
 use inquire::{InquireError, Select};
 use lrncore::usage_exit::command_usage;
 
-pub fn cleanup_help() -> String {
-    let usage = r"
+pub fn cleanup_help() -> &'static str{
+    (r"
 Usage: nyx cleanup
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn choose_cleanup() {
@@ -21,10 +19,10 @@ pub fn choose_cleanup() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&cleanup_help());
+                command_usage(cleanup_help());
             }
             "--help" => {
-                command_usage(&cleanup_help());
+                command_usage(cleanup_help());
             }
             _ => {}
         }
@@ -61,7 +59,7 @@ fn prune_docker_unused() {
     if !confirm {
         return;
     }
-    let mut prune_throbber = utils::custom_throbber("Prune all unused docker files".to_string());
+    let mut prune_throbber = utils::custom_throbber("Prune all unused docker files");
     prune_throbber.start();
     // docker builder
     let mut docker_builder = Command::new("docker")
@@ -75,7 +73,7 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker builder command");
     if !wait_docker_builder.success() {
-        prune_throbber.fail("Error prune the docker builder cache".to_string());
+        prune_throbber.fail("Error prune the docker builder cache".to_owned());
         panic!();
     }
     // docker volumes
@@ -90,7 +88,7 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker volume prune command");
     if !wait_docker_volumes.success() {
-        prune_throbber.fail("Error prune the unused docker volume".to_string());
+        prune_throbber.fail("Error prune the unused docker volume".to_owned());
         panic!();
     }
     // docker images
@@ -105,16 +103,16 @@ fn prune_docker_unused() {
         .wait()
         .expect("Failed to wait the docker image prune command");
     if !wait_docker_images.success() {
-        prune_throbber.fail("Error prune the unused docker image".to_string());
+        prune_throbber.fail("Error prune the unused docker image".to_owned());
         panic!();
     }
-    prune_throbber.success("Successfully prune all unused docker files".to_string());
+    prune_throbber.success("Successfully prune all unused docker files".to_owned());
     prune_throbber.end();
 }
 
-// this function remove all build cache,
-// node_modules, bin folder content of the
-// project managed by nyx
+/// This function removes all build cache,
+/// node_modules, bin folder content of the
+/// project managed by nyx
 fn prune_project_unused() {
     let confirm = utils::prompt::confirm_prompt(
         "Are you sure you want to prune all project dependency/build related files",
@@ -128,22 +126,22 @@ fn prune_project_unused() {
     println!("Cleaning up all projects by removing dependency folders (node_modules), compiled files (dist), and executable binaries (bin) that are no longer needed.");
     for i in &projects {
         // Node.js
-        let node_module_path = i.location.to_string() + "/node_modules";
-        let nodejs_dist_path = i.location.to_string() + "/dist";
+        let node_module_path = i.location.to_owned() + "/node_modules";
+        let nodejs_dist_path = i.location.to_owned() + "/dist";
         lrncore::path::change_work_dir(&i.location);
         if lrncore::path::path_exists(&node_module_path) {
-            utils::fsys::rm_command(node_module_path);
-            utils::fsys::rm_command(nodejs_dist_path);
+            utils::fsys::rm_command(&node_module_path);
+            utils::fsys::rm_command(&nodejs_dist_path);
         }
         // Golang
-        let bin_folder = i.location.to_string() + "/bin/";
+        let bin_folder = i.location.to_owned() + "/bin/";
         if lrncore::path::path_exists(&bin_folder) {
-            utils::fsys::rm_command(bin_folder);
+            utils::fsys::rm_command(&bin_folder);
         }
         // Rust
-        let target_folder = i.location.to_string() + "/target";
+        let target_folder = i.location.to_owned() + "/target";
         if lrncore::path::path_exists(&target_folder) {
-            utils::fsys::rm_command(target_folder);
+            utils::fsys::rm_command(&target_folder);
         }
     }
 }

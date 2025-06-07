@@ -11,8 +11,8 @@ use std::fmt::Debug;
 use std::{env, fs};
 use toml::de::Error as toml_error;
 
-fn config_help() -> String {
-    let usage = r"
+fn config_help() -> &'static str {
+    (r"
 Usage: nyx config [subcommand] [arguments] [options]
 
 Subcommands:
@@ -24,10 +24,10 @@ Subcommands:
 Options:
     -h, --help      Show this help message
 
-        ";
-    usage.to_string()
+        ") as _
 }
-#[derive(Debug, Deserialize, Serialize)]
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Config {
     pub config: ConfigHeader,
     pub user: ConfigUser,
@@ -38,31 +38,53 @@ pub struct Config {
     pub security: ConfigSecure,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigHeader {
     pub format: String,
     pub version: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigUser {
     pub name: String,
+    pub health_list: Vec<UserHealthEntry>,
+    pub update_list: Vec<UserUpdateEntry>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct UserUpdateEntry {
+    pub command: String,
+    pub sub_command: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Clone)]
+pub enum UserHealthEntryCategory {
+    System,
+    Network,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct UserHealthEntry {
+    pub category: UserHealthEntryCategory,
+    pub command: String,
+    pub sub_command: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigGit {
     pub profile_url: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigBehavior {
     pub default_editor: String,
     pub auto_update: bool,
     pub ask_confirmation: bool,
     pub log_level: LogLevel,
+    pub save_logs: bool,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, PartialOrd, Clone)]
 pub enum LogLevel {
     Error,
     Warn,
@@ -71,28 +93,30 @@ pub enum LogLevel {
     Trace,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigUi {}
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigInternPath {
     pub data: String,
     pub logs: String,
     pub cache: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ConfigSecure {
     pub secure_mode: bool,
 }
 
-fn config_template() -> String {
-    let template = r"[config]
+fn config_template() -> &'static str {
+    (r"[config]
 format = 'nxs_config'
-version = '0.1.0'
+version = '0.4.0'
 
 [user]
 name = ''
+health_list = []
+update_list = []
 
 [git]
 profile_url = ''
@@ -102,6 +126,7 @@ default_editor = 'vim'
 auto_update = false
 ask_confirmation = true
 log_level = 'Info'
+save_logs = false
 
 [ui]
 
@@ -112,15 +137,14 @@ cache = ''
 
 [security]
 secure_mode = false
-    ";
-    template.to_string()
+    ") as _
 }
 
 pub fn config_command() {
     change_work_dir(&utils::env::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        command_usage(&config_help());
+        command_usage(config_help());
     }
     match args[2].as_str() {
         "init" => init_config(),
@@ -128,45 +152,40 @@ pub fn config_command() {
         "cat" => cat_config(),
 
         _ => {
-            command_usage(&config_help());
+            command_usage(config_help());
         }
     }
 }
 
 fn init_config() {
-    let config_path = ".nxfs/config.toml".to_string();
+    let config_path = ".nxfs/config.toml";
     let mut config_file = match File::create_new(config_path) {
         Ok(f) => f,
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to initialize config file: {}", e),
+                &format!("Failed to initialize config file: {e}"),
             );
             return;
         }
     };
     let template = config_template();
-    let mut config: Config = match toml::from_str(&template) {
+    let mut config: Config = match toml::from_str(template) {
         Ok(c) => c,
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to deserialize config template: {}", e),
+                &format!("Failed to deserialize config template: {e}"),
             );
             return;
         }
     };
-    let ask_username = utils::prompt_message(
-        "Enter a username:".to_string(),
-        "Failed to get user input".to_string(),
-    );
-    let ask_github_profile = utils::prompt_message(
-        "Enter your github profile url:".to_string(),
-        "Failed to get user input".to_string(),
-    );
+    let ask_username = utils::prompt_message("Enter a username:", "Failed to get user input");
+    let ask_github_profile =
+        utils::prompt_message("Enter your github profile url:", "Failed to get user input");
     let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
-    let log_dir = data_dir.clone() + "logs/";
-    let cache_dir = data_dir.clone() + "cache/";
+    let log_dir = data_dir.to_owned() + "logs/";
+    let cache_dir = data_dir.to_owned() + "cache/";
     config.user.name = ask_username;
     config.git.profile_url = ask_github_profile;
     config.internal_path.data = data_dir;
@@ -180,7 +199,7 @@ fn init_config() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write the config file: {}", e),
+                &format!("Failed to write the config file: {e}"),
             );
             exit(50);
         }
@@ -190,16 +209,13 @@ fn init_config() {
 
 pub fn parse_config_file() -> Result<Config, toml_error> {
     change_work_dir(&utils::env::get_nyx_env_var());
-    let config_path = ".nxfs/config.toml".to_string();
+    let config_path = ".nxfs/config.toml";
     let file =
-        std::fs::read_to_string(&config_path).expect("Failed to read the config file to string");
+        std::fs::read_to_string(config_path).expect("Failed to read the config file to string");
     let config: Config = match toml::from_str(&file) {
         Ok(c) => c,
         Err(e) => {
-            log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to parse the config file: {}", e),
-            );
+            println!("Failed to parse the configuration file: {e:?}");
             return Err(e);
         }
     };
@@ -235,5 +251,5 @@ fn cat_config() {
         .stdout(Stdio::inherit())
         .output()
         .expect("Failed to execute cat command");
-    println!("{}", String::from_utf8_lossy(&cat.stdout));
+    println!("{}", str::from_utf8(&cat.stdout).unwrap());
 }

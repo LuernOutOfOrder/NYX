@@ -23,7 +23,7 @@ pub fn create_dir(path: &str) {
     }
 }
 
-pub fn rm_command(path: String) {
+pub fn rm_command(path: &str) {
     if path.is_empty() {
         log::log_from_log_level(LogLevel::Error, "Path is empty");
         exit(4)
@@ -31,7 +31,7 @@ pub fn rm_command(path: String) {
 
     let forbidden_names = ["/", ".", ".."];
     let forbidden_patterns = ['*', '?', '&', ';', '|', '`'];
-    if forbidden_names.contains(&path.as_str()) {
+    if forbidden_names.contains(&path) {
         log::log_from_log_level(LogLevel::Error, "Input contains forbidden names.");
         exit(2)
     };

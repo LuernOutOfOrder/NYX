@@ -33,33 +33,35 @@ NXS file structure
 /// Properties:
 ///
 /// * `NXSHeader`: The `NXSHeader` property in the `NXS` struct is of type `NXSHeader`. It likely contains
-/// information about the overall structure or metadata of the NXS data.
+///   information about the overall structure or metadata of the NXS data.
 /// * `projects`: The `projects` property in the `NXS` struct is of type `ProjectList`. It likely
-/// represents a list of projects within the NXS structure.
+///   represents a list of projects within the NXS structure.
 #[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct NXS {
     pub header: NXSHeader,
     pub projects: ProjectList,
 }
 
-/// The `NXSHeader` struct in Rust represents a data structure with fields for magic number, format
-/// version, project count, and a reserved value.
-///
-/// Properties:
-///
-/// * `magic_number`: The `magic_number` field in the `NXSHeader` struct is an array of 4 unsigned 8-bit
-/// integers (`u8`). It is typically used to identify the file format or type by storing a specific
-/// sequence of bytes that can be checked when reading the file to ensure it is of the expected
-/// * `format_version`: The `format_version` property in the `NXSHeader` struct is an array of 6 unsigned
-/// 8-bit integers (`[u8; 6]`). This array is used to store the version information of the format being
-/// used. Each element in the array represents a part of the version number.
-/// * `project_count`: The `project_count` property in the `NXSHeader` struct represents the number of
-/// projects stored in the data structure. It is of type `u8`, which means it can hold values from 0 to
-/// 255.
-/// * `reserved`: The `reserved` field in the `NXSHeader` struct is a 32-bit unsigned integer that is
-/// currently marked with `#[allow(dead_code)]`. This attribute is used to suppress the compiler warning
-/// about unused code, indicating that the field is intentionally left unused or reserved for future
-/// use.
+/**
+The `NXSHeader` struct in Rust represents a data structure with fields for magic number, format
+version, project count, and a reserved value.
+
+Properties:
+
+* `magic_number`: The `magic_number` field in the `NXSHeader` struct is an array of 4 unsigned 8-bit
+  integers (`u8`). It is typically used to identify the file format or type by storing a specific
+  sequence of bytes that can be checked when reading the file to ensure it is of the expected
+* `format_version`: The `format_version` property in the `NXSHeader` struct is an array of 6 unsigned
+  8-bit integers (`[u8; 6]`). This array is used to store the version information of the format being
+  used. Each element in the array represents a part of the version number.
+* `project_count`: The `project_count` property in the `NXSHeader` struct represents the number of
+  projects stored in the data structure. It is of type `u8`, which means it can hold values from 0 to
+255.
+* `reserved`: The `reserved` field in the `NXSHeader` struct is a 32-bit unsigned integer that is
+  currently marked with `#[allow(dead_code)]`. This attribute is used to suppress the compiler warning
+  about unused code, indicating that the field is intentionally left unused or reserved for future
+  use.
+*/
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[repr(C, packed)]
 pub struct NXSHeader {
@@ -75,7 +77,7 @@ pub struct NXSHeader {
 /// Properties:
 ///
 /// * `entries`: The `entries` property in the `ProjectList` struct is a vector of `ProjectEntry`
-/// instances. It represents a list of project entries within the project list.
+///   instances. It represents a list of project entries within the project list.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectList {
     pub entries: Vec<ProjectEntry>,
@@ -86,13 +88,13 @@ pub struct ProjectList {
 /// Properties:
 ///
 /// * `project_hash`: The `project_hash` property in the `ProjectEntry` struct is defined as an array of
-/// 20 unsigned 8-bit integers (bytes). This array represents a hash value typically used to uniquely
-/// identify a project.
+///   20 unsigned 8-bit integers (bytes). This array represents a hash value typically used to uniquely
+///   identify a project.
 /// * `project_name`: The `project_name` property in the `ProjectEntry` struct is a vector of unsigned 8-bit
-/// integers (`Vec<u8>`). It is used to store the unique identifier for a project.
+///   integers (`Vec<u8>`). It is used to store the unique identifier for a project.
 /// * `project_size`: The `project_size` property in the `ProjectEntry` struct represents the size of
-/// the project in bytes. It is of type `u32`, which means it can hold unsigned integer values ranging
-/// from 0 to 2^32 - 1. This property indicates the amount of storage space the
+///   the project in bytes. It is of type `u32`, which means it can hold unsigned integer values ranging
+///   from 0 to 2^32 - 1. This property indicates the amount of storage space the
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProjectEntry {
     pub project_name: String,
@@ -101,7 +103,7 @@ pub struct ProjectEntry {
 }
 
 /// The `create_data` function initializes a data folder, removes any existing data directory,
-/// creates a new data directory, and parses a NXS file.
+/// creates a new data directory, and parses an NXS file.
 pub fn create_data() {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     if Path::new(".nxfs").exists() {
@@ -117,7 +119,7 @@ pub fn create_data() {
         if let Err(e) = remove_dir {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to remove existing .nxfs directory: {}", e),
+                &format!("Failed to remove existing .nxfs directory: {e}"),
             );
         }
     }
@@ -175,7 +177,7 @@ fn create_nxs_file() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to create nxs file: {}", e),
+                &format!("Failed to create nxs file: {e}"),
             );
             return;
         }
@@ -185,7 +187,7 @@ fn create_nxs_file() {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in nxs file: {}", e),
+                &format!("Failed to write buffer in nxs file: {e}"),
             );
         }
     };
@@ -196,25 +198,25 @@ fn create_nxs_file() {
 // refactor to return a structure instead of a ref
 fn parse_nxs_file(nxs_ref: &mut NXS) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
-    // open NXS file and match result
+    // Open NXS file and match result
     let file = match File::open(".nxfs/nxs") {
         Ok(f) => f,
         Err(e) => {
-            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {e}"));
             return;
         }
     };
-    // initialize NXSHeader size from structure and buffer
+    // Initialize NXSHeader size from structure and buffer
     let header_size = std::mem::size_of::<NXSHeader>();
     let buffer = BufReader::new(file);
-    // vector containing the whole NXS file
+    // Vector containing the whole NXS file
     let mut bytes_vec: Vec<u8> = Vec::new();
     for byte_or_error in buffer.bytes() {
         let byte = byte_or_error.unwrap();
         bytes_vec.push(byte);
     }
 
-    // extract a slice of bytes from the `bytes_vec` vector to represent the NXSHeader section of the NXS file.
+    // Extract a slice of bytes from the `bytes_vec` vector to represent the NXSHeader section of the NXS file.
     // &bytes_vec[0 to NXSHeader_size]
     let header_bytes = &bytes_vec[..header_size];
 
@@ -226,7 +228,7 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     let project_list: ProjectList =
         bincode::deserialize(project_list_byte).expect("Failed to deserialize project list");
     let nxs: NXS = NXS {
-        header: header,
+        header,
         projects: project_list,
     };
     nxs_ref.header = nxs.header;
@@ -262,7 +264,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
     {
         Ok(f) => f,
         Err(e) => {
-            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {e}"));
             return;
         }
     };
@@ -271,7 +273,7 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in nxs file: {}", e),
+                &format!("Failed to write buffer in nxs file: {e}"),
             );
         }
     };
@@ -291,7 +293,7 @@ pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
     {
         Ok(f) => f,
         Err(e) => {
-            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {}", e));
+            log_from_log_level(LogLevel::Error, &format!("Failed to open nxs file: {e}"));
             return;
         }
     };
@@ -300,16 +302,16 @@ pub fn update_project_entries(nxs_ref: &mut NXS, vec: Vec<ProjectEntry>) {
         Err(e) => {
             log_from_log_level(
                 LogLevel::Error,
-                &format!("Failed to write buffer in nxs file: {}", e),
+                &format!("Failed to write buffer in nxs file: {e}"),
             );
         }
     };
     log_from_log_level(LogLevel::Info, "NXS file updated");
 }
 
-fn new_project_entry(hash: &[u8; 11], id: &String, size: u32) -> ProjectEntry {
+fn new_project_entry(hash: &[u8; 11], id: &str, size: u32) -> ProjectEntry {
     let new: ProjectEntry = ProjectEntry {
-        project_name: id.clone(),
+        project_name: id.to_owned(),
         project_hash: *hash,
         project_size: size,
     };
@@ -339,7 +341,7 @@ NXS:
         println!(
             "name: {:?}\n hash: {:?}\n size: {:?}\n",
             each.project_name,
-            String::from_utf8_lossy(&each.project_hash),
+            str::from_utf8(&each.project_hash).unwrap(),
             each.project_size
         );
     }
@@ -379,7 +381,7 @@ pub fn get_all_project_entries() -> Vec<NXPContent> {
         parse_nxp_file(
             &format!(
                 ".nxfs/projects/{}/content",
-                String::from_utf8_lossy(&each.project_hash)
+                str::from_utf8(&each.project_hash).unwrap()
             ),
             &mut nxp,
         );
@@ -422,7 +424,7 @@ pub fn get_all_short_project() -> Vec<NXPContentShort> {
         parse_nxp_file(
             &format!(
                 ".nxfs/projects/{}/content",
-                String::from_utf8_lossy(&each.project_hash)
+                str::from_utf8(&each.project_hash).unwrap()
             ),
             &mut nxp,
         );
