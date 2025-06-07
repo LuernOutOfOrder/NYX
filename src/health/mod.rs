@@ -14,16 +14,14 @@ use crate::{
     utils::log::log_from_log_level,
 };
 
-pub fn health_help() -> String {
-    let usage = r"
+pub fn health_help() -> &'static str {
+    (r"
 Usage: nyx hello [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn health_command() {

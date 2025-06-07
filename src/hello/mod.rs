@@ -10,16 +10,14 @@ use crate::{
     utils,
 };
 
-pub fn hello_help() -> String {
-    let usage = r"
+pub fn hello_help() -> &'static str{
+    (r"
 Usage: nyx hello [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn hello_command() {
@@ -30,13 +28,13 @@ pub fn hello_command() {
     }
     match args[2].as_str() {
         "-h" => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
         "--help" => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
         _ => {
-            command_usage(&hello_help());
+            command_usage(hello_help());
         }
     }
 }

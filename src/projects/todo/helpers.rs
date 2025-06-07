@@ -10,10 +10,9 @@ use crate::utils::log;
 use std::io::Read;
 use std::io::Write;
 
-pub fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
-    let deserial_todo_vec: Vec<Todo> = todo_vec.clone();
-    let id: u8 = if !deserial_todo_vec.is_empty() {
-        deserial_todo_vec.last().unwrap().id + 1
+pub fn add_new_todo(todo_vec: &mut Vec<Todo>, new_todo: &str) {
+    let id: u8 = if !todo_vec.is_empty() {
+        todo_vec.last().unwrap().id + 1
     } else {
         1
     };
@@ -23,7 +22,6 @@ pub fn add_new_todo(mut todo_vec: Vec<Todo>, new_todo: &str) -> Vec<Todo> {
         note: new_todo.to_owned(),
     };
     todo_vec.push(new_todo_inst);
-    todo_vec
 }
 
 pub fn create_todo_file(hash: &str) {

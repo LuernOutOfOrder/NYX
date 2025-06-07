@@ -9,8 +9,8 @@ use std::process::Command;
 
 use super::nxs;
 
-pub fn open_help() -> String {
-    let usage = r"
+pub fn open_help() -> &'static str{
+    (r"
 Usage: nyx project open [args]
 
 Arguments:
@@ -19,9 +19,7 @@ Arguments:
 Options:
 
     -h, --help      Show this help message
-    ";
-
-    usage.to_string()
+    ") as _
 }
 
 pub fn open_editor(project: &str) {

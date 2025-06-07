@@ -11,8 +11,8 @@ use std::fmt::Debug;
 use std::{env, fs};
 use toml::de::Error as toml_error;
 
-fn config_help() -> String {
-    let usage = r"
+fn config_help() -> &'static str {
+    (r"
 Usage: nyx config [subcommand] [arguments] [options]
 
 Subcommands:
@@ -24,8 +24,7 @@ Subcommands:
 Options:
     -h, --help      Show this help message
 
-        ";
-    usage.to_string()
+        ") as _
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -109,8 +108,8 @@ pub struct ConfigSecure {
     pub secure_mode: bool,
 }
 
-fn config_template() -> String {
-    let template = r"[config]
+fn config_template() -> &'static str {
+    (r"[config]
 format = 'nxs_config'
 version = '0.4.0'
 
@@ -138,15 +137,14 @@ cache = ''
 
 [security]
 secure_mode = false
-    ";
-    template.to_string()
+    ") as _
 }
 
 pub fn config_command() {
     change_work_dir(&utils::env::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
-        command_usage(&config_help());
+        command_usage(config_help());
     }
     match args[2].as_str() {
         "init" => init_config(),
@@ -154,7 +152,7 @@ pub fn config_command() {
         "cat" => cat_config(),
 
         _ => {
-            command_usage(&config_help());
+            command_usage(config_help());
         }
     }
 }
@@ -172,7 +170,7 @@ fn init_config() {
         }
     };
     let template = config_template();
-    let mut config: Config = match toml::from_str(&template) {
+    let mut config: Config = match toml::from_str(template) {
         Ok(c) => c,
         Err(e) => {
             log_from_log_level(
@@ -182,14 +180,9 @@ fn init_config() {
             return;
         }
     };
-    let ask_username = utils::prompt_message(
-        "Enter a username:",
-        "Failed to get user input",
-    );
-    let ask_github_profile = utils::prompt_message(
-        "Enter your github profile url:",
-        "Failed to get user input",
-    );
+    let ask_username = utils::prompt_message("Enter a username:", "Failed to get user input");
+    let ask_github_profile =
+        utils::prompt_message("Enter your github profile url:", "Failed to get user input");
     let data_dir = format!("{}/.nxfs/", utils::env::get_nyx_env_var());
     let log_dir = data_dir.to_owned() + "logs/";
     let cache_dir = data_dir.to_owned() + "cache/";

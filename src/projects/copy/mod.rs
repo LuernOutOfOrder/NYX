@@ -14,8 +14,8 @@ use crate::{
     utils::{self, env::get_nyx_env_var, log::log_from_log_level},
 };
 
-pub fn copy_help() -> String {
-    let usage = r"
+pub fn copy_help() -> &'static str {
+    (r"
 Usage: copy [subcommand] [arguments] [options]
 
 Subcommands:
@@ -24,9 +24,7 @@ Subcommands:
 
 Options:
     -h, --help      Show this help message
-    ";
-
-    usage.to_string()
+    ") as _
 }
 
 pub fn copy_command() {

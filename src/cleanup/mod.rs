@@ -4,16 +4,14 @@ use crate::{nxfs::nxs, utils};
 use inquire::{InquireError, Select};
 use lrncore::usage_exit::command_usage;
 
-pub fn cleanup_help() -> String {
-    let usage = r"
+pub fn cleanup_help() -> &'static str{
+    (r"
 Usage: nyx cleanup
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn choose_cleanup() {

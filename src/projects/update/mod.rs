@@ -33,16 +33,14 @@ use crate::{
 };
 use lrncore::usage_exit::command_usage;
 
-pub fn project_update_help() -> String {
-    let usage = r"
+pub fn project_update_help() -> &'static str{
+    (r"
 Usage: nyx project-update
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn update_project_properties() {

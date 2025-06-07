@@ -13,17 +13,15 @@ use tabled::Table;
 
 use super::nxp::{self, NXPContent};
 
-pub fn project_list_help() -> String {
-    let usage = r"
+pub fn project_list_help() -> &'static str {
+    (r"
 Usage: nyx project-list [options]
 
 Options:
 
     -s, --short     List all project without Github and version data
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn list_projects() {

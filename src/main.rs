@@ -105,9 +105,7 @@ fn main() {
     match command {
         Commands::Init => nxfs::nxs::create_data(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
-        Commands::CatNxp { hash } => {
-            nxfs::nxp::cat_nxp(hash.as_deref())
-        },
+        Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash.as_deref()),
         Commands::Project => projects::project_command(),
         Commands::Cleanup => cleanup::choose_cleanup(),
         Commands::Git => git::git_command(),
@@ -123,6 +121,5 @@ fn main() {
 }
 
 pub fn nyx_version() -> String {
-    let usage = format!("nyx {VERSION}");
-    usage
+    format!("nyx {VERSION}")
 }

@@ -51,8 +51,8 @@ pub struct Todo {
     pub id: u8,
 }
 
-pub fn todo_help() -> String {
-    let usage = r"
+pub fn todo_help() -> &'static str {
+    (r"
 Usage: nyx project-todo
 
 Options:
@@ -63,9 +63,7 @@ Options:
     -r, --remove    Remove one todo by id
     -u, --update    Update one todo
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn choose_todo() {
@@ -115,10 +113,10 @@ pub fn choose_todo() {
             }
 
             "-h" => {
-                command_usage(&todo_help());
+                command_usage(todo_help());
             }
             "--help" => {
-                command_usage(&todo_help());
+                command_usage(todo_help());
             }
             _ => {}
         }
@@ -157,10 +155,7 @@ fn update_todo_list() {
         "Enter project name:",
         "Error with the project name referred",
     );
-    let new_todo = utils::prompt_message(
-        "Enter new todo:",
-        "Error getting user input",
-    );
+    let new_todo = utils::prompt_message("Enter new todo:", "Error getting user input");
     let mut projects = nxs::get_all_project();
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
@@ -178,9 +173,9 @@ fn update_todo_list() {
         create_todo_file(&project_hash_str);
     }
     let todo: TodoFile = parse_todo_file(&project_hash_str);
-    let todo_vec: Vec<Todo> = todo.content.todos.clone();
-    let todo_vec_update = add_new_todo(todo_vec, &new_todo);
-    update_todo_file(&project_hash_str, todo_vec_update, todo);
+    let mut todo_vec: Vec<Todo> = todo.content.todos.clone();
+    add_new_todo(&mut todo_vec, &new_todo);
+    update_todo_file(&project_hash_str, todo_vec, todo);
 }
 
 fn display_todo_list() {
@@ -211,10 +206,7 @@ fn display_todo_list() {
 
 fn prune_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message(
-        "Enter project name:",
-        "Error with the user input",
-    );
+    let project_name = utils::prompt_message("Enter project name:", "Error with the user input");
     #[allow(unused_assignments)]
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects
@@ -243,10 +235,7 @@ fn prune_todo() {
             log::log_from_log_level(LogLevel::Info, "Successfully remove todo file");
         }
         Err(e) => {
-            log::log_from_log_level(
-                LogLevel::Error,
-                &format!("Failed to remove todo file: {e}"),
-            );
+            log::log_from_log_level(LogLevel::Error, &format!("Failed to remove todo file: {e}"));
         }
     };
     log::log_from_log_level(LogLevel::Info, "To-do list cleared successfully");
@@ -254,10 +243,7 @@ fn prune_todo() {
 
 fn remove_todo() {
     let mut projects = nxs::get_all_project();
-    let project_name = utils::prompt_message(
-        "Enter project name:",
-        "Error getting user input",
-    );
+    let project_name = utils::prompt_message("Enter project name:", "Error getting user input");
     let ask_id = utils::prompt_message(
         "Enter todo id you want to delete:",
         "Failed to get the user input",
@@ -286,16 +272,9 @@ fn remove_todo() {
 }
 
 fn update_todo_status() {
-    let project_name = utils::prompt_message(
-        "Enter project name:",
-        "Error getting user input",
-    );
-    let ask_todo_id = utils::prompt_message(
-        "Enter todo id:",
-        "Error getting user input",
-    );
-    let new_status =
-        utils::get_select_option("Select new status:", todos_status_list());
+    let project_name = utils::prompt_message("Enter project name:", "Error getting user input");
+    let ask_todo_id = utils::prompt_message("Enter todo id:", "Error getting user input");
+    let new_status = utils::get_select_option("Select new status:", todos_status_list());
     let mut projects = nxs::get_all_project();
     let mut project_hash: [u8; 11] = [0u8; 11];
     if let Some(pos) = projects

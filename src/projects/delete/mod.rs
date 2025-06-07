@@ -11,16 +11,14 @@ use std::{env, process::Command};
 
 use crate::utils::{self, log};
 
-pub fn project_delete_help() -> String {
-    let usage = r"
+pub fn project_delete_help() -> &'static str {
+    (r"
 Usage: nyx project-delete [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn select_remove_project() {
@@ -28,10 +26,10 @@ pub fn select_remove_project() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&project_delete_help());
+                command_usage(project_delete_help());
             }
             "--help" => {
-                command_usage(&project_delete_help());
+                command_usage(project_delete_help());
             }
             _ => {}
         }

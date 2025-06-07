@@ -12,8 +12,8 @@ use crate::{
     utils::log::log_from_log_level,
 };
 
-fn update_help() -> String {
-    let usage = r"
+fn update_help() -> &'static str {
+    (r"
 Usage: nyx update [subcommand] [arguments] [options]
 
 Subcommands:
@@ -22,8 +22,7 @@ Subcommands:
 Options:
     -h, --help      Show this help message
 
-        ";
-    usage.to_string()
+        ") as _
 }
 
 pub fn update_command() {

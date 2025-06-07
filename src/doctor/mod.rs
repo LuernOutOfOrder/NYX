@@ -10,16 +10,14 @@ use lrncore::usage_exit::command_usage;
 
 use logs::{installed, not_installed, warning};
 
-pub fn doctor_help() -> String {
-    let usage = r"
+pub fn doctor_help() -> &'static str{
+    (r"
 Usage: nyx doctor [options]
 
 Options:
 
     -h, --help      Show this help message
-";
-
-    usage.to_string()
+") as _
 }
 
 pub fn doctor_health() {
@@ -27,10 +25,10 @@ pub fn doctor_health() {
     if let Some(arg) = args.iter().last() {
         match arg.as_str().trim() {
             "-h" => {
-                command_usage(&doctor_help());
+                command_usage(doctor_help());
             }
             "--help" => {
-                command_usage(&doctor_help());
+                command_usage(doctor_help());
             }
             _ => {}
         }
