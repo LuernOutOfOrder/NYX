@@ -55,4 +55,4 @@ This project is licensed under the NYX Custom License.
 - Commercial use is not allowed  
 - Attribution to the author is required
 
-Check the [LICENSE.md](./LICENSE.md) file for the full text.
+Check the [LICENSE](./LICENSE) file for the full text.
