@@ -47,3 +47,12 @@ They are unique binary file format using a strict defined structure. Using a hea
 | **52**   | TUI error                              | Issue with interactive display or UI rendering.      |
 | **60**   | Health check failed                    | An environment check has failed.                     |
 
+## License
+
+This project is licensed under the NYX Custom License.  
+- Free for personal and educational use  
+- Forking and modifying is allowed  
+- Commercial use is not allowed  
+- Attribution to the author is required
+
+Check the [LICENSE](./LICENSE) file for the full text.
