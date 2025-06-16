@@ -1,7 +1,9 @@
 use std::process::Command;
 
 use crate::env;
+use crate::nxfs::config::LogLevel;
 use crate::utils;
+use crate::utils::log::log_from_log_level;
 
 use lrncore::usage_exit::command_usage;
 
@@ -134,4 +136,15 @@ fn show_stash() {
         .output()
         .expect("Failed to call the git shortlog command");
     println!("{}", str::from_utf8(&list.stdout).unwrap());
+}
+
+pub fn git_pull() {
+    let mut pull = Command::new("git")
+        .arg("pull")
+        .spawn()
+        .expect("Failed to execute pull command");
+    let wait_pull = pull.wait().expect("Failed to wait pull command");
+    if !wait_pull.success() {
+        log_from_log_level(LogLevel::Error, "Failed to pull from remote repository");
+    }
 }
