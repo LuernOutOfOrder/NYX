@@ -1,4 +1,4 @@
-use crate::utils;
+use crate::{git, utils};
 
 use colored::Colorize;
 use lrncore::path::change_work_dir;
@@ -8,6 +8,7 @@ use throbber::Throbber;
 /// Check if there's a new version of nyx and if so update the current one
 pub fn upgrade_bin() {
     change_work_dir(&utils::env::get_nyx_env_var());
+    git::git_pull();
     let nyx_art = utils::nyx_ascii_art();
     // throbber
     let mut building_throbber = Throbber::new()
