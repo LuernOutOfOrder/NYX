@@ -138,6 +138,7 @@ fn show_stash() {
     println!("{}", str::from_utf8(&list.stdout).unwrap());
 }
 
+/// Spawn git pull process
 pub fn git_pull() {
     let pull = Command::new("git")
         .arg("pull")
