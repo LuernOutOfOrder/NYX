@@ -8,8 +8,8 @@ use throbber::Throbber;
 /// Check if there's a new version of nyx and if so update the current one
 pub fn upgrade_bin() {
     change_work_dir(&utils::env::get_nyx_env_var());
-    git::git_pull();
     let nyx_art = utils::nyx_ascii_art();
+    git::git_pull();
     // throbber
     let mut building_throbber = Throbber::new()
         .message("Building latest NYX binary...".to_owned())
