@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use crate::env;
 use crate::nxfs::config::LogLevel;
@@ -138,13 +138,17 @@ fn show_stash() {
     println!("{}", str::from_utf8(&list.stdout).unwrap());
 }
 
+/// Spawn git pull process
 pub fn git_pull() {
-    let mut pull = Command::new("git")
+    let pull = Command::new("git")
         .arg("pull")
+        .stdout(Stdio::piped())
         .spawn()
         .expect("Failed to execute pull command");
-    let wait_pull = pull.wait().expect("Failed to wait pull command");
-    if !wait_pull.success() {
+    let wait_pull = pull
+        .wait_with_output()
+        .expect("Failed to wait pull command");
+    if !wait_pull.status.success() {
         log_from_log_level(LogLevel::Error, "Failed to pull from remote repository");
     }
 }
