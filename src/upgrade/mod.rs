@@ -9,7 +9,6 @@ use throbber::Throbber;
 pub fn upgrade_bin() {
     change_work_dir(&utils::env::get_nyx_env_var());
     let nyx_art = utils::nyx_ascii_art();
-    git::git_pull();
     // throbber
     let mut building_throbber = Throbber::new()
         .message("Building latest NYX binary...".to_owned())
@@ -18,6 +17,8 @@ pub fn upgrade_bin() {
         .message("Updating NYX...".to_owned())
         .frames(&throbber::ROTATE_F);
     println!("{}", nyx_art.truecolor(138, 43, 226));
+    println!("Pulling from remote repository...");
+    git::git_pull();
     building_throbber.start();
 
     // nyx version
