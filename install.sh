@@ -23,6 +23,7 @@ else
     exit 1
 fi
 
+echo export PATH=$PATH:~/.cargo/bin/
 echo export NYX=$(pwd) >> "$CONFIG_FILE"
 echo "NYX env var successfully added"
 
