@@ -111,7 +111,7 @@ pub struct ConfigSecure {
 fn config_template() -> &'static str {
     (r"[config]
 format = 'nxs_config'
-version = '0.4.0'
+version = '0.4.1'
 
 [user]
 name = ''
@@ -136,12 +136,11 @@ logs = ''
 cache = ''
 
 [security]
-secure_mode = false
+secure_mode = true
     ") as _
 }
 
 pub fn config_command() {
-    change_work_dir(&utils::env::get_nyx_env_var());
     let args: Vec<String> = env::args().collect();
     if args.len() <= 2 {
         command_usage(config_help());
@@ -158,6 +157,7 @@ pub fn config_command() {
 }
 
 fn init_config() {
+    change_work_dir(&utils::env::get_nyx_env_var());
     let config_path = ".nxfs/config.toml";
     let mut config_file = match File::create_new(config_path) {
         Ok(f) => f,
