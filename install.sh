@@ -32,10 +32,4 @@ cargo i
 
 source "$CONFIG_FILE"
 
-if ! command -v nyx 
-then
-  echo "Error when installing NYX. Please try again."
-  exit 2
-fi
-
 echo "NYX has been successfully installed."
