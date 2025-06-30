@@ -2,6 +2,34 @@
 
 A project manager in CLI using a lightweight storage system.
 
+## Installation
+
+To install NYX, you need to have Rust installed on your system. If you don't have Rust, you can install it from [rustup.rs](https://rustup.rs/).
+Once Rust is installed, you can install NYX using the following command:
+
+```bash
+chmod +x install.sh
+```
+
+Then, run the installation script:
+
+```bash
+./install.sh
+```
+
+This will compile the NYX source code and install it in your system.
+If you cannot execute NYX after installation, you may need to reload your shell. You can do this by running:
+
+```bash
+source ~/.bashrc
+```
+
+or
+
+```bash
+source ~/.zshrc
+```
+
 ## Project Data File
 
 NYX uses a unique file system called NXFS (Nyx File System). NXFS works using a .nxfs directory in the NYX source code. All project data is stored there. There is two object file type in NXFS:
@@ -16,6 +44,7 @@ They are unique binary file format using a strict defined structure. Using a hea
 # Exit Codes
 
 ## 💡 Principles:
+
 - **0**: Success.
 - **1-2**: General errors.
 - **3-9**: Argument and command errors.
@@ -50,7 +79,8 @@ They are unique binary file format using a strict defined structure. Using a hea
 ## License
 
 This project is licensed under the NYX Custom License.  
-- Free for personal and educational use  
+
+- Free for personal and educational use
 - Forking and modifying is allowed  
 - Commercial use is not allowed  
 - Attribution to the author is required
