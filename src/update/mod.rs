@@ -5,6 +5,7 @@ use std::{
 };
 
 use lrncore::usage_exit::command_usage;
+use throbber::Throbber;
 
 use crate::{
     logs::nyx_log,
@@ -74,15 +75,22 @@ fn update_all_commands() {
 }
 
 fn execute_update_command(cmd: &str, subcmd: &str) {
+    let throbber_msg: String = format!("Update {cmd}");
+    let mut update_throbber = Throbber::new()
+        .message(throbber_msg)
+        .frames(&throbber::ROTATE_F);
     let mut command = Command::new(cmd)
         .arg(subcmd)
         .stdout(Stdio::null())
         .spawn()
         .unwrap_or_else(|_| panic!("Failed to execute the command: {cmd}"));
     let wait_command = command.wait().expect("Failed to wait the command");
+    update_throbber.start();
     if !wait_command.success() {
         log_from_log_level(LogLevel::Error, "Failed to execute the command");
+        update_throbber.fail("".to_owned());
     } else {
         log_from_log_level(LogLevel::Info, &format!("Successfully updated {cmd}"));
+        update_throbber.end();
     }
 }
