@@ -78,7 +78,7 @@ pub struct NXSHeader {
 ///
 /// * `entries`: The `entries` property in the `ProjectList` struct is a vector of `ProjectEntry`
 ///   instances. It represents a list of project entries within the project list.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Ord, Eq, PartialEq, PartialOrd)]
 pub struct ProjectList {
     pub entries: Vec<ProjectEntry>,
 }
@@ -95,7 +95,7 @@ pub struct ProjectList {
 /// * `project_size`: The `project_size` property in the `ProjectEntry` struct represents the size of
 ///   the project in bytes. It is of type `u32`, which means it can hold unsigned integer values ranging
 ///   from 0 to 2^32 - 1. This property indicates the amount of storage space the
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Ord, Eq,PartialEq, PartialOrd)]
 pub struct ProjectEntry {
     pub project_name: String,
     pub project_hash: [u8; 11],
@@ -235,6 +235,7 @@ fn parse_nxs_file(nxs_ref: &mut NXS) {
     nxs_ref.projects = nxs.projects;
 }
 
+/// Update the NXS file by adding a new project to it.
 pub fn update_nxs_file(nxp_ref: &mut NXP) {
     lrncore::path::change_work_dir(&utils::env::get_nyx_env_var());
     let mut nxs: NXS = NXS {
@@ -254,6 +255,8 @@ pub fn update_nxs_file(nxp_ref: &mut NXP) {
     );
     let mut nxs_entries: ProjectList = nxs.projects;
     nxs_entries.entries.push(new_entry);
+    // sort entries in ascending order
+    nxs_entries.entries.sort();
     nxs.projects = nxs_entries;
     let file_buff = bincode::serialize(&nxs).expect("Failed to serialize updated NXS file");
     let mut nxs_file: File = match OpenOptions::new()
