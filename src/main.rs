@@ -14,6 +14,8 @@ pub mod nxfs;
 use std::env;
 mod health;
 mod hello;
+mod init;
+pub mod plugins;
 
 // Current version of NYX
 // if modified and then running update command it will replace
@@ -103,7 +105,7 @@ fn main() {
     };
 
     match command {
-        Commands::Init => nxfs::nxs::create_data(),
+        Commands::Init => init::init_command(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
         Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash.as_deref()),
         Commands::Project => projects::project_command(),
