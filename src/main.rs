@@ -33,6 +33,7 @@ enum Commands {
     Hello,
     Update,
     Config,
+    Plugins,
     Upgrade,
     Help,
     Version,
@@ -57,6 +58,7 @@ Commands:
     hello           Display helpful information about today
     upgrade         Update the current version of NYX
     config          Manage nyx configuration
+    Plugins         Manage plugins 
     help            Show this help message
 
 Options:
@@ -95,6 +97,7 @@ fn main() {
         Some("hello") => Commands::Hello,
         Some("update") => Commands::Update,
         Some("config") => Commands::Config,
+        Some("plugins") => Commands::Plugins,
         Some("upgrade") => Commands::Upgrade,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
@@ -115,6 +118,7 @@ fn main() {
         Commands::Health => health::health_command(),
         Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
+        Commands::Plugins => plugins::plugins_command(),
         Commands::Update => update::update_command(),
         Commands::Upgrade => upgrade::upgrade_bin(),
         Commands::Help => command_usage(nyx_usage()),
