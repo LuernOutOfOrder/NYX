@@ -8,9 +8,7 @@ pub mod update;
 use copy::copy_command;
 use delete::select_remove_project;
 use list::{add_existing_project_to_list, list_projects};
-use serde::{Deserialize, Serialize};
 use std::env;
-use tabled::Tabled;
 use todo::choose_todo;
 use update::update_project_properties;
 pub mod delete;
@@ -39,32 +37,6 @@ Subcommands:
 Options:
     -h, --help      Show this help message
     ") as _
-}
-
-#[derive(Deserialize, Serialize, Debug, Tabled, Clone, PartialEq)]
-pub struct Project {
-    pub id: String,
-    pub name: String,
-    pub tech: String,
-    pub location: String,
-    pub repository: String,
-    pub github_project: String,
-    pub version: String,
-    pub todo: String,
-}
-
-#[derive(Tabled)]
-#[allow(dead_code)]
-pub struct ProjectShort {
-    pub id: String,
-    pub name: String,
-    pub tech: String,
-    pub location: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Data {
-    pub project: Vec<Project>,
 }
 
 pub fn project_command() {
