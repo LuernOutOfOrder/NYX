@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::{plugins, utils::log::log_from_log_level};
+use crate::{nxfs, utils::log::log_from_log_level};
 
 pub fn init_command() {
     let args: Vec<String> = env::args().collect();
