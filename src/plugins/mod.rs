@@ -1,8 +1,41 @@
 use std::{env, fs};
 
 use lrncore::usage_exit::command_usage;
+use parser::parse_plugin_file;
+use serde::Deserialize;
 
 use crate::{nxfs::config::{parse_config_file, LogLevel}, utils::log::log_from_log_level};
+
+pub mod parser;
+
+#[derive(Deserialize)]
+pub struct Plugin {
+    pub plugin: PluginSection,
+    pub core: CoreSection,
+    pub commands: CommandsSection,
+}
+
+#[derive(Deserialize)]
+pub struct PluginSection {
+    pub name: String,
+    pub version: String,
+    pub enabled: bool,
+}
+
+#[derive(Deserialize)]
+pub struct CoreSection {
+    pub build_command: bool,
+    pub clean_command: bool,
+    pub run_command: bool,
+}
+
+#[derive(Deserialize)]
+pub struct CommandsSection {
+    pub init_command: Vec<String>,
+    pub build_command: Vec<String>,
+    pub clean_command: Vec<String>,
+    pub run_command: Vec<String>
+}
 
 fn plugins_help() -> &'static str {
     (r"
@@ -40,6 +73,14 @@ fn health_plugins() {
         if !fs::exists(file_path).expect("Failed to check path") {
             invalid_plugins_number += 1;
             log_from_log_level(LogLevel::Warn, format!("Failed to load plugin: {each}").as_str());
+        } else {
+            match parse_plugin_file(&each) {
+                Ok(_) => (),
+                Err(e) => {
+                    log_from_log_level(LogLevel::Warn, format!("Failed to parse plugin: {each}").as_str());
+                    eprintln!("{e}");
+                }
+            }
         }
     }
     // Log depending on number of invalid plugins
