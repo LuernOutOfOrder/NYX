@@ -1,13 +1,14 @@
 use crate::nxfs::config::LogLevel;
+use crate::plugins::parser::parse_plugin_file;
+use crate::plugins::run_init_command;
 use crate::utils::{self, log};
-use std::process::Command;
 use std::{fs, process::exit};
 pub mod list;
-mod templates;
 pub mod update;
 use copy::copy_command;
 use delete::select_remove_project;
 use list::{add_existing_project_to_list, list_projects};
+use lrncore::path::change_work_dir;
 use std::env;
 use todo::choose_todo;
 use update::update_project_properties;
@@ -106,95 +107,9 @@ fn new_project(name: &str) {
 }
 
 fn new_project_by_choice(tech: &str, name: &str) {
-    match tech {
-        tech if tech == "Node.js" => new_nodejs_project(tech),
-        tech if tech == "Python" => new_python_project(tech),
-        tech if tech == "Golang" => new_golang_project(name, tech),
-        tech if tech == "Rust" => new_rust_project(tech),
-        _ => println!("please select a tech"),
-    }
+    println!("{:?}", env::current_dir());
+    let plugin = parse_plugin_file(tech).expect("Failed to load plugin");
+    run_init_command(plugin);
     list::create_repo_or_not(tech);
 }
 
-// tech project
-
-fn new_nodejs_project(tech: &str) {
-    let mut npm = Command::new("npm")
-        .arg("init")
-        .arg("-y")
-        .spawn()
-        .expect("npm command failed to execute");
-    let status = npm.wait().expect("Failed to wait on npm process");
-    if !status.success() {
-        panic!("Error init npm app");
-    }
-    let mut ts = Command::new("npm")
-        .arg("install")
-        .arg("--save-dev")
-        .arg("typescript")
-        .spawn()
-        .expect("failed to install typescript");
-    let ts_status = ts
-        .wait()
-        .expect("Failed to wait on typescript install process");
-    if !ts_status.success() {
-        panic!("Error installing typescript");
-    }
-    let mut touch = Command::new("touch")
-        .arg("tsconfig.json")
-        .spawn()
-        .expect("failed to generate tsconfig.json");
-    let wait_touch = touch.wait().expect("Failed to wait touch command");
-    if !wait_touch.success() {
-        panic!("Error in the execution of touch command");
-    }
-    templates::new_gitignore(tech);
-    println!("Successfully generate the new Node.js project")
-}
-
-fn new_python_project(tech: &str) {
-    let mut python3 = Command::new("python3")
-        .arg("-m")
-        .arg("venv")
-        .arg("./")
-        .spawn()
-        .expect("Failed to generate the virtual environment of python");
-    let venv_status = python3
-        .wait()
-        .expect("Failed to wait on the generation of venv");
-    if !venv_status.success() {
-        panic!("Error init python virtual environment")
-    }
-    templates::new_gitignore(tech);
-    println!("Successfully generate the new Python project");
-}
-
-fn new_golang_project(name: &str, tech: &str) {
-    let mut go_init = Command::new("go")
-        .arg("mod")
-        .arg("init")
-        .arg(name)
-        .spawn()
-        .expect("Failed to generate the new Golang project");
-    let go_status = go_init
-        .wait()
-        .expect("Failed to wait on the generation of the Golang project");
-    if !go_status.success() {
-        panic!("Error init the Golang project");
-    }
-    templates::new_gitignore(tech);
-}
-
-fn new_rust_project(tech: &str) {
-    let mut cargo_init = Command::new("cargo")
-        .arg("init")
-        .spawn()
-        .expect("Failed to init the new Rust project using cargo.");
-    let cargo_status = cargo_init
-        .wait()
-        .expect("Failed to wait on the generation of the Rust project");
-    if !cargo_status.success() {
-        panic!("Error init the Rust project")
-    }
-    templates::new_gitignore(tech);
-}
