@@ -1,9 +1,8 @@
 use std::{
-    env, fs,
-    process::{Child, Command},
+    env, fs, path::PathBuf, process::{Child, Command}
 };
 
-use lrncore::usage_exit::command_usage;
+use lrncore::{path::change_work_dir, usage_exit::command_usage};
 use parser::parse_plugin_file;
 use serde::Deserialize;
 
@@ -107,7 +106,8 @@ fn health_plugins() {
 }
 
 /// Run init command from given plugin
-pub fn run_init_command(plugin: Plugin) {
+pub fn run_init_command(plugin: Plugin, path: PathBuf) {
+    change_work_dir(path.as_os_str().to_str().expect("Failed to cast pathbuf to os_str to str"));
     let mut init_commands_vec: Vec<String> = plugin.commands.init_command;
     let bin = init_commands_vec.remove(0);
     let mut command: Child = Command::new(bin)
@@ -115,6 +115,7 @@ pub fn run_init_command(plugin: Plugin) {
         .spawn()
         .expect("Failed to fork process");
     let wait_command = command.wait().expect("Failed to wait forked process"); 
+    println!("debug: {:?}", env::current_dir());
     if !wait_command.success() {
         log_from_log_level(LogLevel::Error, "Failed to run init command");
     }

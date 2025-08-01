@@ -2,6 +2,7 @@ use crate::nxfs::config::LogLevel;
 use crate::plugins::parser::parse_plugin_file;
 use crate::plugins::run_init_command;
 use crate::utils::{self, log};
+use std::path::PathBuf;
 use std::{fs, process::exit};
 pub mod list;
 pub mod update;
@@ -9,7 +10,7 @@ use copy::copy_command;
 use delete::select_remove_project;
 use list::{add_existing_project_to_list, list_projects};
 use lrncore::path::change_work_dir;
-use std::env;
+use std::env::{self, current_dir};
 use todo::choose_todo;
 use update::update_project_properties;
 pub mod delete;
@@ -100,16 +101,16 @@ fn new_project(name: &str) {
         Err(e) => println!("Failed to create directory: {e}"),
     }
     lrncore::path::change_work_dir(name);
+    let path = current_dir().expect("Failed to get pwd");
     match option_select {
-        Ok(choice) => new_project_by_choice(&choice, name),
+        Ok(choice) => new_project_by_choice(&choice, name, path),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-fn new_project_by_choice(tech: &str, name: &str) {
-    println!("{:?}", env::current_dir());
+fn new_project_by_choice(tech: &str, name: &str, path: PathBuf) {
     let plugin = parse_plugin_file(tech).expect("Failed to load plugin");
-    run_init_command(plugin);
-    list::create_repo_or_not(tech);
+    run_init_command(plugin, path.clone());
+    list::create_repo_or_not(tech, path.to_str().expect("Failed to cast pathbuf to str"));
 }
 
