@@ -9,7 +9,6 @@ pub mod update;
 use copy::copy_command;
 use delete::select_remove_project;
 use list::{add_existing_project_to_list, list_projects};
-use lrncore::path::change_work_dir;
 use std::env::{self, current_dir};
 use todo::choose_todo;
 use update::update_project_properties;
@@ -110,7 +109,7 @@ fn new_project(name: &str) {
 
 fn new_project_by_choice(tech: &str, name: &str, path: PathBuf) {
     let plugin = parse_plugin_file(tech).expect("Failed to load plugin");
-    run_init_command(plugin, path.clone());
+    run_init_command(plugin, name, path.clone());
     list::create_repo_or_not(tech, path.to_str().expect("Failed to cast pathbuf to str"));
 }
 
