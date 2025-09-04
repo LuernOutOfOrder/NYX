@@ -20,7 +20,7 @@ pub mod plugins;
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.11.0";
+const VERSION: &str = "2.2.0";
 enum Commands {
     Init,
     CatNxs,
