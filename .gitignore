@@ -8,3 +8,9 @@ src/data/*
 plugins/*
 # Include plugins README.md
 !plugins/README.md
+
+# misc
+.DS_Store
+plugins/.DS_Store
+src/.DS_Store
+src/*/.DS_Store
