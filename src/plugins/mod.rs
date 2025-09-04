@@ -47,7 +47,7 @@ fn plugins_help() -> &'static str {
 Usage: nyx plugins [subcommand] [arguments] [options]
 
 Subcommands:
-    check         Check plugins health
+    health         Check plugins health
 
 Options:
     -h, --help      Show this help message
@@ -115,7 +115,6 @@ pub fn run_init_command(plugin: Plugin, _name: &str, path: PathBuf) {
         .spawn()
         .expect("Failed to fork process");
     let wait_command = command.wait().expect("Failed to wait forked process"); 
-    println!("debug: {:?}", env::current_dir());
     if !wait_command.success() {
         log_from_log_level(LogLevel::Error, "Failed to run init command");
     }

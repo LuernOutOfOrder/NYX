@@ -58,7 +58,7 @@ Commands:
     hello           Display helpful information about today
     upgrade         Update the current version of NYX
     config          Manage nyx configuration
-    Plugins         Manage plugins 
+    plugins         Manage plugins 
     help            Show this help message
 
 Options:
