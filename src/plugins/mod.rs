@@ -106,7 +106,7 @@ fn health_plugins() {
 }
 
 /// Run init command from given plugin
-pub fn run_init_command(plugin: Plugin, name: &str, path: PathBuf) {
+pub fn run_init_command(plugin: Plugin, _name: &str, path: PathBuf) {
     change_work_dir(path.as_os_str().to_str().expect("Failed to cast pathbuf to os_str to str"));
     let mut init_commands_vec: Vec<String> = plugin.commands.init_command;
     let bin = init_commands_vec.remove(0);
