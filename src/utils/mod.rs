@@ -4,6 +4,7 @@ This module provides various utility functions for the NYX project management to
 This module is intended to be used internally by the NYX project management tool to handle various utility tasks such as environment variable retrieval, file operations, user prompts, and more.
 */
 
+use crate::nxfs::config::parse_config_file;
 use crate::nxfs::nxp::NXPContent;
 use std::fs::write;
 use std::{
@@ -46,16 +47,9 @@ pub fn get_render_config() -> RenderConfig<'static> {
     render_config
 }
 
-pub fn get_tech_option() -> Vec<&'static str> {
-    let options: Vec<&str> = vec![
-        "Node.js",
-        "Python",
-        "Golang",
-        "Rust",
-        "C++",
-        "Other",
-    ];
-    options
+pub fn get_tech_option() -> Vec<String> {
+    let config = parse_config_file().expect("Failed to parse config file");
+    config.plugins.list
 }
 
 pub fn get_select_project_option(prompt: &str) -> std::result::Result<String, InquireError> {

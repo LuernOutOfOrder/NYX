@@ -14,11 +14,13 @@ pub mod nxfs;
 use std::env;
 mod health;
 mod hello;
+mod init;
+pub mod plugins;
 
 // Current version of NYX
 // if modified and then running update command it will replace
 // your current nyx installation with the newer version
-const VERSION: &str = "2.11.0";
+const VERSION: &str = "2.12.0";
 enum Commands {
     Init,
     CatNxs,
@@ -31,6 +33,7 @@ enum Commands {
     Hello,
     Update,
     Config,
+    Plugins,
     Upgrade,
     Help,
     Version,
@@ -55,6 +58,7 @@ Commands:
     hello           Display helpful information about today
     upgrade         Update the current version of NYX
     config          Manage nyx configuration
+    plugins         Manage plugins 
     help            Show this help message
 
 Options:
@@ -93,6 +97,7 @@ fn main() {
         Some("hello") => Commands::Hello,
         Some("update") => Commands::Update,
         Some("config") => Commands::Config,
+        Some("plugins") => Commands::Plugins,
         Some("upgrade") => Commands::Upgrade,
         Some("help") => Commands::Help,
         Some("version") => Commands::Version,
@@ -103,7 +108,7 @@ fn main() {
     };
 
     match command {
-        Commands::Init => nxfs::nxs::create_data(),
+        Commands::Init => init::init_command(),
         Commands::CatNxs => nxfs::nxs::cat_nxs(),
         Commands::CatNxp { hash } => nxfs::nxp::cat_nxp(hash.as_deref()),
         Commands::Project => projects::project_command(),
@@ -113,6 +118,7 @@ fn main() {
         Commands::Health => health::health_command(),
         Commands::Hello => hello::hello_command(),
         Commands::Config => nxfs::config::config_command(),
+        Commands::Plugins => plugins::plugins_command(),
         Commands::Update => update::update_command(),
         Commands::Upgrade => upgrade::upgrade_bin(),
         Commands::Help => command_usage(nyx_usage()),

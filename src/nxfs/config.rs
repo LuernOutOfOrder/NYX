@@ -31,6 +31,7 @@ Options:
 pub struct Config {
     pub config: ConfigHeader,
     pub user: ConfigUser,
+    pub plugins: ConfigPlugins,
     pub git: ConfigGit,
     pub behavior: ConfigBehavior,
     pub ui: ConfigUi,
@@ -49,6 +50,11 @@ pub struct ConfigUser {
     pub name: String,
     pub health_list: Vec<UserHealthEntry>,
     pub update_list: Vec<UserUpdateEntry>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ConfigPlugins {
+    pub list: Vec<String>
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -117,6 +123,9 @@ version = '0.4.1'
 name = ''
 health_list = []
 update_list = []
+
+[plugins]
+list = []
 
 [git]
 profile_url = ''

@@ -7,6 +7,7 @@ use crate::utils::get_select_project_option;
 use crate::utils::log;
 use lrncore::usage_exit::command_usage;
 use std::env;
+use std::env::current_dir;
 use std::process::exit;
 use tabled::settings::Style;
 use tabled::Table;
@@ -55,13 +56,14 @@ pub fn list_projects() {
 pub fn add_existing_project_to_list() {
     inquire::set_global_render_config(utils::get_render_config());
     let ans = get_select_project_option("Which tech your project is using ?");
+    let path = current_dir().expect("Failed to get pwd");
     match ans {
-        Ok(choice) => create_repo_or_not(&choice),
+        Ok(choice) => create_repo_or_not(&choice, path.as_os_str().to_str().expect("Failed to cast pathbuf to os_str to str")),
         Err(_) => println!("There was an error, please try again"),
     }
 }
 
-pub fn create_repo_or_not(tech: &str) {
+pub fn create_repo_or_not(tech: &str, path: &str) {
     inquire::set_global_render_config(utils::get_render_config());
     let choice: Vec<&str> = vec!["Yes", "No"];
     let options = utils::get_select_option(
@@ -70,17 +72,16 @@ pub fn create_repo_or_not(tech: &str) {
     )
     .unwrap();
     match options.as_str() {
-        "Yes" => create_repo_add_to_list(tech),
-        "No" => add_project_to_list(tech),
+        "Yes" => create_repo_add_to_list(tech, path),
+        "No" => add_project_to_list(tech, path),
         _ => {
             println!("There was an error, please try again")
         }
     }
 }
 
-pub fn add_project_to_list(tech: &str) {
-    let current_dir = lrncore::path::get_current_path();
-    let app_name = current_dir.split("/").last().unwrap().to_lowercase();
+pub fn add_project_to_list(tech: &str, path: &str) {
+    let app_name = path.split("/").last().unwrap().to_lowercase();
     let mut repository_user_input: String;
     repository_user_input = utils::prompt_message(
         "Enter the url of the github's repository of the project: ",
@@ -115,7 +116,7 @@ pub fn add_project_to_list(tech: &str) {
     let new_app: nxp::NXPContent = nxp::NXPContent {
         name: (app_name.to_owned()),
         tech: (tech.to_owned()),
-        location: (current_dir),
+        location: (path.to_owned()),
         repository: repository_user_input,
         github_project,
         version,
@@ -123,9 +124,8 @@ pub fn add_project_to_list(tech: &str) {
     nxp::create_new_nxp(new_app);
 }
 
-fn create_repo_add_to_list(tech: &str) {
-    let current_dir = lrncore::path::get_current_path();
-    let app_name = current_dir.split("/").last().unwrap();
+fn create_repo_add_to_list(tech: &str, path: &str) {
+    let app_name = path.split("/").last().unwrap();
     let choice = vec!["public", "private", "internal"];
     let repository_visibility: String =
         utils::get_select_option("Select the repository visibility:", choice).unwrap();
@@ -164,7 +164,7 @@ fn create_repo_add_to_list(tech: &str) {
     let new_app: NXPContent = NXPContent {
         name: (app_name.to_owned()),
         tech: (tech.to_owned()),
-        location: (current_dir),
+        location: (path.to_owned()),
         repository,
         github_project,
         version,

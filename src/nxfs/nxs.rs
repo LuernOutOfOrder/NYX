@@ -139,7 +139,7 @@ pub fn create_data() {
     create_nxs_file()
 }
 
-/// The function `create_nxs_file` creates a NXS file with a NXSHeader and project list.
+/// The function `create_nxs_file` creates NXS file with a NXSHeader and project list.
 fn create_nxs_file() {
     // NXSHeader
     let header: NXSHeader = NXSHeader {
